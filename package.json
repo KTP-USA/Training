@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://buccijr.github.io/KTP-Training/",
+  "homepage": "https://KTP-USA.github.io/Training/",
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
