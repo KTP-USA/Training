@@ -399,7 +399,7 @@ duration-300 hover:bg-blue-600 py-2 text-white gap-2 bg-blue-500 font-poppins">
   Upload
  <input
  onChange={(e) => {
-  // setUploadMenu(true);
+  setUploadMenu(true);
   handleUpload(e, entry)
   setUploadData(entry);
   console.log('ent ent', entry)
@@ -412,7 +412,8 @@ className="hidden"/>
 <button
 onClick={() => {
   if (entry['Test Type'] == 'Technical Evaluation'){
-navigater('/evaluation', {state: entry['User']})
+    console.log('ihhh', entry['User'])
+navigater('/evaluation', {state: [ entry['User'], null]})
   } else if (entry['Test Type'] == 'Competency Test') {
 generateTest(entry['Step'], entry['Module'], entry['User'], entry['Test Type'], entry);
   } else{

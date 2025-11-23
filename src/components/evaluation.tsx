@@ -186,6 +186,7 @@ if (name != 'no name'){
 }
 }
 useEffect(()=>{
+    console.log('locc', location)
 loadData();
 }, []);
 const  date = new Date(); 

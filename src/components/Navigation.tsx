@@ -54,8 +54,11 @@ navigate(entry ==
  
    cursor-pointer  text-lg ${ entry == 'Log Out' || entry == 'Log In' ?
      'bg-white/50 rounded-lg p-2 px-3 text-blue-500 font-bold font-poppins ml-8' 
-     : entry == 'Technical' || entry=='Competency' || entry == 
-     'Performance' || entry=='Test:' ? ' bg-white/30 p-2 px-3 m-0 text-blue-500 font-bold font-poppins '   : 'text-white mr-6 font-inter '}`} >
+     : entry == 'Technical' ||  entry == 
+     'Performance' ? ' bg-white/30 p-2 px-3 m-0 text-blue-500 font-bold font-poppins ' 
+     :
+      entry=='Competency' ?' bg-white/30 p-2 px-3 m-0 text-blue-500 font-bold font-poppins rounded-r-lg': entry=='Test:' ? ' bg-white/30 p-2 px-3 m-0 text-blue-500 font-bold  rounded-l-lg font-poppins '
+     : 'text-white mr-6 font-inter'}`} >
      
      {entry}
      

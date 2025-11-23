@@ -123,7 +123,13 @@ e == '180D' ? 'bg-orange-500' : e == '1Y' ? 'bg-yellow-500' : e == '2Y' ? 'bg-gr
       <div className="border-blue-500 border-2 p-3 font-poppins ">
     {
         modules2.map((item) =>
-     <div className={`p-3 text-white font-poppins text-center rounded-4xl mt-4 px-7  font-bold text-xl ${e=='30D' ? 'bg-red-400' : e=='90D' ? 'bg-orange-800' : 
+     <div
+        onClick={() => {
+         if ( item == 'Trainer List'){
+            navigate('/training-topics', {state: [selectedUser, e]})
+         }
+        }}
+        className={`p-3 text-white cursor-pointer font-poppins text-center rounded-4xl mt-4 px-7  font-bold text-xl ${e=='30D' ? 'bg-red-400' : e=='90D' ? 'bg-orange-800' : 
 e == '180D' ? 'bg-orange-500' : e == '1Y' ? 'bg-yellow-500' : e == '2Y' ? 'bg-green-400' :
 'bg-cyan-400'
 

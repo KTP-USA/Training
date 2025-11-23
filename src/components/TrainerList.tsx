@@ -11,11 +11,11 @@ const TrainerList = () => {
          const printRef = useRef<HTMLDivElement>(null);
     
       const handlePrint = useReactToPrint({
-       documentTitle: 'Performance Review',
+       documentTitle: 'Training Topics',
        contentRef: printRef,
     
       });
-    const [name, id] = location.state ?? ['no name', 'no id'];
+    const [name, step] = location.state ?? ['no name', 'no step'];
       const [rawData, setRawDate] = useState([]);
       const [savedAnswers, setSavedAnswers] = useState<Record<any, any>>({});
     const [sectionsData, setSectionData] =useState([]);
@@ -24,23 +24,6 @@ async function formatData (usersdata: any){
 let data: any = 
 await supabase.from('technical').select().eq('module', usersdata[0]['module']).eq('step', usersdata[0]['actualstep'])
 ;
-if (id != 'no id'){
-   
-  let hihi: any =  await  supabase.from('savedtest').select().eq('module', usersdata[0]['module']).eq('step', usersdata[0]['actualstep']).eq('controlnbr', id).eq('username', usersdata[0]['username']);
-    // setTextMap(
-    console.log('fff', hihi, id)
-      hihi=  hihi.data?.map((e: any) => {
-        console.log('dataa', data, e['id'])
-         let lool = data.data.find((e1:any) => e1['id'] == e['techid'])
-         console.log('lool', lool)
-         return {[lool['topic']]:e['techanswer']
-         }
-        
-        });
-        setSavedAnswers(Object.assign({}, ...hihi));
-    console.log('ghhh', hihi);
-    // )
-}
 
 setRawDate(data.data);
 let masterList: any = [];
@@ -197,8 +180,7 @@ className=" flex flex-col mt-15">
    const loc = location as unknown as {key?:string};
     loc.key != 'default'  ? navigate(-1) : navigate('/')}} className="gap-2 font-inter text-lg items-center ml-15
  cursor-pointer hover:text-blue-600 flex flex-row w-min"> <ArrowLeft></ArrowLeft> Back  </p>
-     {
-        id == 'no id' &&
+     
     <button
 onClick={() => {
 handlePrint();
@@ -209,13 +191,13 @@ duration-300 hover:bg-blue-600 py-2 px-2 mr-15 scale-104
 text-white gap-2 bg-blue-500 font-poppins">
 Print
 </button> 
-     }
+     
 </div> :  <button
 onClick={() => {
-    if (Object.keys(textMap).length == rawData.length){
+  
   handlePrint();
    
-} }
+ }
 } 
 className="
 flex flex-row rounded-3xl  self-end cursor-pointer p-3 w-35 text-lg items-center justify-center hover:scale-105 transition-all
@@ -234,7 +216,9 @@ Print
         className={`font-poppins flex flex-row ${i == 0 || i ==2 || i==4 || i==6 ? "justify-self-start" : "justify-self-end"}`}>
             {e} 
             { e != 'Name' &&
-            <p className="ml-2"> {    e == 'Step:' ? (userData2.length == 0 ? '' : userData2[0]['actualstep']) : e == 'Supervisor:' ? (userData2.length == 0 ? '' : userData2[0]['supervisor']) : 
+            <p className="ml-2"> {    e == 'Step:' ? (
+                step != 'no step'  ? step :
+                userData2.length == 0 ? '' : userData2[0]['actualstep']) : e == 'Supervisor:' ? (userData2.length == 0 ? '' : userData2[0]['supervisor']) : 
             e == 'Module:' ?(userData2.length == 0 ? '' :userData2[0]['module']) : e=='Machine:' ? ( userData2.length == 0 ? '' : userData2[0]['machine']) :
         e == 'Date:' ?   `${date.toLocaleDateString('en-US', {
 year:'2-digit',
@@ -276,7 +260,7 @@ userData.map((entry) =>
     labels.map((e,i) =>
         <div className={` flex flex-row justify-center
     ${e == 'Section' ? 'w-[20%]':
-e == 'Topic' ?'w-[80%]'
+e == 'Topic' ?'w-[60%]'
  : 'w-[10%]'
 }
 `}>
@@ -301,24 +285,24 @@ e == 'Topic' ?'w-[80%]'
 >
 {
     sectionsData.map((e: any,i) =>
-    <div className="flex flex-row w-[100%]">
+    <div className="flex flex-row w-full">
 <div className={`w-[20%] p-1 items-center flex justify-center 
 font-poppins font-bold  text-2xl border-x-2 border-x-blue-500 border-b-blue-500 border-b-2 bg-gray-300 
 ${ i==sectionsData.length-1 ? '  rounded-bl-xl' : ''
 }` }>
     {e['label']}
 </div >
-<div className="flex flex-col w-full">
+<div className="flex flex-col w-[80%]">
 {
     e['topics'].map((topic: string, i2:any) =>
         <div className="flex flex-row w-[100%]">
-       <div className={`border-y-blue-500 w-[80%] border-r-blue-500 p-2 font-poppins border-t-1 border-r-2
+       <div className={`border-y-blue-500 w-[75%] border-r-blue-500 p-2 font-poppins border-t-1 border-r-2
        ${topic== 'Process of adding Oil' ? 'border-b-2 ' : 'border-b-2'}
        `}>
 
         {topic}
        </div >
-       <div className="w-[10%]">
+       <div className="w-[12.5%]">
         { 
        <div
      
@@ -327,7 +311,7 @@ ${ i==sectionsData.length-1 ? '  rounded-bl-xl' : ''
        ></div>
 }
        </div>
-                 <div className="w-[10%]">
+                 <div className="w-[12.5%]">
         { 
        <div
      

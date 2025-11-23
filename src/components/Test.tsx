@@ -306,7 +306,7 @@ Full Screen Mode
             </div>
             
             :
-            <div  style={{ height: "calc(90vh - 200px)" }}  className="w-full  flex-col flex items-center justify-center">
+            <div className="w-full lg-mb-0 mb-14 flex-col flex items-center justify-center">
                <div className="w-2/3 flex flex-row   h-5 mb-7 items-center">
           {
           qna == 'no qna' ?
