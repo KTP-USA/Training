@@ -32,7 +32,7 @@ const App = () => (
       <BrowserRouter basename="/Training">
       <ScrollToTop></ScrollToTop>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<LogInPage/>} />
              <Route path='/training-topics' element={<TrainerPage/>}/>
         <Route path='/join-test' element={<JoinTestPage></JoinTestPage>}/>
           <Route path='/evaluation' element={<EvaluationPage/>}/>
