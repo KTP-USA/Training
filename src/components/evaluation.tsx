@@ -99,14 +99,16 @@ for (const item of responseList){
 let date = new Date();
 
 let avg = (Math.round(totalsum/responseList.length * 10)/10);
-for (const item of rawData){
-     let fetchcontrolnbr: any = await supabase.from('testrecords').select().eq('step', userData2[0]['actualstep']).eq('module', userData2[0]['module']).eq('username',  userData2[0]['username']).
+   let fetchcontrolnbr: any = await supabase.from('testrecords').select().eq('step', userData2[0]['actualstep']).eq('module', userData2[0]['module']).eq('username',  userData2[0]['username']).
      eq('type', 'Technical Evaluation').is('result', null)
+  
+for (const item of rawData){
+  
 await supabase.from('savedtest').insert({
     'techid':item['id'],
     'techanswer': textMap[item['topic']],
     'username': userData2[0]['username'],
-   'controlnbr':fetchcontrolnbr[0]['id'],
+   'controlnbr':fetchcontrolnbr.data[0]['id'],
     'module': userData2[0]['module'],
     'step':userData2[0]['actualstep']
  
@@ -114,7 +116,7 @@ await supabase.from('savedtest').insert({
  })
 }
 
-await supabase.from('testrecords').upsert({
+await supabase.from('testrecords').update({
     'score':avg,
     'result': avg >= 3 ? 'PASS' : 'FAIL',
     'username': userData2[0]['username'],
@@ -127,17 +129,27 @@ day:'2-digit'
         }),
     'module': userData2[0]['module'],
     'step':userData2[0]['actualstep']
-}).eq('module', userData2[0]['module']).eq('step', userData2[0]['actualstep']).eq('username', userData2[0]['username']).eq('type', 'Technical Evaluation').is('result', null)
-.eq('supervisor', userData2[0]['supervisor']);
+}).eq('id', fetchcontrolnbr.data[0]['id']);
+if (avg < 3){
+ await supabase.from('testrecords').insert({
+   
+    'username': userData2[0]['username'],
+    'supervisor':userData2[0]['supervisor'],
+    'type': 'Technical Evaluation',
+ 
+    'module': userData2[0]['module'],
+    'step':userData2[0]['actualstep']
+}); 
+}
 let stuoidlist: any = await supabase.from('testrecords').select().eq('module', userData2[0]['module']).eq('step', userData2[0]['actualstep']).eq('username', userData2[0]['username'])
 .eq('supervisor', userData2[0]['supervisor']).eq('result', 'PASS');
-const list = ['Technical Evaluation', 'Competency Test', 'Performance Review']
-if (stuoidlist.data.length >= 3){
+const list = ['Technical Evaluation', 'Competency Test', 'Performance teview']
+if (stuoidlist.data.length >= 3 && stuoidlist.data.map((e: any) => e['type']).includes(list)){
     await supabase.from('users').update({
           'actualstep': stuoidlist.data[0]['step'] == '30D' ? '90D' : stuoidlist.data[0]['step']== '90D' ? '180D' :stuoidlist.data[0]['step'] == '180D' ? '1Y' : 
   stuoidlist.data[0]['step'] == '1Y' ? '2Y' : '3Y',
   'nextdate': getNextDate(userData2[0]['hiredate'], stuoidlist.data[0]['step']  )
- } );
+ } ).eq('username', userData2[0]['username']);
 
 for (const item of list){
 
@@ -164,9 +176,9 @@ async function loadData(){
 
 let userData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase.from('users').select().eq('supervisor', userData1.data[0]['username'])
 
-    : await supabase.from('users').select().is('role', null)
-
-setUserData(userData.data);
+    : await supabase.from('users').select().eq('role', "USER")
+console.log('use', userData);
+setUserData(userData.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])));
 if (name != 'no name'){
     formatData(userData.data.filter((e: any)=> e['username'] == name))
     setSelectedUser(name);
@@ -178,7 +190,7 @@ loadData();
 }, []);
 const  date = new Date(); 
     return (
-<section className="mx-15 flex flex-col mt-30">
+<section className="mx-15 flex flex-col mt-15">
      { name != 'no name' ?
     <div className="flex flex-row justify-between">
        

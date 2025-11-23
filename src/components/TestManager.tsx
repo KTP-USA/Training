@@ -11,15 +11,23 @@ const j = Math.floor(Math.random() * (i+1));
     }
     return myList;
   }
- async function handleUpload(file:any, entry: any) {
-  const file2 = file.target.files[0]
-    const filePath = `uploads/${file2.name}`; 
-    console.log('file', filePath, file2, entry)
+
+
+ async function handleUpload(e: React.ChangeEvent<HTMLInputElement>, entry: any) {
+  
+  const file = e.target.files?.[0];
+  if (!file){
+    return;
+  }
+    const filePath = `uploads/${file.name.replace(/\s/g, "_")}`; 
+    console.log('file', filePath, file, entry)
  
+
+
   const { data, error } = await supabase
     .storage
     .from("Files")
-    .upload(filePath, file);
+    .upload(filePath, file, { contentType: file.type, upsert: true });
 
   if (error) {
   
@@ -38,7 +46,7 @@ let list: any = userData.map((e) => { return e==entry ? {...entry, 'path': fileP
  e})
 
    setUserData(list)
- }
+}
   async function generateTest(step: String, module: String, username: String , type: String, entry: any ){
     let qBankData = await supabase.from('questions').select().eq('step', step).eq('module', module).eq('optiontext', '') ;
   
@@ -53,6 +61,7 @@ let list: any = userData.map((e) => { return e==entry ? {...entry, 'path': fileP
   qBank.push(qBankData2[qBank.length]);
 
   }
+  console.log('hh', qBank)
   let fetchcontrolnbr = await supabase.from('testrecords').select().eq('step', step).eq('module', module).eq('username', username).eq('type', type).is('result', null)
   let insertList = qBank.map((e, i)=> {
    
@@ -80,7 +89,9 @@ for (const entry of insertList){
     const [selectedSupervisor, setSupervisor] = useState('Supervisor')
     const [supervisors, setSupList] = useState([])
     const [uniqueUsers, setUniqueUsers] = useState([]);
+    const [uploadData, setUploadData] = useState({});
     const [hasSupervisor, setSupervisora] = useState(true);
+    const [uploamenu, setUploadMenu] = useState(false);
     const [testType, setTestType] = useState('Test Type')
     useEffect(() => {
 async function loadData(){
@@ -91,7 +102,7 @@ setSupervisora(false);
     }
 let loadedData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase.from('users').select().eq('supervisor', userData1.data[0]['username'])
 
-    : await supabase.from('users').select().is('role', null)
+    : await supabase.from('users').select().eq('role', "USER")
     
     loadedData = loadedData.data.filter((entry:any) => {
         let nextDate: Date = new Date(entry['nextdate']);
@@ -99,7 +110,7 @@ let loadedData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase
 now.setDate(now.getDate() + 10);
        return now > nextDate;
     
-    }  )
+    }  ).sort((a: any,b: any)=> a['username'].localeCompare(b['username']))
     let testData: any =  await supabase.from('testrecords').select().is('score', null);
 ;
 console.log('test data', testData);
@@ -124,21 +135,147 @@ data.push({'User':entry['username'], 'Hire Date':entry['hiredate'], 'Module':ent
     "Supervisor":entry['supervisor'],
     'Test Type':entry2['type'],
     'Step':entry['actualstep'], 'Next Date':entry['nextdate'], 'Action': entry2['controlnbr'] != null ? entry2['controlnbr'] : 'no number',
-    'path':entry2['path']
+    'path':entry2['path'], 'id':entry2['id']
 })
     }
 }
     setUserData(data);
     setSupList(supervisors);
-    setUniqueUsers(loadedData.map((e:any) => e['username']))
+    setUniqueUsers(loadedData.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])).map((e:any) => e['username']))
     setisLoading(false);
 }
 loadData();
     }, [])
+       function getNextDate(date: any, step: String){
+ date = new Date(date);
+ if (step == '30D'){
+    date = date.setDate(date.getDate()+60);
+    return date.toLocaleDateString('en-US', {
+year:'2-digit',
+month:'numeric',
+day:'2-digit'
+        });
+ } else  if (step == '60D'){
+    date = date.setDate(date.getDate()+180);
+    return date.toLocaleDateString('en-US', {
+year:'2-digit',
+month:'numeric',
+day:'2-digit'
+        });
+ } else  if (step == '180D'){
+    date = date.setDate(date.getFullYear()+1);
+    return date.toLocaleDateString('en-US', {
+year:'2-digit',
+month:'numeric',
+day:'2-digit'
+        });
+ } else  if (step == '1Y'){
+    date = date.setDate(date.getDate()+2);
+    return date.toLocaleDateString('en-US', {
+year:'2-digit',
+month:'numeric',
+day:'2-digit'
+        });
+ }  else  if (step == '2Y'){
+    date = date.setDate(date.getDate()+3);
+    return date.toLocaleDateString('en-US', {
+year:'2-digit',
+month:'numeric',
+day:'2-digit'
+        });
+ } 
+    }
     const [userData, setUserData] = useState([]);
+    async function handlePassFail(data: any, type: any){
+   let date = new Date();
+   await supabase.from('testrecords').update({
+        
+        'username':data['User'],
+        'date': date.toLocaleDateString('en-US', {
+year:'2-digit',
+month:'numeric',
+day:'2-digit'
+        }),
+        'module':data['Module'],
+    'supervisor': data['Supervisor'],
+        'type':'Performance review',
+        'result': type == 'pass' ? 'PASS' : 'FAIL',
+        'step':data['Step'],
+        
+    }).eq('id', data['id']);
+    if (type == 'fail'){
+   await supabase.from('testrecords').insert({
+   
+    'username': data['User'],
+    'supervisor':data['Supervisor'],
+    'type': 'Performance review',
+ 
+    'module': data['Module'],
+    'step':data['Step']
+});   
+    }
+let stuoidlist: any = await supabase.from('testrecords').select().eq('module', data['module']).eq('step',data['actualstep']).eq('username', data['username'])
+.eq('supervisor', data['supervisor']).eq('result', 'PASS');
+const list = ['Technical Evaluation', 'Competency Test', 'Performance review']
+if (stuoidlist.data.length >= 3  && stuoidlist.data.map((e: any) => e['type']).includes(list)){
+    await supabase.from('users').update({
+          'actualstep': stuoidlist.data[0]['step'] == '30D' ? '90D' : stuoidlist.data[0]['step']== '90D' ? '180D' :stuoidlist.data[0]['step'] == '180D' ? '1Y' : 
+  stuoidlist.data[0]['step'] == '1Y' ? '2Y' : '3Y',
+  'nextdate': getNextDate(data['hiredate'], stuoidlist.data[0]['step']  )
+ } );
+
+for (const item of list){
+
+await supabase.from('testrecords').insert({
+   
+    'username':data['User'],
+    'supervisor':data['Supervisor'],
+    'type': item,
+    'step': stuoidlist.data[0]['step'] == '30D' ? '90D' : stuoidlist.data[0]['step']== '90D' ? '180D' :stuoidlist.data[0]['step'] == '180D' ? '1Y' : 
+  stuoidlist.data['step'] == '1Y' ? '2Y' : '3Y',
+    'module': data['Module'],
+})
+}
+}
+setUploadMenu(false);
+    }
     let columns = ['Username', 'Hire Date', 'Module', 'Supervisor', 'Test Type', 'Step', 'Next Date']
 return (
-<section className="flex justify-center items-center flex-col my-30 mx-10">
+<section className="flex justify-center items-center flex-col my-15 mx-10">
+   {
+  uploamenu &&
+      <div onClick={() =>setUploadMenu(false)} className="fixed inset-0 flex items-center justify-center z-50">
+<div className="absolute bg-black opacity-30 inset-0"></div>
+<div onClick={(e) => e.stopPropagation()} className="bg-white p-5 rounded-xl z-10 overflow-y-auto
+ font-poppins font-bold text-blue-400 text-2xl max-h-100 flex-col px-15 py-8 flex items-center justify-center" >
+  Is this a pass or a fail?
+<div className="flex flex-row gap-3 mb-3">
+  <button
+onClick={() => {
+ handlePassFail(uploadData, 'fail');
+}}
+className="
+flex flex-row rounded-3xl  cursor-pointer p-3 w-35 mt-6 self-end font-normal text-lg items-center justify-center hover:scale-102 transition-all
+duration-300 hover:bg-red-600 py-2
+text-white gap-2 bg-red-500 font-poppins">
+Fail
+</button>
+<button
+onClick={() => {
+ handlePassFail(uploadData, 'pass');
+}}
+className="
+flex flex-row rounded-3xl  cursor-pointer p-3 w-35 mt-6 self-end font-normal text-lg items-center justify-center hover:scale-102 transition-all
+duration-300 hover:bg-green-600 py-2
+text-white gap-2 bg-green-500 font-poppins">
+Pass
+</button>
+</div>
+
+      </div>
+      </div>
+        
+    }
     {
           isLoading ?      <TailSpin color="#0000FF"></TailSpin>: 
         <div className="w-full flex items-center justify-center  flex-col">
@@ -237,7 +374,7 @@ userData.filter((entry) => (testType == 'Test Type' ? true : entry['Test Type'] 
    <div className={`flex flex-row items-center`}>
  {   Object.values(entry).map((entrye: any, i) => {
  
-if (i==8){
+if (i==8 || i==9){
   return;
 }
    return (
@@ -262,8 +399,10 @@ duration-300 hover:bg-blue-600 py-2 text-white gap-2 bg-blue-500 font-poppins">
   Upload
  <input
  onChange={(e) => {
-  
+  // setUploadMenu(true);
   handleUpload(e, entry)
+  setUploadData(entry);
+  console.log('ent ent', entry)
 
 }}
 type="file"

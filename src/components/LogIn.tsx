@@ -12,7 +12,7 @@ import { supabase } from "../supabaseClient";
 
     let userData: any = await supabase.from('users').select().eq('uid', data.user?.id);
     console.log('ussss', userData)
-    if (userData.data[0]['role'] == null){
+    if (userData.data[0]['role'] == 'USER'){
         navigate('/manager')
     } else {
         navigate('/test-manager')
@@ -21,7 +21,7 @@ import { supabase } from "../supabaseClient";
     const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-    return ( <section className="max-w-screen h-screen flex items-center justify-center bg-gradient-to-r from-white to-blue-600 flex-col">
+    return ( <section  style={{ height: "calc(100vh - 200px)" }} className=" mt-15 flex items-center justify-center bg-gradient-to-r from-white to-blue-600 flex-col">
 <h1 className="font-poppins  font-extrabold text-5xl text-blue-600  ">Log In</h1>
 
 <div className="mt-10 bg-gradient-to-br bg-white/40 rounded-2xl py-12 px-10 w-100 ">
@@ -29,12 +29,14 @@ import { supabase } from "../supabaseClient";
     <Mail className="text-blue-500"></Mail>
 <input 
 onChange={(e)=>{setEmail(e.target.value)}}
+type="email"
 placeholder="Email"
 className="w-full ml-3 outline-none bg-transparent"></input>
 </div>
 <div className="border-2 mt-4 border-blue-400 font-poppins rounded-lg p-3 w-full text-blue-600 font-bold flex flex-row">
 <Lock className="text-blue-500"></Lock>
 <input 
+type="password"
 onChange={(e)=>{setPassword(e.target.value)}}
 placeholder="Password"
 className="w-full ml-3 outline-none bg-transparent "></input>

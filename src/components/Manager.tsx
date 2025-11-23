@@ -13,7 +13,7 @@ const Manager = () => {
     let session = await supabase.auth.getSession();
     let userData: any = await supabase.from('users').select().eq('uid', session.data.session?.user.id);
     console.log('userd', userData, userData.data[0]['role']);
-    if (userData.data[0]['role'] == null){
+    if (userData.data[0]['role'] == 'USER'){
       setNotAdmin(true);
        setSelectedUser(userData.data[0]['username']);
   console.log('tttt23', testData2, userData.data)
@@ -27,19 +27,19 @@ const Manager = () => {
       'Test Type': entry['type'], 'Date':entry['date'], 'Score':entry['score'], 'Result':entry['result'], 'path': entry['path']});
   }
  setTestData(newer);
-  setUserData(userData.data )
+  setUserData(userData.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])) )
   setModulePhase(userData.data[0]['actualstep']);
   setSelectedPhaae(userData.data[0]['actualstep']);
   setdueDate(userData.data[0]['nextdate']);
 } else if (userData.data[0]['role'] == 'SUPERVISOR'){
-     let userData2: any = await supabase.from('users').select().is('role', null).eq('supervisor', userData.data[0]['username']);
+     let userData2: any = await supabase.from('users').select().eq('role', 'USER').eq('supervisor', userData.data[0]['username']);
        let usertest2: any = await supabase.from('testrecords').select().eq('supervisor', userData.data[0]['username']);;
        
       setUserData(userData2.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])));
           setUserData2(userData2.data);
           setTestData2(usertest2.data);
 } else if (userData.data[0]['role'] == 'ADMIN'){
-      let userData2: any = await supabase.from('users').select().is('role', null);
+      let userData2: any = await supabase.from('users').select().eq('role', 'USER');
        let usertest2: any = await supabase.from('testrecords').select();
        
       setUserData(userData2.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])));

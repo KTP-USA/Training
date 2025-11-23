@@ -12,6 +12,7 @@ import PerformancePage from "./pages/PerformancePage";
 import EvaluationPage from "./pages/EvaluationPage";
 import TrainerPage from "./pages/TrainerPage";
 import SummaryPage from "./pages/SummaryPage";
+import UsersPage from "./pages/UserPage";
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -28,13 +29,14 @@ function ScrollToTop() {
 
 const App = () => (
  
-      <BrowserRouter>
+      <BrowserRouter basename="/Training">
       <ScrollToTop></ScrollToTop>
         <Routes>
           <Route path="/" element={<Index />} />
              <Route path='/training-topics' element={<TrainerPage/>}/>
         <Route path='/join-test' element={<JoinTestPage></JoinTestPage>}/>
           <Route path='/evaluation' element={<EvaluationPage/>}/>
+           <Route path='/users' element={<UsersPage/>}/>  
           <Route path="/performance-review" element={<PerformancePage/>}></Route>
           <Route path="/login" element={<LogInPage/>}/>
               <Route path="/summary" element={<SummaryPage/>}/>

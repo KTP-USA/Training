@@ -232,7 +232,7 @@ async function loadData(){
 
 let userData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase.from('users').select().eq('supervisor', userData1.data[0]['username'])
 
-    : await supabase.from('users').select().is('role', null)
+    : await supabase.from('users').select().eq('role','USER')
 setUserData(userData.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])));
 if (name != 'no name'){
     formatData(userData.data.filter((e: any)=> e['username'] == name))
@@ -253,13 +253,13 @@ const  date = new Date();
   height="600px"></object>
         </div>
         :
-<section ref={printRef} className="mx-15 flex flex-col mt-30">
+<section className="flex flex-col mt-15">
      { name != 'no name' ?
     <div className="flex flex-row justify-between">
        
         <p onClick={() => {
    const loc = location as unknown as {key?:string};
-    loc.key != 'default'  ? navigate(-1) : navigate('/')}} className="gap-2 font-inter text-lg items-center
+    loc.key != 'default'  ? navigate(-1) : navigate('/')}} className="gap-2 ml-15 font-inter text-lg items-center
  cursor-pointer hover:text-blue-600 flex flex-row w-min"> <ArrowLeft></ArrowLeft> Back  </p>
      {
         id == 'no id' &&
@@ -267,7 +267,7 @@ const  date = new Date();
 onClick={() => {
 handlePrint();
 }}
-className="
+className="mr-15
 flex flex-row rounded-3xl  self-end cursor-pointer p-3 w-35 text-lg items-center justify-center hover:scale-105 transition-all
 duration-300 hover:bg-blue-600 py-2 px-2 mr-5 scale-104
 text-white gap-2 bg-blue-500 font-poppins">
@@ -279,14 +279,14 @@ onClick={() => {
  handlePrint(); }
 } 
 className="
-flex flex-row rounded-3xl  self-end cursor-pointer p-3 w-35 text-lg items-center justify-center hover:scale-105 transition-all
+flex flex-row rounded-3xl mr-15 self-end cursor-pointer p-3 w-35 text-lg items-center justify-center hover:scale-105 transition-all
 duration-300 hover:bg-blue-600 py-2 px-2 mr-5 scale-104
 text-white gap-2 bg-blue-500 font-poppins">
 Print
 </button>
   }
-
-<div className="border-blue-500 rounded-t-xl  border-2 p-2 flex justify-center mt-6  flex-col">
+<div ref={printRef} className="mx-15">
+<div   className="border-blue-500 rounded-t-xl  border-2 p-2 flex justify-center mt-6  flex-col">
     <h1 className="font-poppins text-blue-500 font-bold text-5xl self-center mt-1 mb-1">Performance Review</h1>
     <div className="grid grid-cols-2 grid-rows-4 w-full px-40 gap-y-5 pt-4 pb-4 ">
 {
@@ -527,6 +527,7 @@ bg-blue-300 text-blue-500 ${i==sectionData.length-1 ? 'bg-blue-600' : ''}` }>
 <div className="bg-blue-400 w-full h-1 rounded-xl"></div>
 <p>Employee on Training</p>
 <p>Date</p>
+</div>
 </div>
 </section>
 

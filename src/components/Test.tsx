@@ -1,51 +1,56 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "../supabaseClient";
-import {TailSpin} from 'react-loader-spinner';
+import {TailSpin, } from 'react-loader-spinner';
 import { useLocation, useNavigate, useParams } from "react-router-dom";
-import {ArrowLeft, ArrowRight, BadgeCheck, AlarmClock} from "lucide-react"
+import {ArrowLeft, ArrowRight, BadgeCheck, AlarmClock, Lock} from "lucide-react"
 const Test  = () => {
 
 
+    const [cantGo, setCantgo] = useState(false);
  const [time, setTime] = useState(540);
  const navigate = useNavigate();
  const locs = useLocation();
  const qna = locs.state ?? 'no qna'
- function formatTime(timeString:String){
-      function getTime(){
-        if    (timeString.length == 2 || timeString.length ==3){
-            
-            let firstDigit = (Math.round(time/60)).toString();
-            
-            let mins = Math.abs((time-(Number(firstDigit) * 60)));
-          
-            return `${firstDigit}:${mins < 10 ? `0${mins}` : mins}`;
-            }
-        
-           else if (timeString.length == 4) {
-  let firstDigit = Math.round((time/60)).toString();
+ function formatTime(seconds: any) {
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = seconds % 60
 
-    let secondDigit = Math.round((time/60/60)).toString();
-            let mins = Math.abs((time-(Number(secondDigit) * 60)));
-            return `${firstDigit}:${Number(secondDigit) < 10 ? `0${secondDigit}` : secondDigit}:${mins < 10 ? `0${mins}` : mins}`;
-            }
-        }
-    if (timeString.length == 1){
-       
-        return `0:0${timeString}`;
-    }
-return getTime();
- }
+  if (h > 0) {
+    return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`
+  }
+
+  return `${m}:${s.toString().padStart(2, "0")}`
+}
+
+
 const [isLoading, setisLoading] = useState(true);
+const [isFullScreen, setIsFullScreen] = useState(false);
 const [rawList, setRawList] = useState([]);
 const {code} =useParams();
 // async function addTime(){
 // setInterval( () =>{
-//     setTime((prev) => prev+1)
+//     setTime((prev) => prev-1)
 // }, 1000)
 // }
+function setScreen(){
+    if (!isFullScreen){
+        document.documentElement.requestFullscreen();
+       
+    } else {
+
+    }
+}
 const [isSubmitted, setIsSubmitted] = useState(false);
 async function submitAnswer(){
-    let newList: any = rawList.map((e) => {
+ 
+  
+  let   testList:any = await supabase.from('savedtest').select().eq('controlnbr', code ?? 29108);
+    let   stupidList:any = await supabase.from('users').select().eq('username', testList.data[0]['username']);
+ testList = testList.data;
+  let rawList = stupidList.data;
+ console.log('rawww,',rawList, )
+    let newList: any =testList.map((e: any) => {
         return { 'questionid':[e['questionid']], 'correcttest':e['correcttest']};
     
     })
@@ -55,8 +60,8 @@ async function submitAnswer(){
 correctcount= correctcount+1
     }
  }
- let getSupervisor = await supabase.from('users').select().eq('username', rawList[0]['username']);
- let score = (correctcount/rawList.length);
+ let getSupervisor = await supabase.from('users').select().eq('username', testList[0]['username']);
+ let score = (correctcount/testList.length);
    function getNextDate(date: any, step: String){
  date == new Date(date);
  if (step == '30D'){
@@ -97,7 +102,7 @@ day:'2-digit'
  } 
     }
  let date = new Date();
-  await supabase.from('testrecords').upsert({
+  await supabase.from('testrecords').update({
         
         'username':rawList[0]['username'],
         'date': date.toLocaleDateString('en-US', {
@@ -113,12 +118,24 @@ day:'2-digit'
         'controlnbr':code,
         'step':rawList[0]['step'],
         
-    }).eq('module', rawList[0]['module']).eq('type', 'Competency Test').eq('step', rawList[0]['step']).eq('username', rawList[0]['username']).eq('supervisor', rawList[0]['step'])
-    .is('result', null);
+    }).eq('id', code);
+    if (score < 0.8){
+        console.log('hi', )
+    const {data, error} =   await supabase.from('testrecords').insert({
+   
+    'username': rawList[0]['username'],
+    'supervisor':rawList[0]['supervisor'],
+    'type': 'Competency Test',
+ 
+    'module': rawList[0]['module'],
+    'step': rawList[0]['actualstep']
+});   
+console.log('dddd', data, error)
+    }
 let stuoidlist: any = await supabase.from('testrecords').select().eq('module', rawList[0]['module']).eq('step',rawList[0]['actualstep']).eq('username', rawList[0]['username'])
 .eq('supervisor', rawList[0]['supervisor']).eq('result', 'PASS');
-const list = ['Technical Evaluation', 'Competency Test', 'Performance Review']
-if (stuoidlist.data.length >= 3){
+const list = ['Technical Evaluation', 'Competency Test', 'Performance review']
+if (stuoidlist.data.length >= 3  && stuoidlist.data.map((e: any) => e['type']).includes(list)){
     await supabase.from('users').update({
           'actualstep': stuoidlist.data[0]['step'] == '30D' ? '90D' : stuoidlist.data[0]['step']== '90D' ? '180D' :stuoidlist.data[0]['step'] == '180D' ? '1Y' : 
   stuoidlist.data[0]['step'] == '1Y' ? '2Y' : '3Y',
@@ -139,25 +156,74 @@ await supabase.from('testrecords').insert({
 }
 }
 setIsSubmitted(true);
-   
-    
+   document.exitFullscreen();
+    setCantgo(false)
 }
 async function setAnswer(id: any, answer: any, controlnbr: any){
     await supabase.from('savedtest').update({'useranswer':answer}).eq('questionid', id).eq('controlnbr', controlnbr)
 }
+const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  async  function handleFullScreenChange(){
+        setIsFullScreen(!!document.fullscreenElement);
+    
+      if (!!document.fullscreenElement){
+         
+    if (!timerRef.current){
+     
+ timerRef.current = setInterval( () =>{
+        
+    setTime((prev) => {
+        if ( prev==1){
+            if (!cantGo){
+                
+  setCantgo((prev) => {
+    if (!prev){
+         submitAnswer();
+        return true;
+    }
+    return prev;
+  })
+
+          
+           
+            }
+              clearInterval(timerRef.current as unknown as number); 
+        timerRef.current = null;          
+        return 0;
+        }
+        return prev == 0 ? 0 : prev-1})
+    
+ 
+}, 1000)
+    }
+
+} else {
+         
+    if (timerRef.current){
+        clearInterval(timerRef.current);
+        timerRef.current = null
+    }
+}
+    }
  useEffect(() => {
+ 
+    document.addEventListener("fullscreenchange", handleFullScreenChange);
+    
     if (qna != 'no qna'){
         console.log('qq', qna)
         setQuestionAndAnswer(qna);
     }
-const timer = setInterval( () =>{
-    setTime((prev) => prev+1)
-}, 1000)
+
  async function genQBank() { 
   
 
-  let   stupidList:any = await supabase.from('savedtest').select().eq('controlnbr', code ?? 29108)
+  let   stupidList:any = await supabase.from('savedtest').select().eq('controlnbr', code ?? 29108);
+ 
  setRawList(stupidList.data);
+  setTime(stupidList.data[0]['step'] == '30D' ? 1200 : stupidList.data[0]['step'] =='90D' ? 1800 : stupidList.data[0]['step'] =='180D' ? 2400 :
+    stupidList.data[0]['step']=='1Y' ? 3600 : stupidList.data[0]['step'] == '2Y' ? 5400 : 7200
+   )
    let   myList:any = await supabase.from('questions').select().eq('module', stupidList.data[0]['module']).eq('step',stupidList.data[0]['step'])
    
      let stupidList3: Array<any> = [];
@@ -199,7 +265,10 @@ qBank.push({options:options, questiontext: questionItem['questiontext'],
          }      
         genQBank();
 
-  return () => clearInterval(timer);
+ return () => {
+      document.removeEventListener("fullscreenchange", handleFullScreenChange);
+       if (timerRef.current) {clearInterval(timerRef.current);}
+    };
         }, []
    
 );
@@ -210,22 +279,40 @@ qBank.push({options:options, questiontext: questionItem['questiontext'],
 
     })
     return (
-        <section className="max-w-screen h-screen  flex-col flex items-center justify-center">
+        <section   className="mt-15  flex-col flex items-center justify-center">
             { 
             isLoading ?      <TailSpin color="#0000FF"></TailSpin>: 
             isSubmitted ?
-            <div className="flex flex-col items-center justify-center text-green-400">
+            <div style={{ height: "calc(90vh - 200px)" }} className="flex flex-col items-center justify-center text-green-400">
                 <BadgeCheck size={200}></BadgeCheck>
 <p className="font-poppins text-4xl mt-10 font-extrabold">Test Submitted!</p>
             </div>
             :
-            <div className="w-full  flex-col flex items-center justify-center">
+            !isFullScreen ? 
+            
+              <div style={{ height: "calc(90vh - 200px)" }}  className="flex flex-col mx-5 items-center justify-center text-blue-400">
+                <Lock size={200}></Lock>
+<p className="font-poppins text-3xl text-center mt-10 font-extrabold">The test is locked until you activate full screen mode.</p>
+<button
+onClick={() => {
+setScreen();
+}}
+className="
+flex flex-row rounded-3xl  cursor-pointer p-3 mt-8 text-lg items-center justify-center hover:scale-105 transition-all
+duration-300 hover:bg-blue-600 py-4 font-bold scale-103
+text-white gap-2 bg-blue-500 font-poppins">
+Full Screen Mode
+</button>
+            </div>
+            
+            :
+            <div  style={{ height: "calc(90vh - 200px)" }}  className="w-full  flex-col flex items-center justify-center">
                <div className="w-2/3 flex flex-row   h-5 mb-7 items-center">
           {
           qna == 'no qna' ?
           <div className="text-blue-400 font-bold mt-5 font-inter text-xl cursor-pointer gap-3 flex flex-row mb-2 
            " >
-          <AlarmClock></AlarmClock>  {formatTime(time.toString())}
+          <AlarmClock></AlarmClock>  {formatTime(time)}
              {/* <LogOut></LogOut> Save & Exit */}
              </div>  :  <p onClick={() => {
    const loc = location as unknown as {key?:string};
@@ -282,19 +369,10 @@ Submit
 ${questionAndAnswer[entry.questionid] == entrye.optionid ? 'bg-blue-500/10 border-blue-400' : ' border-gray-400  hover:border-blue-300 transition-all' }`}>
 {entrye.optiontext}
 <div className="flex-1"></div>
-<div className={`rounded-full relative border-2 flex items-center justify-center border-black w-5 h-5 ${questionAndAnswer[entry.questionid]  ==entrye.optionid ? 'border-blue-400' : '' }`}>
-{
-    
- questionAndAnswer[entry.questionid]  == entrye.optionid && (
-   <div  className="bg-blue-400 absolute inset-[2px] rounded-full ">
-
-   </div> 
-   )
-}
-
-{
-
-}
+<div className={`rounded-full relative border-2 border-black w-5 h-5 flex-shrink-0 flex items-center justify-center ${questionAndAnswer[entry.questionid] == entrye.optionid ? 'border-blue-400' : ''}`}>
+  {questionAndAnswer[entry.questionid] == entrye.optionid && (
+    <div className="bg-blue-400  rounded-full w-full h-full border-2 border-white self-center"></div>
+  )}
 </div>
     </div>
     )

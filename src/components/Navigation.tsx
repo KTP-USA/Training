@@ -1,23 +1,28 @@
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {Menu, X} from "lucide-react";
 import { supabase } from "../supabaseClient";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, } from "react";
 const Navigation = () => {
+    const loc = useLocation();
+    const name = loc.pathname;
     const [isLoggedIn, setLogIn] = useState(false);
    async function fetchUserData() {
     let session = await supabase.auth.getSession();
     let userData: any = await supabase.from('users').select().eq('uid', session.data.session?.user.id);
     setLogIn(session.data.session?.user.id != null)
     let isLog = session.data.session?.user.id != null
-    console.log('fff', isLog)
+    
         setTabs(
             
-               !isLog ?  [ 'Log In'] :
-            userData.data[0]['role'] == null ? 
+               !isLog  ?  [ 'Log In'] :  name.includes(`/test/`)  ?   [ 'Log Out'] :
+
+            userData.data[0]['role'] == 'USER' ? 
             [ 'Test Center', 'History', 'Log Out'] :
-         
-             ['Test Center', 'Evaluation', 'Manager', 'Summary', 'Review', 'Training Topics', 'Log Out'] );
+           userData.data[0]['role'] == 'ADMIN' ? 
+             ['Users',  'Manager', 'Summary', 'Training Topics', 'Test:','Performance', 'Technical', 'Competency', 'Log Out']
+            :  [  'Manager', 'Summary', 'Training Topics', 'Test:','Performance', 'Technical', 'Competency', 'Log Out']
+            );
 
    }
    
@@ -30,26 +35,31 @@ const Navigation = () => {
    const [isOpen, setIsOpen] = useState(false);
    
     return (
-        <nav className="fixed 
+        <nav className="
        items-center
         top-0 left-0 right-0 z-60 px-4 py-5 flex flex-row bg-blue-400 rounded-bl-xl rounded-br-xl">
 <p onClick={()=>{navigate('/')}} className="text-white cursor-pointer font-bold text-xl ml-2 font-inter"> Kurz Training Module </p>
 <div className="flex-1"></div>
 <div className="flex flex-row gap-10 mr-10">
-<div className="md:flex flex-row items-center hidden gap-6">
+<div className="md:flex flex-row items-center hidden ">
     {tabs.map((entry) =>
 <p onClick={() => {
     if (isLoggedIn && (entry == 'Log In' || entry=='Log Out')){
         supabase.auth.signOut();
     }
 navigate(entry ==
- 'Test Center' ? "/join-test" : entry == 'Manager' ? '/test-manager' :  entry == 'Summary' ? '/summary' : 
- entry == 'Evaluation' ?  '/evaluation' : entry == 'Log Out' || entry == 'Log In' ? '/login' :
- entry == 'Training Topics' ? '/training-topics' : "/performance-review")}} className={` 
+ 'Competency' ? "/join-test" : entry == 'Manager' ? '/test-manager' :  entry == 'Summary' ? '/summary' : 
+ entry == 'Technical' ?  '/evaluation' : entry == 'Log Out' || entry == 'Log In' ? '/login' :
+ entry == 'Training Topics' ? '/training-topics' : entry == 'Test:' ? '': entry == 'Users' ? '/users' : "/performance-review")}} className={` 
  
-   cursor-pointer  text-lg mr-2 ${ entry == 'Log Out' || entry == 'Log In' ?
-     'bg-white/50 rounded-lg p-2 px-3 text-blue-500 font-bold font-poppins' 
-     : 'text-white font-inter'}`} >{entry}</p>
+   cursor-pointer  text-lg ${ entry == 'Log Out' || entry == 'Log In' ?
+     'bg-white/50 rounded-lg p-2 px-3 text-blue-500 font-bold font-poppins ml-8' 
+     : entry == 'Technical' || entry=='Competency' || entry == 
+     'Performance' || entry=='Test:' ? ' bg-white/30 p-2 px-3 m-0 text-blue-500 font-bold font-poppins '   : 'text-white mr-6 font-inter '}`} >
+     
+     {entry}
+     
+     </p>
 )}
 </div>
 <div onClick={() => setIsOpen(!isOpen)} className="md:hidden text-white cursor-pointer flex justify-baseline"> { !isOpen ? <Menu></Menu> : <X></X>}

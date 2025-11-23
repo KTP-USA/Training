@@ -5,9 +5,11 @@ import JoinTest from "../components/JoinTest";
 
 const JoinTestPage = () => {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="h-screen  bg-gradient-to-r from-sky-50 to-blue-400 ">
       <Navigation />
+
       <JoinTest/>
+      
       {/* <Form />
       <About />
     
