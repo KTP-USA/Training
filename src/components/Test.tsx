@@ -63,37 +63,37 @@ correctcount= correctcount+1
  let getSupervisor = await supabase.from('users').select().eq('username', testList[0]['username']);
  let score = (correctcount/testList.length);
    function getNextDate(date: any, step: String){
- date == new Date(date);
+ date = new Date(date);
  if (step == '30D'){
-    date = date.setDate(date.getDate()+60);
+   date.setDate(date.getDate()+60);
     return date.toLocaleDateString('en-US', {
 year:'2-digit',
 month:'numeric',
 day:'2-digit'
         });
  } else  if (step == '60D'){
-    date = date.setDate(date.getDate()+180);
+    date.setDate(date.getDate()+180);
     return date.toLocaleDateString('en-US', {
 year:'2-digit',
 month:'numeric',
 day:'2-digit'
         });
  } else  if (step == '180D'){
-    date = date.setDate(date.getFullYear()+1);
+ date.setDate(date.getFullYear()+1);
     return date.toLocaleDateString('en-US', {
 year:'2-digit',
 month:'numeric',
 day:'2-digit'
         });
  } else  if (step == '1Y'){
-    date = date.setDate(date.getDate()+2);
+     date.setDate(date.getDate()+2);
     return date.toLocaleDateString('en-US', {
 year:'2-digit',
 month:'numeric',
 day:'2-digit'
         });
  }  else  if (step == '2Y'){
-    date = date.setDate(date.getDate()+3);
+     date.setDate(date.getDate()+3);
     return date.toLocaleDateString('en-US', {
 year:'2-digit',
 month:'numeric',
@@ -112,39 +112,48 @@ day:'2-digit'
         }),
         'module':rawList[0]['module'],
     'supervisor': getSupervisor.data![0]['supervisor'],
-        'score': (score *100),
+        'score': Math.round(score *100),
         'type':'Competency Test',
         'result': score >= 0.8 ? 'PASS' : 'FAIL',
         'controlnbr':code,
         'step':rawList[0]['step'],
         
     }).eq('id', code);
+    console.log('you', score);
     if (score < 0.8){
+      
          let date: Date =new  Date(rawList[0]['nextdate'])
+        
           let insert = date.setDate(date.getDate()+30)
-      await supabase.from('testrecords').insert({
+          
+     const {data, error} = await supabase.from('testrecords').insert({
    
     'username': rawList[0]['username'],
     'supervisor':rawList[0]['supervisor'],
     'type': 'Competency Test',
- 'nextdate':insert,
+ 'nextdate':date,
     'module': rawList[0]['module'],
     'step': rawList[0]['actualstep']
 });   
+console.log('hihi', data, error)
     }
 let stuoidlist: any = await supabase.from('testrecords').select().eq('module', rawList[0]['module']).eq('step',rawList[0]['actualstep']).eq('username', rawList[0]['username'])
 .eq('supervisor', rawList[0]['supervisor']).eq('result', 'READY');
 const list = ['Technical Evaluation',  'Performance review']
-if (stuoidlist.data.length >= 2 && stuoidlist.data.map((e: any) => e['type']).includes(list) && score>=0.8){
-    await supabase.from('users').update({
+console.log('stupid stipid ', stuoidlist, stuoidlist.data.map((e: any) => e['type']).includes(list), score>=0.8);
+
+if (stuoidlist.data.length >= 2  && score>=0.8){
+    console.log('hiya');
+  const {data, error} =  await supabase.from('users').update({
           'actualstep': stuoidlist.data[0]['step'] == '30D' ? '90D' : stuoidlist.data[0]['step']== '90D' ? '180D' :stuoidlist.data[0]['step'] == '180D' ? '1Y' : 
   stuoidlist.data[0]['step'] == '1Y' ? '2Y' : '3Y',
   'nextdate': getNextDate(rawList[0]['hiredate'], stuoidlist.data[0]['step']  )
- } );
+ } ).eq('username', rawList[0]['username']);
 
+ console.log('ddddd', data, error)
 for (const item of list){
  let date: Date =new  Date(rawList[0]['nextdate'])
-await supabase.from('testrecords').insert({
+const {data, error} =await supabase.from('testrecords').insert({
    
     'username': rawList[0]['username'],
     'supervisor':rawList[0]['supervisor'],
@@ -154,6 +163,7 @@ await supabase.from('testrecords').insert({
   stuoidlist.data[0]['step'] == '1Y' ? '2Y' : '3Y',
     'module': rawList[0]['module'],
 })
+console.log('data', data, error)
 }
 }
 setIsSubmitted(true);

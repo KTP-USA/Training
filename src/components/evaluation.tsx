@@ -21,7 +21,7 @@ console.log('yuop', usersdata)
 let tstrecs: any = await supabase.from('testrecords').select().eq('username', usersdata[0]['username']).eq('step', usersdata[0]['actualstep'])
 .eq('module', usersdata[0]['module']).eq('step', usersdata[0]['actualstep']).eq('type', 'Technical Evaluation').eq('result', 'READY')
 ;
-if (id != 'no id' || tstrecs.data.length != 0){
+if (tstrecs.data.length != 0){
    setIsComplete(true);
   let hihi: any =  await  supabase.from('savedtest').select().eq('module', usersdata[0]['module']).eq('step', usersdata[0]['actualstep']).eq('controlnbr', 
     id == 'no id' ? tstrecs.data[0]['id'] : id).eq('username', usersdata[0]['username']);
@@ -145,7 +145,7 @@ if (avg < 3){
     'username': userData2[0]['username'],
     'supervisor':userData2[0]['supervisor'],
     'type': 'Technical Evaluation',
-    'nextdate':insert,
+    'nextdate':date,
  'machine':userData2[0]['machine'],
     'module': userData2[0]['module'],
     'step':userData2[0]['actualstep']

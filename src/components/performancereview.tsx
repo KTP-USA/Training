@@ -135,7 +135,7 @@ day:'2-digit'
     'username': data['User'],
     'supervisor':data['Supervisor'],
     'type': 'Performance review',
-  'nextdate':insert,
+  'nextdate':date,
     'module': data['Module'],
     'step':data['Step']
 });   
