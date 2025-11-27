@@ -100,7 +100,7 @@ e == '180D' ? 'bg-orange-500' : e == '1Y' ? 'bg-yellow-500' : e == '2Y' ? 'bg-gr
      {
     ( userData2.length == 0 || (selectedUser == 'no user' || !isAdmin))
     ? '' :
-     userData2[0]['actualstep'] == e ? 'CURRENT' : modules.indexOf(userData2[0]['actualstep']) < modules.indexOf(e) ? '' : 'PASS'}
+     userData2[0]['actualstep'] == e ? 'CURRENT' : modules.indexOf(userData2[0]['actualstep']) < modules.indexOf(e) ? '' : 'READY'}
     </div>
      <div className="border-blue-500 border-2 p-3 font-poppins pr-10">
     <p className="text-blue-500 text-xl mb-2">Test Results</p>

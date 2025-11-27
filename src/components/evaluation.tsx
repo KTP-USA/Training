@@ -5,6 +5,7 @@ import { supabase } from "../supabaseClient";
 const Evaluation = () => {
     const topBar = ['Name:', 'Supervisor:', 'Module:', 'Date:', 'Machine:', 'Trainer:', 'Step:']
     const labels = ['Section', 'Topic', 'Score (1-4)'];
+    const [prevComplete, setPrevComplete] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
     const [name, id] = location.state ?? ['no name', 'no id'];
@@ -16,9 +17,14 @@ async function formatData (usersdata: any){
 let data: any = 
 await supabase.from('technical').select().eq('module', usersdata[0]['module']).eq('step', usersdata[0]['actualstep'])
 ;
-if (id != 'no id'){
-   
-  let hihi: any =  await  supabase.from('savedtest').select().eq('module', usersdata[0]['module']).eq('step', usersdata[0]['actualstep']).eq('controlnbr', id).eq('username', usersdata[0]['username']);
+console.log('yuop', usersdata)
+let tstrecs: any = await supabase.from('testrecords').select().eq('username', usersdata[0]['username']).eq('step', usersdata[0]['actualstep'])
+.eq('module', usersdata[0]['module']).eq('step', usersdata[0]['actualstep']).eq('type', 'Technical Evaluation').eq('result', 'READY')
+;
+if (id != 'no id' || tstrecs.data.length != 0){
+   setIsComplete(true);
+  let hihi: any =  await  supabase.from('savedtest').select().eq('module', usersdata[0]['module']).eq('step', usersdata[0]['actualstep']).eq('controlnbr', 
+    id == 'no id' ? tstrecs.data[0]['id'] : id).eq('username', usersdata[0]['username']);
     // setTextMap(
     console.log('fff', hihi, id)
       hihi=  hihi.data?.map((e: any) => {
@@ -29,6 +35,7 @@ if (id != 'no id'){
          }
         
         });
+        setPrevComplete(true);
         setSavedAnswers(Object.assign({}, ...hihi));
     console.log('ghhh', hihi);
     // )
@@ -118,7 +125,7 @@ await supabase.from('savedtest').insert({
 
 await supabase.from('testrecords').update({
     'score':avg,
-    'result': avg >= 3 ? 'PASS' : 'FAIL',
+    'result': avg >= 3 ? 'READY' : 'NOT READY',
     'username': userData2[0]['username'],
     'supervisor':userData2[0]['supervisor'],
     'type': 'Technical Evaluation',
@@ -131,49 +138,47 @@ day:'2-digit'
     'step':userData2[0]['actualstep']
 }).eq('id', fetchcontrolnbr.data[0]['id']);
 if (avg < 3){
+     let date: Date =new  Date(userData2[0]['nextdate'])
+          let insert = date.setDate(date.getDate()+30)
  await supabase.from('testrecords').insert({
    
     'username': userData2[0]['username'],
     'supervisor':userData2[0]['supervisor'],
     'type': 'Technical Evaluation',
- 
+    'nextdate':insert,
+ 'machine':userData2[0]['machine'],
     'module': userData2[0]['module'],
     'step':userData2[0]['actualstep']
 }); 
 }
 let stuoidlist: any = await supabase.from('testrecords').select().eq('module', userData2[0]['module']).eq('step', userData2[0]['actualstep']).eq('username', userData2[0]['username'])
-.eq('supervisor', userData2[0]['supervisor']).eq('result', 'PASS');
-const list = ['Technical Evaluation', 'Competency Test', 'Performance teview']
-if (stuoidlist.data.length >= 3 && stuoidlist.data.map((e: any) => e['type']).includes(list)){
-    await supabase.from('users').update({
-          'actualstep': stuoidlist.data[0]['step'] == '30D' ? '90D' : stuoidlist.data[0]['step']== '90D' ? '180D' :stuoidlist.data[0]['step'] == '180D' ? '1Y' : 
-  stuoidlist.data[0]['step'] == '1Y' ? '2Y' : '3Y',
-  'nextdate': getNextDate(userData2[0]['hiredate'], stuoidlist.data[0]['step']  )
- } ).eq('username', userData2[0]['username']);
-
-for (const item of list){
-
+.eq('supervisor', userData2[0]['supervisor']).eq('result', 'READY');
+if (stuoidlist.data.length >= 1 && stuoidlist.data.some((e: any) => e['type'] == 'Performance review' ) && avg >=3){
+    let date: Date =new  Date(userData2[0]['nextdate'])
 await supabase.from('testrecords').insert({
    
     'username': userData2[0]['username'],
     'supervisor':userData2[0]['supervisor'],
-    'type': item,
-    'step': stuoidlist.data[0]['step'] == '30D' ? '90D' : stuoidlist.data[0]['step']== '90D' ? '180D' :stuoidlist.data[0]['step'] == '180D' ? '1Y' : 
-  stuoidlist.data[0]['step'] == '1Y' ? '2Y' : '3Y',
+    'type': 'Competency Test',
+    'nextdate':date,
+    'machine':userData2[0]['machine'],
+    'step': userData2[0]['step'],
     'module': userData2[0]['module'],
 })
-}
-}
 
 }
+setIsComplete(true);
+}
+const [isComplete, setIsComplete] = useState(false);
 const [userData, setUserData] = useState([]);
 const [textMap, setTextMap] = useState({});
 const [userData2, setUserData2] = useState([]);
 const [selectedUser, setSelectedUser] = useState('');
+const [trainerName, setTrainerName] = useState('');
 async function loadData(){
      let session = await supabase.auth.getSession();
     let userData1: any = await supabase.from('users').select().eq('uid', session.data.session?.user.id);
-
+setTrainerName(userData1.data[0]['username'])
 let userData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase.from('users').select().eq('supervisor', userData1.data[0]['username'])
 
     : await supabase.from('users').select().eq('role', "USER")
@@ -186,7 +191,6 @@ if (name != 'no name'){
 }
 }
 useEffect(()=>{
-    console.log('locc', location)
 loadData();
 }, []);
 const  date = new Date(); 
@@ -202,28 +206,26 @@ const  date = new Date();
      {
         id == 'no id' &&
     <button
-onClick={() => {
-completeEvaluation();
-}}
-className="
+
+className={`
 flex flex-row rounded-3xl  self-end cursor-pointer p-3 w-35 text-lg items-center justify-center hover:scale-105 transition-all
-duration-300 hover:bg-blue-600 py-2 px-2 mr-5 scale-104
-text-white gap-2 bg-blue-500 font-poppins">
-Complete
+duration-300  py-2 px-2 mr-5 scale-104
+text-white gap-2 ${isComplete ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'} font-poppins`}>
+{isComplete ? 'Completed': 'Complete'}
 </button> 
      }
 </div> :  <button
 onClick={() => {
-    if (Object.keys(textMap).length == rawData.length){
+    if (Object.keys(textMap).length == rawData.length && !isComplete && !prevComplete){
     completeEvaluation();
    
 } }
 } 
-className="
-flex flex-row rounded-3xl  self-end cursor-pointer p-3 w-35 text-lg items-center justify-center hover:scale-105 transition-all
-duration-300 hover:bg-blue-600 py-2 px-2 mr-5 scale-104
-text-white gap-2 bg-blue-500 font-poppins">
-Complete
+className={`
+flex flex-row rounded-3xl  self-end  p-3 w-35 text-lg items-center justify-center  transition-all
+duration-300  py-2 px-2 mr-5 scale-104
+text-white gap-2 ${isComplete ? 'bg-green-400' : 'bg-blue-500 hover:bg-blue-600 cursor-pointer hover:scale-105'} font-poppins`}>
+{isComplete ? 'Completed': 'Complete'}
 </button>
   }
 
@@ -242,7 +244,7 @@ Complete
 year:'2-digit',
 month:'numeric',
 day:'2-digit'
-        })}`:  '' }</p>
+        })}`: e=='Trainer:' ? trainerName : '' }</p>
 }
             {
                 e == 'Name:'  && (
@@ -330,7 +332,7 @@ ${i == 0 ? 'bg-red-500 border-t-blue-500 border-1' : i == 1 ? 'bg-blue-400' :i==
        </div >
        <div className="w-[13.5%]">
         { 
-        id == 'no id' ?
+        id == 'no id' && !prevComplete ?
         <input
           maxLength={1}
           onChange={(er) => {

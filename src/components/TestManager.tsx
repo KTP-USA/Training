@@ -62,7 +62,8 @@ let list: any = userData.map((e) => { return e==entry ? {...entry, 'path': fileP
 
   }
   console.log('hh', qBank)
-  let fetchcontrolnbr = await supabase.from('testrecords').select().eq('step', step).eq('module', module).eq('username', username).eq('type', type).is('result', null)
+  let fetchcontrolnbr = await supabase.from('testrecords').select().eq('step', step).eq('module', module).eq('username', username).eq('type', type).is('result', null);
+  await supabase.from('testrecords').update({'controlnbr':fetchcontrolnbr.data![0]['id']}).eq('id', fetchcontrolnbr.data![0]['id'])
   let insertList = qBank.map((e, i)=> {
    
     return {'questiontest':i+1, 'questionid': e['questionid'], 'module': module, 'step':step, 
@@ -91,54 +92,71 @@ for (const entry of insertList){
     const [uniqueUsers, setUniqueUsers] = useState([]);
     const [uploadData, setUploadData] = useState({});
     const [hasSupervisor, setSupervisora] = useState(true);
-    const [uploamenu, setUploadMenu] = useState(false);
     const [testType, setTestType] = useState('Test Type')
     useEffect(() => {
 async function loadData(){
+
+  let trainer: boolean = false;
    let session = await supabase.auth.getSession();
     let userData1: any = await supabase.from('users').select().eq('uid', session.data.session?.user.id);
     if ( userData1.data[0]['role'] != 'SUPERVISOR'){
 setSupervisora(false);
     }
+    if (userData1.data[0]['trainer'] == 'Y'){
+trainer= true;
+    }
 let loadedData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase.from('users').select().eq('supervisor', userData1.data[0]['username'])
 
     : await supabase.from('users').select().eq('role', "USER")
     
-    loadedData = loadedData.data.filter((entry:any) => {
+    loadedData = loadedData.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username']))
+    let testData: any =  trainer ? await supabase.from('testrecords').select().is('result', null).is('score', null ): await supabase.from('testrecords').select().neq
+    ('type', 'Technical Evaluation').is('result', null).is('score', null) ;
+;
+
+testData =testData.data.filter((entry:any) => {
         let nextDate: Date = new Date(entry['nextdate']);
         let now: Date = new Date;
 now.setDate(now.getDate() + 10);
        return now > nextDate;
     
-    }  ).sort((a: any,b: any)=> a['username'].localeCompare(b['username']))
-    let testData: any =  await supabase.from('testrecords').select().is('score', null);
-;
-console.log('test data', testData);
-    
-    loadedData.sort((a: any,b:any) => {
+    }  ).sort((a: any,b:any) => {
  let aDate: Date = new Date(a['nextdate']);
   let bDate: Date = new Date(b['nextdate']);
  return aDate.getTime() -bDate.getTime();
-    })
+    });
+ 
     let data: any = [];
     let supervisors: any = [];
     for (const entry of loadedData){
       if (!supervisors.includes(entry['supervisor'])){
 supervisors.push(entry['supervisor']);
       }
-        let testsUncompleted = testData.data.filter(
-            (testentry: any) => 
-    entry['username'] == testentry['username'] && entry['actualstep'] == testentry['step'] && testentry['score'] == null && testentry['result'] == null)
+        let testsUncompleted = testData.filter(
+    
+            (testentry: any) => {
+           
+    return entry['username'] == testentry['username'] && entry['actualstep'] == testentry['step'] && testentry['score'] == null && testentry['result'] == null})
            
             for (const entry2 of testsUncompleted){
+
 data.push({'User':entry['username'], 'Hire Date':entry['hiredate'], 'Module':entry['module'],
     "Supervisor":entry['supervisor'],
     'Test Type':entry2['type'],
-    'Step':entry['actualstep'], 'Next Date':entry['nextdate'], 'Action': entry2['controlnbr'] != null ? entry2['controlnbr'] : 'no number',
+    'Step':entry['actualstep'], 'Next Date':entry2['nextdate'], 'Action': entry2['controlnbr'] != null ? entry2['controlnbr'] : 'no number',
     'path':entry2['path'], 'id':entry2['id']
 })
+         
     }
 }
+console.log("data11", data);
+data = data.sort((a: any,b:any) => {
+ let aDate: Date = new Date(a['Next Date']);
+  let bDate: Date = new Date(b['Next Date']);
+ return aDate.getTime() -bDate.getTime();
+    });
+    console.log('data22', data)
+
     setUserData(data);
     setSupList(supervisors);
     setUniqueUsers(loadedData.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])).map((e:any) => e['username']))
@@ -186,63 +204,57 @@ day:'2-digit'
  } 
     }
     const [userData, setUserData] = useState([]);
-    async function handlePassFail(data: any, type: any){
-   let date = new Date();
-   await supabase.from('testrecords').update({
+//     async function handlePassFail(data: any, type: any){
+//    let date = new Date();
+//    await supabase.from('testrecords').update({
         
-        'username':data['User'],
-        'date': date.toLocaleDateString('en-US', {
-year:'2-digit',
-month:'numeric',
-day:'2-digit'
-        }),
-        'module':data['Module'],
-    'supervisor': data['Supervisor'],
-        'type':'Performance review',
-        'result': type == 'pass' ? 'PASS' : 'FAIL',
-        'step':data['Step'],
+//         'username':data['User'],
+//         'date': date.toLocaleDateString('en-US', {
+// year:'2-digit',
+// month:'numeric',
+// day:'2-digit'
+//         }),
+//         'module':data['Module'],
+//     'supervisor': data['Supervisor'],
+//         'type':'Performance review',
+
+//       'score': type == 'pass' ? 'OK':'NOT READY',
+//         'result': type == 'pass' ? 'PASS' : 'FAIL',
+//         'step':data['Step'],
         
-    }).eq('id', data['id']);
-    if (type == 'fail'){
-   await supabase.from('testrecords').insert({
+//     }).eq('id', data['id']);
+//     if (type == 'fail'){
+//    await supabase.from('testrecords').insert({
    
-    'username': data['User'],
-    'supervisor':data['Supervisor'],
-    'type': 'Performance review',
+//     'username': data['User'],
+//     'supervisor':data['Supervisor'],
+//     'type': 'Performance review',
  
-    'module': data['Module'],
-    'step':data['Step']
-});   
-    }
-let stuoidlist: any = await supabase.from('testrecords').select().eq('module', data['module']).eq('step',data['actualstep']).eq('username', data['username'])
-.eq('supervisor', data['supervisor']).eq('result', 'PASS');
-const list = ['Technical Evaluation', 'Competency Test', 'Performance review']
-if (stuoidlist.data.length >= 3  && stuoidlist.data.map((e: any) => e['type']).includes(list)){
-    await supabase.from('users').update({
-          'actualstep': stuoidlist.data[0]['step'] == '30D' ? '90D' : stuoidlist.data[0]['step']== '90D' ? '180D' :stuoidlist.data[0]['step'] == '180D' ? '1Y' : 
-  stuoidlist.data[0]['step'] == '1Y' ? '2Y' : '3Y',
-  'nextdate': getNextDate(data['hiredate'], stuoidlist.data[0]['step']  )
- } );
+//     'module': data['Module'],
+//     'step':data['Step']
+// });   
+//     }
+    
+// let stuoidlist: any = await supabase.from('testrecords').select().eq('module', data['Module']).eq('step',data['Step']).eq('username', data['User'])
+// .eq('supervisor', data['Supervisor']).eq('result', 'PASS');
 
-for (const item of list){
+// if (stuoidlist.data.length >= 1 && stuoidlist.data.some((e: any) => e['type']=='Technical Evaluation') &&type=='pass'){
 
-await supabase.from('testrecords').insert({
+// await supabase.from('testrecords').insert({
    
-    'username':data['User'],
-    'supervisor':data['Supervisor'],
-    'type': item,
-    'step': stuoidlist.data[0]['step'] == '30D' ? '90D' : stuoidlist.data[0]['step']== '90D' ? '180D' :stuoidlist.data[0]['step'] == '180D' ? '1Y' : 
-  stuoidlist.data['step'] == '1Y' ? '2Y' : '3Y',
-    'module': data['Module'],
-})
-}
-}
-setUploadMenu(false);
-    }
+//     'username': data['User'],
+//     'supervisor':data['Supervisor'],
+//     'type': 'Competency Test',
+//     'step': data['Step'],
+//     'module':data['Module'],
+// })
+
+// }
+//     }
     let columns = ['Username', 'Hire Date', 'Module', 'Supervisor', 'Test Type', 'Step', 'Next Date']
 return (
 <section className="flex justify-center items-center flex-col my-15 mx-10">
-   {
+   {/* {
   uploamenu &&
       <div onClick={() =>setUploadMenu(false)} className="fixed inset-0 flex items-center justify-center z-50">
 <div className="absolute bg-black opacity-30 inset-0"></div>
@@ -275,7 +287,7 @@ Pass
       </div>
       </div>
         
-    }
+    } */}
     {
           isLoading ?      <TailSpin color="#0000FF"></TailSpin>: 
         <div className="w-full flex items-center justify-center  flex-col">
@@ -399,7 +411,7 @@ duration-300 hover:bg-blue-600 py-2 text-white gap-2 bg-blue-500 font-poppins">
   Upload
  <input
  onChange={(e) => {
-  setUploadMenu(true);
+  // setUploadMenu(true);
   handleUpload(e, entry)
   setUploadData(entry);
   console.log('ent ent', entry)

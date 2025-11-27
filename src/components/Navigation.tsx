@@ -19,9 +19,17 @@ const Navigation = () => {
 
             userData.data[0]['role'] == 'USER' ? 
             [ 'Test Center', 'History', 'Log Out'] :
+            
            userData.data[0]['role'] == 'ADMIN' ? 
-             ['Users',  'Manager', 'Summary', 'Training Topics', 'Test:','Performance', 'Technical', 'Competency', 'Log Out']
-            :  [  'Manager', 'Summary', 'Training Topics', 'Test:','Performance', 'Technical', 'Competency', 'Log Out']
+             userData.data[0]['trainer'] == 'Y' ?
+             ['Users',  'Manager', 'Summary', 'Training Topics', 'Assesment:','Performance', 'Technical', 'Competency', 'Log Out']
+             : 
+               ['Users',  'Manager', 'Summary', 'Training Topics', 'Assesment:','Performance',  'Competency', 'Log Out']
+            : 
+                userData.data[0]['trainer'] == 'Y' ?
+             [ 'Manager', 'Summary', 'Training Topics', 'Assesment:','Performance', 'Technical', 'Competency', 'Log Out']
+             : 
+            [  'Manager', 'Summary', 'Training Topics', 'Assesment:','Performance', 'Competency', 'Log Out']
             );
 
    }
@@ -50,14 +58,14 @@ const Navigation = () => {
 navigate(entry ==
  'Competency' ? "/join-test" : entry == 'Manager' ? '/test-manager' :  entry == 'Summary' ? '/summary' : 
  entry == 'Technical' ?  '/evaluation' : entry == 'Log Out' || entry == 'Log In' ? '/login' :
- entry == 'Training Topics' ? '/training-topics' : entry == 'Test:' ? '': entry == 'Users' ? '/users' : "/performance-review")}} className={` 
+ entry == 'Training Topics' ? '/training-topics' : entry == 'Assesment:' ? '': entry == 'Users' ? '/users' : "/performance-review")}} className={` 
  
    cursor-pointer  text-lg ${ entry == 'Log Out' || entry == 'Log In' ?
      'bg-white/50 rounded-lg p-2 px-3 text-blue-500 font-bold font-poppins ml-8' 
      : entry == 'Technical' ||  entry == 
      'Performance' ? ' bg-white/30 p-2 px-3 m-0 text-blue-500 font-bold font-poppins ' 
      :
-      entry=='Competency' ?' bg-white/30 p-2 px-3 m-0 text-blue-500 font-bold font-poppins rounded-r-lg': entry=='Test:' ? ' bg-white/30 p-2 px-3 m-0 text-blue-500 font-bold  rounded-l-lg font-poppins '
+      entry=='Competency' ?' bg-white/30 p-2 px-3 m-0 text-blue-500 font-bold font-poppins rounded-r-lg': entry=='Assesment:' ? ' bg-white/30 p-2 px-3 m-0 text-blue-500 font-bold  rounded-l-lg font-poppins '
      : 'text-white mr-6 font-inter'}`} >
      
      {entry}

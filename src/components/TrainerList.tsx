@@ -206,7 +206,7 @@ text-white gap-2 bg-blue-500 font-poppins">
 Print
 </button>
   }
-<div ref={printRef} className="mx-15" >
+<div ref={printRef} className="mx-15 print:block" >
 <div className="border-blue-500 rounded-t-xl  border-2 p-2 flex justify-center mt-6  flex-col">
        <h1 className="font-poppins text-blue-500 font-bold text-5xl self-center mt-1 mb-1">Training Topics</h1>
     <div className="grid grid-cols-2 w-full px-40 gap-y-5 pt-4 pb-4 ">

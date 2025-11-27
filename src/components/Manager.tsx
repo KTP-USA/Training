@@ -252,7 +252,7 @@ savedTest(entry);
  onClick={()=> {
      
  }}
- className= {` m-2 py-2 ${entrye == 'PASS' ? 'text-green-500 font-bold' : entrye == 'FAIL' ? 'text-red-500 font-bold' : ''}
+ className= {` m-2 py-2 ${entrye == 'PASS'  || entrye == 'READY' ? 'text-green-500 font-bold' : entrye == 'FAIL' || entrye == 'NOT READY' ? 'text-red-500 font-bold' : ''}
     ${
 i==0  ?
 'w-[20%]' :

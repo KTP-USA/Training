@@ -120,22 +120,22 @@ day:'2-digit'
         
     }).eq('id', code);
     if (score < 0.8){
-        console.log('hi', )
-    const {data, error} =   await supabase.from('testrecords').insert({
+         let date: Date =new  Date(rawList[0]['nextdate'])
+          let insert = date.setDate(date.getDate()+30)
+      await supabase.from('testrecords').insert({
    
     'username': rawList[0]['username'],
     'supervisor':rawList[0]['supervisor'],
     'type': 'Competency Test',
- 
+ 'nextdate':insert,
     'module': rawList[0]['module'],
     'step': rawList[0]['actualstep']
 });   
-console.log('dddd', data, error)
     }
 let stuoidlist: any = await supabase.from('testrecords').select().eq('module', rawList[0]['module']).eq('step',rawList[0]['actualstep']).eq('username', rawList[0]['username'])
-.eq('supervisor', rawList[0]['supervisor']).eq('result', 'PASS');
-const list = ['Technical Evaluation', 'Competency Test', 'Performance review']
-if (stuoidlist.data.length >= 3  && stuoidlist.data.map((e: any) => e['type']).includes(list)){
+.eq('supervisor', rawList[0]['supervisor']).eq('result', 'READY');
+const list = ['Technical Evaluation',  'Performance review']
+if (stuoidlist.data.length >= 2 && stuoidlist.data.map((e: any) => e['type']).includes(list) && score>=0.8){
     await supabase.from('users').update({
           'actualstep': stuoidlist.data[0]['step'] == '30D' ? '90D' : stuoidlist.data[0]['step']== '90D' ? '180D' :stuoidlist.data[0]['step'] == '180D' ? '1Y' : 
   stuoidlist.data[0]['step'] == '1Y' ? '2Y' : '3Y',
@@ -143,12 +143,13 @@ if (stuoidlist.data.length >= 3  && stuoidlist.data.map((e: any) => e['type']).i
  } );
 
 for (const item of list){
-
+ let date: Date =new  Date(rawList[0]['nextdate'])
 await supabase.from('testrecords').insert({
    
     'username': rawList[0]['username'],
     'supervisor':rawList[0]['supervisor'],
     'type': item,
+    'nextdate':date,
     'step': stuoidlist.data[0]['step'] == '30D' ? '90D' : stuoidlist.data[0]['step']== '90D' ? '180D' :stuoidlist.data[0]['step'] == '180D' ? '1Y' : 
   stuoidlist.data[0]['step'] == '1Y' ? '2Y' : '3Y',
     'module': rawList[0]['module'],
@@ -253,9 +254,11 @@ myList.data.sort((a: any, b:any) => a['order'] - b['order'])
       options.push({optiontext: entry['optiontext'], 
            optionid: entry['optionid']});
    } 
-let questionItem = myList.data.find((entry: any) => entry['optiontext'] == '' && entry['questionid'] == item); 
-
- 
+let questionItem = myList.data.find((entry: any) => entry['optiontext'] == '' && entry['questionid'] == item);
+console.log('yo', options) 
+options = options.sort((a: any,b:any) => {
+ return   a['optionid'].localeCompare(b['optionid'])})
+ console.log('yo2', options) 
 qBank.push({options:options, questiontext: questionItem['questiontext'], 
                         questionid:questionItem['questionid'], }); 
 
