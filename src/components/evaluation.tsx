@@ -153,9 +153,12 @@ if (avg < 3){
 }
 let stuoidlist: any = await supabase.from('testrecords').select().eq('module', userData2[0]['module']).eq('step', userData2[0]['actualstep']).eq('username', userData2[0]['username'])
 .eq('supervisor', userData2[0]['supervisor']).eq('result', 'READY');
-if (stuoidlist.data.length >= 1 && stuoidlist.data.some((e: any) => e['type'] == 'Performance review' ) && avg >=3){
+console.log('stupid', stuoidlist);
+if (stuoidlist.data.length >= 1  && avg >=3){
+
     let date: Date =new  Date(userData2[0]['nextdate'])
-await supabase.from('testrecords').insert({
+    console.log('date', date);
+const {error} = await supabase.from('testrecords').insert({
    
     'username': userData2[0]['username'],
     'supervisor':userData2[0]['supervisor'],
@@ -165,7 +168,7 @@ await supabase.from('testrecords').insert({
     'step': userData2[0]['step'],
     'module': userData2[0]['module'],
 })
-
+console.log('error', error)
 }
 setIsComplete(true);
 }
@@ -216,7 +219,10 @@ text-white gap-2 ${isComplete ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500
      }
 </div> :  <button
 onClick={() => {
+    console.log('im still', 
+        prevComplete, isComplete,  Object.keys(textMap).length == rawData.length, rawData.length,  Object.keys(textMap).length, rawData, Object.keys(textMap), textMap )
     if (Object.keys(textMap).length == rawData.length && !isComplete && !prevComplete){
+        console.log('coming back 2 u')
     completeEvaluation();
    
 } }
@@ -314,7 +320,7 @@ e == 'Topic' ?'w-[70%]'
     sectionsData.map((e: any,i) =>
     <div className="flex flex-row ">
 <div className={`w-[20%] p-1 items-center flex justify-center 
-font-poppins font-bold  text-2xl border-x-2 border-x-blue-500 
+font-poppins font-bold  text-2xl border-x-2 border-x-blue-500  border-b-2 border-b-blue-500
 ${i == 0 ? 'bg-red-500 border-t-blue-500 border-1' : i == 1 ? 'bg-blue-400' :i==2 ?
 'bg-gray-400 ' : i==3 ? 'bg-yellow-300' : i==sectionsData.length-1 ? 'bg-blue-200 border-b-blue-500 border-b-2 rounded-bl-xl' : 'bg-green-300'
 }` }>

@@ -92,7 +92,7 @@ navigate(`/test/${entry['id']}`, {state: idk2})
   const [selectedUser, setSelectedUser] = useState('Select a user...');
     const [dueDate, setdueDate] = useState('')
   return ( 
-<section className="max-w-screen h-screen flex items-baseline mt-20 justify-center">
+<section className="max-w-screen h-screen flex items-baseline mt-10 justify-center">
 
 <div className="flex justify-center  flex-col w-full m-10"> 
 <div className="flex flex-row gap-15">

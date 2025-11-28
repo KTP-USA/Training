@@ -158,7 +158,7 @@ const {data, error} =await supabase.from('testrecords').insert({
     'username': rawList[0]['username'],
     'supervisor':rawList[0]['supervisor'],
     'type': item,
-    'nextdate':date,
+    'nextdate':getNextDate(rawList[0]['hiredate'], stuoidlist.data[0]['step']  ),
     'step': stuoidlist.data[0]['step'] == '30D' ? '90D' : stuoidlist.data[0]['step']== '90D' ? '180D' :stuoidlist.data[0]['step'] == '180D' ? '1Y' : 
   stuoidlist.data[0]['step'] == '1Y' ? '2Y' : '3Y',
     'module': rawList[0]['module'],

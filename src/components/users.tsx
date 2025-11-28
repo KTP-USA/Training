@@ -69,6 +69,7 @@ loadData();
     'Role', 'Email', 'Password'
     ]
     async function createUser(){
+     
       if (createData['username'] != null) {
  await supabase.functions.invoke('add-user', {body: {createData, email, password}});
  let newa: any = [...userData, {'id':null, 'active':'Y', 'username':createData['username'], 'hiredate':createData['hiredate'], 'module':createData['module'], 'machine':createData['machine'],
@@ -178,6 +179,13 @@ Save
 {
   e=='Role' ?
   <select
+  onChange={ (o) => {
+     const lister: any = createData;
+      let eVal: any ='role';
+  lister[eVal] = o.target.value;
+  setCreateData(lister);
+  }
+  }
  className="rounded-lg mt-2 pl-3
         text-lg
         border-blue-300  font-normal border-2  text-gray-900 font-poppins py-2 w-full

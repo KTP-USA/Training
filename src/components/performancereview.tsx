@@ -90,6 +90,7 @@ const PerformanceReview = () => {
     const row1 = ['Technical evaluation', '', ''];
     const row2 =['Competency Test', '', ''];
     const location = useLocation();
+    const [chosen, setChosen] = useState('');
        async function handlePassFail(data: any, type: any){
    let date = new Date();
 console.log('hi', userData2)
@@ -99,14 +100,14 @@ console.log('hi', userData2)
 console.log('conb', fetchcontrolnbr)
 
    for (const item of qs){
-await supabase.from('savedtest').insert({
+ await supabase.from('savedtest').insert({
     'performid':item,
     'perfomanser': textMap[item],
     'username': userData2[0]['username'],
    'controlnbr':fetchcontrolnbr.data[0]['id'],
     'module': userData2[0]['module'],
-    'step':userData2[0]['actualstep']
- 
+    'step':userData2[0]['actualstep'],
+ 'comment':comment
 
  })
 }
@@ -144,7 +145,7 @@ day:'2-digit'
 let stuoidlist: any = await supabase.from('testrecords').select().eq('module', data['Module']).eq('step',data['Step']).eq('username', data['User'])
 .eq('supervisor', data['Supervisor']).eq('result', 'READY');
 
-if (stuoidlist.data.length >= 1 && stuoidlist.data.some((e: any) => e['type']=='Technical Evaluation') &&type=='pass'){
+if (stuoidlist.data.length >= 1 &&type=='pass'){
  let date: Date =new  Date(data['nextdate'])
 await supabase.from('testrecords').insert({
    
@@ -217,11 +218,15 @@ async function checkIfExist(userdata: any){
 if (idk2.data?.length != 0 && idk2.data != null){
     let dat2 = idk2.data![0];
 let getdata = await supabase.from('savedtest').select().eq('controlnbr', dat2['id'] );
+let cmt = getdata.data!;
+ let cmnt = cmt[0].comment;
+ setComment(cmnt ??'')
  console.log('trrw35', getdata)
  let textymap = getdata.data!.map((e,) => ({
  [e.performid]:e.perfomanser
 }));
  setTextMap(Object.assign({}, ...textymap));
+ 
 setIsComplete(true);
 } else {
     setIsComplete(false)
@@ -260,9 +265,16 @@ const  date = new Date();
     { 
     !isComplete && selectedUser != '' &&
     <div className="flex flex-row">
+   { 
+    (chosen == '' || chosen == 'true') &&
     <button
 onClick={() => {
- handlePassFail(userData2, 'pass') }
+     if (Object.keys(textMap).length == qs.length){
+       
+ handlePassFail(userData2, 'pass') 
+setChosen('true');
+}
+     }
 } 
 className="
 flex flex-row rounded-3xl mr-5 self-end cursor-pointer p-3 w-35 text-lg items-center justify-center hover:scale-105 transition-all
@@ -270,16 +282,25 @@ duration-300 hover:bg-green-600 py-2 px-2  scale-104
 text-white gap-2 bg-green-500 font-poppins">
 Ready
 </button>
+}
+{
+     (chosen == '' || chosen == 'false') &&
   <button
 onClick={() => {
- handlePassFail(userData2, 'fail') }
+     if (Object.keys(textMap).length == qs.length){
+ handlePassFail(userData2, 'fail') 
+setChosen('false')
+}
+     }
 } 
 className="
 flex flex-row rounded-3xl mr-5 self-end cursor-pointer p-3 w-35 text-lg items-center justify-center hover:scale-105 transition-all
 duration-300 hover:bg-red-600 py-2 px-2  scale-104
 text-white gap-2 bg-red-500 font-poppins">
 Not Ready
+
 </button>
+}
 </div>
 }
   <button
@@ -326,6 +347,8 @@ day:'2-digit'
     setUserData2(userData.filter((entry) => entry['username'] == er.target.value))
 testData(userData.filter((entry) => entry['username'] == er.target.value));
 checkIfExist(userData.filter((entry) => entry['username'] == er.target.value));
+setChosen('');
+setTextMap({});
   }}
    className='border-2 ml-3 rounded-md  border-blue-400 p-2 
  font-poppins'>

@@ -110,10 +110,16 @@ let loadedData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase
     : await supabase.from('users').select().eq('role', "USER")
     
     loadedData = loadedData.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username']))
-    let testData: any =  trainer ? await supabase.from('testrecords').select().is('result', null).is('score', null ): await supabase.from('testrecords').select().neq
-    ('type', 'Technical Evaluation').is('result', null).is('score', null) ;
+    let testData: any =  trainer ? await supabase.from('testrecords').select().is('result', null).is('score', null )
+    : await supabase.from('testrecords').select().neq
+    ('type', 'Technical Evaluation').is('result', null).is('score', null);
 ;
-
+let data2 = await supabase.from('testrecords').select().is('path', null).not('result','is', null)
+.not('score','is', null)
+.eq('type', 'Performance review');
+console.log('data', data2, testData)
+testData['data'] = [...testData.data, ...data2.data ?? []]
+console.log('datana', testData)
 testData =testData.data.filter((entry:any) => {
         let nextDate: Date = new Date(entry['nextdate']);
         let now: Date = new Date;
@@ -125,7 +131,7 @@ now.setDate(now.getDate() + 10);
   let bDate: Date = new Date(b['nextdate']);
  return aDate.getTime() -bDate.getTime();
     });
- 
+
     let data: any = [];
     let supervisors: any = [];
     for (const entry of loadedData){
@@ -136,14 +142,15 @@ supervisors.push(entry['supervisor']);
     
             (testentry: any) => {
            
-    return entry['username'] == testentry['username'] && entry['actualstep'] == testentry['step'] && testentry['score'] == null && testentry['result'] == null})
+    return entry['username'] == testentry['username'] && entry['actualstep'] == testentry['step'] })
            
             for (const entry2 of testsUncompleted){
-
 data.push({'User':entry['username'], 'Hire Date':entry['hiredate'], 'Module':entry['module'],
     "Supervisor":entry['supervisor'],
     'Test Type':entry2['type'],
-    'Step':entry['actualstep'], 'Next Date':entry2['nextdate'], 'Action': entry2['controlnbr'] != null ? entry2['controlnbr'] : 'no number',
+    'Step':entry['actualstep'], 'Next Date':entry2['nextdate'], 'Action':
+    entry2['result'] == 'READY' ? 'READY' :
+    entry2['controlnbr'] != null ? entry2['controlnbr'] : 'no number',
     'path':entry2['path'], 'id':entry2['id']
 })
          
@@ -402,8 +409,8 @@ columns[i] == 'Module' ?'w-[10%]': columns[i] == 'Next Date' ? 'w-[10%]' :
     `}>
  {
  i == 7 ? 
- entrye == 'no number' ?
- entry['Test Type'] == 'Performance review' && entry['path'] == null
+ entrye == 'no number' || entry['Test Type'] == 'Performance review' ?
+ entry['Test Type'] == 'Performance review' && entry['Action'] == 'READY'
  ? 
 <label className="
 flex flex-row rounded-3xl  cursor-pointer p-3 w-35 text-lg items-center justify-center hover:scale-102 transition-all
@@ -438,7 +445,7 @@ className="
 flex flex-row rounded-3xl  cursor-pointer p-3 w-35 text-lg items-center justify-center hover:scale-102 transition-all
 duration-300 hover:bg-blue-600 py-2
 text-white gap-2 bg-blue-500 font-poppins">
-{entry['Test Type'] == 'Technical Evaluation' ? 'View' : entry['Test Type'] == 'Competency Test' ? 'Generate' : 'View'}
+{entry['Test Type'] == 'Technical Evaluation' ? 'Start' : entry['Test Type'] == 'Competency Test' ? 'Generate' : 'Start'}
 </button> 
 
 : <p className="font-extrabold text-blue-500 ml-5 ">Code: {entrye}</p>
