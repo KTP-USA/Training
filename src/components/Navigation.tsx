@@ -9,7 +9,7 @@ const Navigation = () => {
     const [isLoggedIn, setLogIn] = useState(false);
    async function fetchUserData() {
     let session = await supabase.auth.getSession();
-    let userData: any = await supabase.from('users').select().eq('uid', session.data.session?.user.id);
+    let userData: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
     setLogIn(session.data.session?.user.id != null)
     let isLog = session.data.session?.user.id != null
     
@@ -22,9 +22,15 @@ const Navigation = () => {
             
            userData.data[0]['role'] == 'ADMIN' ? 
              userData.data[0]['trainer'] == 'Y' ?
-             ['Users',  'Manager', 'Summary', 'Training Topics', 'Assesment:','Performance', 'Technical', 'Competency', 'Log Out']
+             [
+                
+                
+                'Questions',
+                'Users',  'Manager', 'Summary', 'Training Topics', 'Assesment:','Performance', 'Technical', 'Competency', 'Log Out']
              : 
-               ['Users',  'Manager', 'Summary', 'Training Topics', 'Assesment:','Performance',  'Competency', 'Log Out']
+               [
+                 'Questions',
+                'Users',  'Manager', 'Summary', 'Training Topics', 'Assesment:','Performance',  'Competency', 'Log Out']
             : 
                 userData.data[0]['trainer'] == 'Y' ?
              [ 'Manager', 'Summary', 'Training Topics', 'Assesment:','Performance', 'Technical', 'Competency', 'Log Out']
@@ -46,7 +52,7 @@ const Navigation = () => {
         <nav className="
        items-center
         top-0 left-0 right-0 z-60 px-4 py-5 flex flex-row bg-blue-400 rounded-bl-xl rounded-br-xl">
-<p onClick={()=>{navigate('/')}} className="text-white cursor-pointer font-bold text-xl ml-2 font-inter"> Kurz Training Module - V1.0 </p>
+<p onClick={()=>{navigate('/')}} className="text-white cursor-pointer font-bold text-xl ml-2 font-inter"> Kurz Training Module - V1.1 </p>
 <div className="flex-1"></div>
 <div className="flex flex-row gap-10 mr-10">
 <div className="md:flex flex-row items-center hidden ">
@@ -55,7 +61,9 @@ const Navigation = () => {
     if (isLoggedIn && (entry == 'Log In' || entry=='Log Out')){
         supabase.auth.signOut();
     }
-navigate(entry ==
+navigate(
+    entry == 'Questions' ? '/questions' : 
+    entry == 
  'Competency' ? "/join-test" : entry == 'Manager' ? '/test-manager' :  entry == 'Summary' ? '/summary' : 
  entry == 'Technical' ?  '/evaluation' : entry == 'Log Out' || entry == 'Log In' ? '/login' :
  entry == 'Training Topics' ? '/training-topics' : entry == 'Assesment:' ? '': entry == 'Users' ? '/users' : "/performance-review")}} className={` 
@@ -83,7 +91,9 @@ navigate(entry ==
 { tabs.map((entry) =>
 <p onClick={() => 
 
-    navigate(entry ==
+    navigate(
+        entry == 'Questions' ? '/questions' :  
+        entry ==
  'Competency' ? "/join-test" : entry == 'Manager' ? '/test-manager' :  entry == 'Summary' ? '/summary' : 
  entry == 'Technical' ?  '/evaluation' : entry == 'Log Out' || entry == 'Log In' ? '/login' :
  entry == 'Training Topics' ? '/training-topics' : entry == 'Assesment:' ? '': entry == 'Users' ? '/users' : "/performance-review")

@@ -98,7 +98,7 @@ async function loadData(){
 
   let trainer: boolean = false;
    let session = await supabase.auth.getSession();
-    let userData1: any = await supabase.from('users').select().eq('uid', session.data.session?.user.id);
+    let userData1: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
     if ( userData1.data[0]['role'] != 'SUPERVISOR'){
 setSupervisora(false);
     }
@@ -115,7 +115,7 @@ let loadedData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase
     ('type', 'Technical Evaluation').is('result', null).is('score', null);
 ;
 let data2 = await supabase.from('testrecords').select().is('path', null).not('result','is', null)
-.not('score','is', null)
+.not('score','is', null).neq('result', 'NOT READY')
 .eq('type', 'Performance review');
 console.log('data', data2, testData)
 testData['data'] = [...testData.data, ...data2.data ?? []]
@@ -436,9 +436,8 @@ navigater('/evaluation', {state: [ entry['User'], null]})
   } else if (entry['Test Type'] == 'Competency Test') {
 generateTest(entry['Step'], entry['Module'], entry['User'], entry['Test Type'], entry);
   } else{
-    let url =supabase.storage.from('Files').getPublicUrl(entry['path'])
-      window.open(url.data.publicUrl.replace('%0D%0A', ''), "_blank", "noopener,noreferrer");
-    // navigater('/performance-review', {state: [null, null, url.data.publicUrl ?? 'no path']})
+    
+    navigater('/performance-review', {state: [entry['User'], null,  'no path']})
   }
 }}
 className="
@@ -449,7 +448,7 @@ text-white gap-2 bg-blue-500 font-poppins">
 </button> 
 
 : <p className="font-extrabold text-blue-500 ml-5 ">Code: {entrye}</p>
-: <p>{entrye}</p>
+: entry == 'Next Date' ? <p>{entrye}</p> :<p>{entrye}</p>
  
  }
   

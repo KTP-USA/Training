@@ -80,78 +80,14 @@ day:'2-digit'
         });
  } 
     }
-async function completeEvaluation(){
-    
-let responseList = Object.values(textMap).map((e) => e)
-let totalsum = 0;
-for (const item of responseList){
-    totalsum = totalsum+Number(item);
-}
-let date = new Date();
 
-let avg = (Math.round(totalsum/responseList.length * 10)/10);
-for (const item of rawData){
-     let fetchcontrolnbr: any = await supabase.from('testrecords').select().eq('step', userData2[0]['actualstep']).eq('module', userData2[0]['module']).eq('username',  userData2[0]['username']).
-     eq('type', 'Technical Evaluation').is('result', null)
-await supabase.from('savedtest').insert({
-    'techid':item['id'],
-    'techanswer': textMap[item['topic']],
-    'username': userData2[0]['username'],
-   'controlnbr':fetchcontrolnbr[0]['id'],
-    'module': userData2[0]['module'],
-    'step':userData2[0]['actualstep']
- 
-
- })
-}
-
-await supabase.from('testrecords').upsert({
-    'score':avg,
-    'result': avg >= 3 ? 'PASS' : 'FAIL',
-    'username': userData2[0]['username'],
-    'supervisor':userData2[0]['supervisor'],
-    'type': 'Technical Evaluation',
-    'date': date.toLocaleDateString('en-US', {
-year:'2-digit',
-month:'numeric',
-day:'2-digit'
-        }),
-    'module': userData2[0]['module'],
-    'step':userData2[0]['actualstep']
-}).eq('module', userData2[0]['module']).eq('step', userData2[0]['actualstep']).eq('username', userData2[0]['username']).eq('type', 'Technical Evaluation').is('result', null)
-.eq('supervisor', userData2[0]['supervisor']);
-let stuoidlist: any = await supabase.from('testrecords').select().eq('module', userData2[0]['module']).eq('step', userData2[0]['actualstep']).eq('username', userData2[0]['username'])
-.eq('supervisor', userData2[0]['supervisor']).eq('result', 'PASS');
-const list = ['Technical Evaluation', 'Competency Test', 'Performace Review']
-if (stuoidlist.data.length >= 3){
-    await supabase.from('users').update({
-          'actualstep': stuoidlist.data[0]['step'] == '30D' ? '90D' : stuoidlist.data[0]['step']== '90D' ? '180D' :stuoidlist.data[0]['step'] == '180D' ? '1Y' : 
-  stuoidlist.data[0]['step'] == '1Y' ? '2Y' : '3Y',
-  'nextdate': getNextDate(userData2[0]['hiredate'], stuoidlist.data[0]['step']  )
- } );
-
-for (const item of list){
-
-await supabase.from('testrecords').insert({
-   
-    'username': userData2[0]['username'],
-    'supervisor':userData2[0]['supervisor'],
-    'type': item,
-    'step': stuoidlist.data[0]['step'] == '30D' ? '90D' : stuoidlist.data[0]['step']== '90D' ? '180D' :stuoidlist.data[0]['step'] == '180D' ? '1Y' : 
-  stuoidlist.data[0]['step'] == '1Y' ? '2Y' : '3Y',
-    'module': userData2[0]['module'],
-})
-}
-}
-
-}
 const [userData, setUserData] = useState([]);
 const [textMap, setTextMap] = useState({});
 const [userData2, setUserData2] = useState([]);
 const [selectedUser, setSelectedUser] = useState('');
 async function loadData(){
      let session = await supabase.auth.getSession();
-    let userData1: any = await supabase.from('users').select().eq('uid', session.data.session?.user.id);
+    let userData1: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
 
 let userData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase.from('users').select().eq('supervisor', userData1.data[0]['username'])
 
@@ -221,9 +157,10 @@ Print
                 userData2.length == 0 ? '' : userData2[0]['actualstep']) : e == 'Supervisor:' ? (userData2.length == 0 ? '' : userData2[0]['supervisor']) : 
             e == 'Module:' ?(userData2.length == 0 ? '' :userData2[0]['module']) : e=='Machine:' ? ( userData2.length == 0 ? '' : userData2[0]['machine']) :
         e == 'Date:' ?   `${date.toLocaleDateString('en-US', {
+  month:'numeric',
+            
+day:'2-digit',
 year:'2-digit',
-month:'numeric',
-day:'2-digit'
         })}`:  '' }</p>
 }
             {

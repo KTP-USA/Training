@@ -5,12 +5,13 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
  const LogIn = () =>{
     async function wheretogo() {
+       
         const { data, error } = await supabase.auth.signInWithPassword({
   email: email,
   password: password,
 });
 
-    let userData: any = await supabase.from('users').select().eq('uid', data.user?.id);
+    let userData: any = await supabase.from('user_profiles').select().eq('uid', data.user?.id);
     console.log('ussss', userData)
     if (userData.data[0]['role'] == 'USER'){
         navigate('/manager')

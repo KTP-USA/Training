@@ -180,12 +180,12 @@ const [selectedUser, setSelectedUser] = useState('');
 const [trainerName, setTrainerName] = useState('');
 async function loadData(){
      let session = await supabase.auth.getSession();
-    let userData1: any = await supabase.from('users').select().eq('uid', session.data.session?.user.id);
+    let userData1: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
 setTrainerName(userData1.data[0]['username'])
 let userData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase.from('users').select().eq('supervisor', userData1.data[0]['username'])
 
     : await supabase.from('users').select().eq('role', "USER")
-console.log('use', userData);
+
 setUserData(userData.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])));
 if (name != 'no name'){
     formatData(userData.data.filter((e: any)=> e['username'] == name))

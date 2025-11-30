@@ -1,15 +1,17 @@
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { TailSpin } from "react-loader-spinner";
 import { Edit } from "lucide-react";
-const Users = () =>{
-  
 
+const Users = () =>{
+  const [hasCreated, sethasCreated] = useState(false)
+const [hasSaved, setHasSaved] = useState(false);
   const testTypes = ['Competency Test', 'Technical Evaluation', 'Performance review']
  
   async function saveEdits() {
     await supabase.from('users').update(editData[0]).eq('id', editData[0]['id']);
+   setHasSaved(true) 
     let list: any = userData.map((e) => { return e==userData.find((em)=> em['id'] ==editData[0]['id']) ? editData[0] :
  e})
 console.log('list', list, editData[0], userData.find((em)=> em['id'] ==editData[0]['id']))
@@ -17,7 +19,7 @@ console.log('list', list, editData[0], userData.find((em)=> em['id'] ==editData[
   }
   const [selectedUser, setSelectUser] = useState('Username')
   const [createData, setCreateData] = useState({'machine':null, 'username':null, 'hiredate':null, 'module': null, 
-  'supervisor':null, 'actualstep':null, 'nextdate':null, 'role': 'USER', 'active':'Y'
+  'supervisor':null, 'actualstep':null, 'nextdate':null, 'role': 'USER', 'active':'Y', 'trainer':null
  })
     const [isLoading, setisLoading]=useState(true);
     const [isEditOpen, setEditOpen] = useState(false);
@@ -25,6 +27,10 @@ console.log('list', list, editData[0], userData.find((em)=> em['id'] ==editData[
     const [selectedSupervisor, setSupervisor] = useState('Supervisor')
     const [supervisors, setSupList] = useState([])
     const [uniqueUsers, setUniqueUsers] = useState([]);
+    const [supervisorList, setSupervisorList] = useState([]);
+    const [stepList, setStepList]= useState([]);
+    const [moduleList, setModuleList] =useState([]);
+    const [trainerList, setTrainerList] =useState([]);
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
     const [editData, setEditData] = useState([]);
@@ -32,6 +38,7 @@ console.log('list', list, editData[0], userData.find((em)=> em['id'] ==editData[
     const [testType, setTestType] = useState('Test Type')
     useEffect(() => {
 async function loadData(){
+
    let session = await supabase.auth.getSession();
     let userData1: any = await supabase.from('users').select().eq('uid', session.data.session?.user.id);
     if ( userData1.data[0]['role'] != 'SUPERVISOR'){
@@ -54,6 +61,18 @@ supervisors.push(entry['supervisor']);
    
     
 }
+let sups =await supabase.from('supervisor').select();
+let hi: any = sups.data
+setSupervisorList(hi);
+let mods =await supabase.from('module').select();
+let mods2: any = mods.data
+setModuleList(mods2);
+let step =await supabase.from('step').select();
+let step2: any = step.data
+let train =await supabase.from('trainer').select();
+let train2: any = train.data
+setTrainerList(train2);
+setStepList(step2);
     setUserData(loadedData);
     setSupList(supervisors);
     setUniqueUsers(loadedData.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])).map((e:any) => e['username']))
@@ -63,17 +82,22 @@ loadData();
     }, [])
     const [userData, setUserData] = useState([]);
     let columns = ['Username', 'Hire Date', 'Module', 'Machine', 'Supervisor', 'Step', 'Next Date', 
-    'Role'
+    'Role', 'Trainer'
     ]
-      let columns2 = ['Username', 'Hire Date', 'Module', 'Machine', 'Supervisor', 'Step', 'Next Date', 
+      let columns2 = ['Username', 'Hire Date', 'Module', 'Machine', 'Supervisor', 'Trainer', 'Step', 'Next Date', 
     'Role', 'Email', 'Password'
     ]
     async function createUser(){
      
       if (createData['username'] != null) {
- await supabase.functions.invoke('add-user', {body: {createData, email, password}});
+const response = await supabase.functions.invoke('add-user', {body: {createData, email, password}});
+if (response.error == null){
+sethasCreated(true);
+}
  let newa: any = [...userData, {'id':null, 'active':'Y', 'username':createData['username'], 'hiredate':createData['hiredate'], 'module':createData['module'], 'machine':createData['machine'],
-  'supervisor':createData['supervisor'], 'actualstep':createData['actualstep'], 'nextdate':createData['nextdate'], 'uid':null, 'role':createData['role'] ??'USER', 'created_at':null,
+  'supervisor':createData['supervisor'],
+  'trainer':createData['trainer'],
+  'actualstep':createData['actualstep'], 'nextdate':createData['nextdate'], 'uid':null, 'role':createData['role'] ??'USER', 'created_at':null,
   }];
 setUserData(newa)
       }
@@ -83,7 +107,7 @@ return (
 <section className="flex justify-center items-center flex-col my-15 mx-10">
     {
    isEditOpen &&
-      <div onClick={() => setEditOpen(false)} className="fixed inset-0 flex items-center justify-center z-50">
+      <div onClick={() => {setEditOpen(false); setHasSaved(false)}} className="fixed inset-0 flex items-center justify-center z-50">
 <div className="absolute bg-black opacity-30 inset-0"></div>
 <div onClick={(e) => e.stopPropagation()} className="bg-white p-5 rounded-xl z-10 overflow-y-auto font-poppins font-bold text-blue-400 text-2xl max-h-100 min-w-1/3" >Update User
 <div className="flex flex-col gap-4 mt-6">
@@ -116,7 +140,39 @@ onChange={(o) => {
          
            <option>ADMIN</option>
         </select>
-  : e == 'Email' || e == 'Password' ?
+  :  
+  e == 'Supervisor' || e=='Step' || e=='Module' || e=='Trainer' ?
+
+ <select
+ value={editData[0][`${ e == 'Step' ? 'actualstep' 
+  : e.toLocaleLowerCase()}`]}
+  onChange={ (o) => {
+      let eVal: any =  e == 'Supervisor' ? 'supervisor' : e=='Step' ? 'actualstep' :  e=='Module' ? 'module' :  'trainer'
+  let newer: any = Object.keys(editData[0]).map((item: any) => {
+  
+   return item == eVal ? {[item]:o.target.value}: {[item]:editData[0][item]}})
+
+  let list: any = [Object.assign({}, ...newer)]
+  console.log('hiya', list, newer)
+  setEditData(list)
+  }
+  }
+ className="rounded-lg mt-2 pl-3
+        text-lg
+        border-blue-300  font-normal border-2  text-gray-900 font-poppins py-2 w-full
+        cursor-pointer justify-center px-1 overflow-ellipsis
+        ">
+      <option>Select a { e == 'Supervisor' ? 'supervisor' : e == 'Step' ? 'step' : e=='Trainer' ? 'trainer':
+        'module'}... </option>
+  
+  {
+  e == 'Step' ?stepList.map((e) => <option>{e['stepname']}</option>) : e=='Module' ? moduleList.map((e) => <option>{e['modulename']}</option>) : e=='Trainer'?
+   trainerList.map((e) => <option>{e['trainername']}</option>)
+  :
+
+  supervisorList.map((e) => <option>{e['supername']}</option>)}
+        </select> :
+  e == 'Email' || e == 'Password' ?
    <input 
 value={e=='Email' ? email : password}
 onChange={(o) => {
@@ -128,7 +184,31 @@ placeholder={e} className="rounded-lg mt-2 pl-3
         border-blue-300  font-normal border-2  text-gray-900 font-poppins py-2 w-full
         cursor-pointer justify-center px-1 overflow-ellipsis
         "></input> :
+        e == 'Hire Date' || e=='Next Date' ?
+         <input 
+
+value={editData[0][`${e == 'Hire Date' ? 'hiredate' : 'nextdate' }`]}
+type="date"
+onChange={(o) => {
+  console.log('erm', editData, editData[0])
+    let eVal: any =  e == 'Hire Date' ? 'hiredate':'nextdate'
+    
+  let newer: any = Object.keys(editData[0]).map((item: any) => {
+  
+   return item == eVal ? {[item]:o.target.value}: {[item]:editData[0][item]}})
+
+  let list: any = [Object.assign({}, ...newer)]
+  console.log('hiya', list, newer)
+  setEditData(list)
+
+}}
+placeholder={e} className="rounded-lg mt-2 pl-3
+        text-lg
+        border-blue-300  font-normal border-2  text-gray-900 font-poppins py-2 w-full
+        cursor-pointer justify-center px-1 overflow-ellipsis
+        "></input>: 
   <input 
+
 value={editData[0][`${e == 'Hire Date' ? 'hiredate': e == 'Step' ? 'actualstep' : e=='Next Date' ? 'nextdate'
   : e.toLocaleLowerCase()}`]}
 onChange={(o) => {
@@ -156,11 +236,12 @@ placeholder={e} className="rounded-lg mt-2 pl-3
 onClick={() => {
   saveEdits();
 }}
-className="
-flex flex-row rounded-3xl  cursor-pointer p-3 w-35 mt-6 self-end font-normal text-lg items-center justify-center hover:scale-102 transition-all
-duration-300 hover:bg-blue-600 py-2
-text-white gap-2 bg-blue-500 font-poppins">
-Save
+className={` ${hasSaved ? 
+  'bg-green-500 ' : "bg-blue-500 hover:bg-blue-600 hover:scale-102 transition-all duration-300 cursor-pointer"
+}
+flex flex-row rounded-3xl  p-3 w-35 mt-6 self-end font-normal text-lg items-center justify-center   py-2
+text-white gap-2 font-poppins`}>
+{hasSaved ? 'Saved' : 'Save'}
 </button>
       </div>
       </div>
@@ -168,7 +249,7 @@ Save
     }
       {
    isCreateOpen &&
-      <div onClick={() => setCreateOpen(false)} className="fixed inset-0 flex items-center justify-center z-50">
+      <div onClick={() => {setCreateOpen(false) ;sethasCreated(false)}} className="fixed inset-0 flex items-center justify-center z-50">
 <div className="absolute bg-black opacity-30 inset-0"></div>
 <div onClick={(e) => e.stopPropagation()} className="bg-white p-5 rounded-xl z-10 overflow-y-auto font-poppins font-bold text-blue-400 text-2xl max-h-100 min-w-1/3" >Create User
 <div className="flex flex-col gap-4 mt-6">
@@ -196,7 +277,36 @@ Save
               <option>SUPERVISOR</option>
            <option>ADMIN</option>
         </select>
-  :  e == 'Email' || e == 'Password' ?
+  : 
+  e == 'Supervisor' || e=='Step' || e=='Module' || e=='Trainer' ?
+
+ <select
+  onChange={ (o) => {
+     const lister: any = createData;
+      let eVal: any =  e == 'Supervisor' ? 'supervisor' : e=='Step' ? 'actualstep' :  e=='Module' ? 'module' :  'trainer'
+  lister[eVal] = o.target.value;
+  setCreateData(lister);
+  }
+  }
+ className="rounded-lg mt-2 pl-3
+        text-lg
+        border-blue-300  font-normal border-2  text-gray-900 font-poppins py-2 w-full
+        cursor-pointer justify-center px-1 overflow-ellipsis
+        ">
+      <option>Select a { e == 'Supervisor' ? 'supervisor' : e == 'Step' ? 'step' : e=='Trainer' ? 'trainer':
+        'module'}... </option>
+  
+  {
+  e == 'Step' ?stepList.map((e) => <option>{e['stepname']}</option>) : e=='Module' ? moduleList.map((e) => <option>{e['modulename']}</option>) : e=='Trainer'?
+   trainerList.map((e) => <option>{e['trainername']}</option>)
+  :
+
+  supervisorList.map((e) => <option>{e['supername']}</option>)}
+        </select>
+
+  :
+  
+  e == 'Email' || e == 'Password' ?
    <input 
 value={e=='Email' ? email : password}
 onChange={(o) => {
@@ -229,11 +339,12 @@ placeholder={e} className="rounded-lg mt-2 pl-3
 onClick={() => {
   createUser();
 }}
-className="
-flex flex-row rounded-3xl  cursor-pointer p-3 w-35 mt-6 self-end font-normal text-lg items-center justify-center hover:scale-102 transition-all
-duration-300 hover:bg-blue-600 py-2
-text-white gap-2 bg-blue-500 font-poppins">
-Create
+className={` ${hasCreated ? 
+  'bg-green-500 ' : "bg-blue-500 hover:bg-blue-600 hover:scale-102 transition-all duration-300 cursor-pointer"
+}
+flex flex-row rounded-3xl   p-3 w-35 mt-6 self-end font-normal text-lg items-center justify-center   py-2
+text-white gap-2  font-poppins`}>
+{hasCreated ? 'Created' : 'Create'}
 </button>
       </div>
       </div>
@@ -251,8 +362,8 @@ className="mt-5 border-gray-500 rounded-lg p-2 w-full font-poppins border-2"></i
   <button
 onClick={() => {
  setCreateOpen(true);
- setCreateData({'machine':null, 'username':null, 'hiredate':null, 'module': null, 
-  'supervisor':null, 'actualstep':null, 'nextdate':null, 'role': 'USER', 'active':'Y'
+ setCreateData({'machine':null, 'username':null, 'hiredate':null, 'module': null,
+  'supervisor':null, 'actualstep':null, 'nextdate':null, 'role': 'USER', 'active':'Y',  'trainer':null,
  });
  setPassword('');
  setEmail('');
@@ -329,13 +440,17 @@ supervisors.map((entry) =>
 <div className=" rounded-md mt-7 w-full">
   <div className="flex flex-row bg-gradient-to-r from-blue-100 to-blue-300 rounded-lg py-2    font-bold font-inter">
 {
-  columns.map((entry) =>
-  <div className= {`m-2 ml-5 ${
+  columns.map((entry) => {
+   if ( entry == 'Trainer'){
+    return null;
+   }
+ return  <div className= {`m-2 ml-5 ${
  'w-1/8'
   }`}>
     <p >{entry} </p>
   
-  </div>
+</div>
+  }
   )
 }
 </div>
@@ -348,7 +463,7 @@ userData.filter((entry) => (testType == 'Test Type' ? true : entry['Test Type'] 
    <div>
    <div className={`flex flex-row items-center`}>
  {   Object.values(entry).map((entrye: any, i) => {
- console.log('hi', i, entrye)
+ console.log('hi', i)
 if (i == 1  || i == 0 || i== 9||i==11 || i==12 ){
   return;
 }

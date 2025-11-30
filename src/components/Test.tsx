@@ -67,37 +67,42 @@ correctcount= correctcount+1
  if (step == '30D'){
    date.setDate(date.getDate()+60);
     return date.toLocaleDateString('en-US', {
+  month:'numeric',
+            
+day:'2-digit',
 year:'2-digit',
-month:'numeric',
-day:'2-digit'
         });
  } else  if (step == '60D'){
     date.setDate(date.getDate()+180);
     return date.toLocaleDateString('en-US', {
+  month:'numeric',
+            
+day:'2-digit',
 year:'2-digit',
-month:'numeric',
-day:'2-digit'
         });
  } else  if (step == '180D'){
  date.setDate(date.getFullYear()+1);
     return date.toLocaleDateString('en-US', {
+  month:'numeric',
+            
+day:'2-digit',
 year:'2-digit',
-month:'numeric',
-day:'2-digit'
         });
  } else  if (step == '1Y'){
      date.setDate(date.getDate()+2);
     return date.toLocaleDateString('en-US', {
+  month:'numeric',
+            
+day:'2-digit',
 year:'2-digit',
-month:'numeric',
-day:'2-digit'
         });
  }  else  if (step == '2Y'){
      date.setDate(date.getDate()+3);
     return date.toLocaleDateString('en-US', {
+  month:'numeric',
+            
+day:'2-digit',
 year:'2-digit',
-month:'numeric',
-day:'2-digit'
         });
  } 
     }
@@ -106,9 +111,11 @@ day:'2-digit'
         
         'username':rawList[0]['username'],
         'date': date.toLocaleDateString('en-US', {
+            month:'numeric',
+            
+day:'2-digit',
 year:'2-digit',
-month:'numeric',
-day:'2-digit'
+
         }),
         'module':rawList[0]['module'],
     'supervisor': getSupervisor.data![0]['supervisor'],

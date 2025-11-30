@@ -115,9 +115,10 @@ console.log('conb', fetchcontrolnbr)
         
         'username':data['username'],
         'date': date.toLocaleDateString('en-US', {
+  month:'numeric',
+            
+day:'2-digit',
 year:'2-digit',
-month:'numeric',
-day:'2-digit'
         }),
         'module':data['module'],
     'supervisor': data['supervisor'],
@@ -235,11 +236,14 @@ setIsComplete(true);
 }
 async function loadData(){
      let session = await supabase.auth.getSession();
-    let userData1: any = await supabase.from('users').select().eq('uid', session.data.session?.user.id);
+    let userData1: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
 setTrainerName(userData1.data[0]['username'])
-let userData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase.from('users').select().eq('supervisor', userData1.data[0]['username'])
+let userData: any = 
+// userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase.from('users').select().eq('supervisor', userData1.data[0]['username'])
 
-    : await supabase.from('users').select().eq('role','USER')
+//     :
+     await supabase.from('users').select().eq('role', 'USER');
+    console.log('us', userData)
 setUserData(userData.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])));
 if (name != 'no name'){
     formatData(userData.data.filter((e: any)=> e['username'] == name))
@@ -332,9 +336,10 @@ Print
                 e == 'Supervisor:' ? (userData2.length == 0 ? '' : userData2[0]['supervisor']) : 
             e == 'Module:' ?(userData2.length == 0 ? '' :userData2[0]['module']) : e=='Machine:' ? ( userData2.length == 0 ? '' : userData2[0]['machine']) :
         e == 'Date:' ?   `${date.toLocaleDateString('en-US', {
+  month:'numeric',
+            
+day:'2-digit',
 year:'2-digit',
-month:'numeric',
-day:'2-digit'
         })}`: e == 'Trainer:' ?  trainername : '' }</p>
 }
             {

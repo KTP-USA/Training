@@ -11,7 +11,7 @@ const Manager = () => {
     const [selectedPhase, setSelectedPhaae] = useState('');
      async function fetchUserData() {
     let session = await supabase.auth.getSession();
-    let userData: any = await supabase.from('users').select().eq('uid', session.data.session?.user.id);
+    let userData: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
     console.log('userd', userData, userData.data[0]['role']);
     if (userData.data[0]['role'] == 'USER'){
       setNotAdmin(true);

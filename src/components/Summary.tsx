@@ -15,14 +15,17 @@ const Summary = () => {
     const navigate = useNavigate()
     async function LoadData() {
         let user: any = await supabase.from('users').select().eq('role', 'USER');
-      
+       
+        const {data, error}=  await supabase.from('users').select()
+        console.log('hi', data, error)
+      console.log('user', user, );
        let test: any= await supabase.from('testrecords').select();
        setUserData(user.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])));
        setTestData2(test.data)
 
 
         let session = await supabase.auth.getSession();
-    let userData1: any = await supabase.from('users').select().eq('uid', session.data.session?.user.id);
+    let userData1: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
 
     setIsAdmin(userData1.data[0]['role'] != "USER")
     if (userData1.data[0]['role'] == 'USER'){
