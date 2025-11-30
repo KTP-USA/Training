@@ -14,7 +14,7 @@ import { supabase } from "../supabaseClient";
     let userData: any = await supabase.from('user_profiles').select().eq('uid', data.user?.id);
     console.log('ussss', userData)
     if (userData.data[0]['role'] == 'USER'){
-        navigate('/manager')
+        navigate('/summary')
     } else {
         navigate('/test-manager')
     }    

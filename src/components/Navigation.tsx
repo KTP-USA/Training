@@ -18,7 +18,7 @@ const Navigation = () => {
                !isLog  ?  [ 'Log In'] :  name.includes(`/test/`)  ?   [ 'Log Out'] :
 
             userData.data[0]['role'] == 'USER' ? 
-            [ 'Test Center', 'History', 'Log Out'] :
+            [ 'Test Center', 'Summary', 'Log Out'] :
             
            userData.data[0]['role'] == 'ADMIN' ? 
              userData.data[0]['trainer'] == 'Y' ?
@@ -52,16 +52,18 @@ const Navigation = () => {
         <nav className="
        items-center
         top-0 left-0 right-0 z-60 px-4 py-5 flex flex-row bg-blue-400 rounded-bl-xl rounded-br-xl">
-<p onClick={()=>{navigate('/')}} className="text-white cursor-pointer font-bold text-xl ml-2 font-inter"> Kurz Training Module - V1.1 </p>
+<p onClick={()=>{navigate('/')}} className="text-white cursor-pointer font-bold text-xl ml-2 font-inter"> Kurz Training Module - V1.2</p>
 <div className="flex-1"></div>
 <div className="flex flex-row gap-10 mr-10">
 <div className="md:flex flex-row items-center hidden ">
     {tabs.map((entry) =>
 <p onClick={() => {
+
     if (isLoggedIn && (entry == 'Log In' || entry=='Log Out')){
         supabase.auth.signOut();
     }
 navigate(
+    entry == 'Test Center' ? '/join-test' :
     entry == 'Questions' ? '/questions' : 
     entry == 
  'Competency' ? "/join-test" : entry == 'Manager' ? '/test-manager' :  entry == 'Summary' ? '/summary' : 
@@ -92,8 +94,9 @@ navigate(
 <p onClick={() => 
 
     navigate(
-        entry == 'Questions' ? '/questions' :  
-        entry ==
+      entry == 'Test Center' ? '/join-test' :
+    entry == 'Questions' ? '/questions' : 
+    entry == 
  'Competency' ? "/join-test" : entry == 'Manager' ? '/test-manager' :  entry == 'Summary' ? '/summary' : 
  entry == 'Technical' ?  '/evaluation' : entry == 'Log Out' || entry == 'Log In' ? '/login' :
  entry == 'Training Topics' ? '/training-topics' : entry == 'Assesment:' ? '': entry == 'Users' ? '/users' : "/performance-review")

@@ -8,6 +8,7 @@ const Questions = () => {
     ];
     const [hasCreated, sethasCreated] = useState(false)
 const [hasSaved, setHasSaved] = useState(false);
+const [qBank3, setQBank3] = useState([]);
     const [editModule, setEditModule] = useState('');
     const [isEditOpen, setIsEditOpen]  = useState(false);
     const [editStep, setEditStep] = useState('');
@@ -59,6 +60,8 @@ qBank2.push({options:options, questiontext: questionItem['questiontext'],
                     } 
                                            qBank2.sort((a: any,b: any) => a.questionid - b.questionid)
                      setQBank(qBank2);
+                     setQBank3(qBank2)
+                     
                      console.log('setqbanker', qBank2)
                 } else {
                      let   myList:any = await supabase.from('questions').select().eq('module', editModule).eq('step',editStep).eq('questionid', editQ).eq('optiontext', '');
@@ -71,6 +74,7 @@ let qBank2: any = { options:options.data, questiontext:myList.data[0]['questiont
 
 
   setQBank(arrayBank);
+  
     console.log('setqbanker', arrayBank)
                     } 
                  setIsEditOpen(true) ; 
@@ -89,8 +93,9 @@ let qBank2: any = { options:options.data, questiontext:myList.data[0]['questiont
      async function saveQuestion() {
        
         for (const entry of qBank){
-          
-            if (entry['questiontext'] != ''){
+           
+         if (entry != qBank3.find((e) => e['questionid'] == entry['questionid']) || qBank.length == 1){
+              if (entry['questiontext'] != ''){
  const hi =  await supabase.from('questions').update({
 'questiontext':entry['questiontext'],
 'correctoption': entry['correctoption']
@@ -109,9 +114,14 @@ let qBank2: any = { options:options.data, questiontext:myList.data[0]['questiont
     }).eq('optionid',letter ).eq('step', editStep).eq('module', editModule).eq('questionid', entry['questionid']).select();  
    
     }
-  
+       setHasSaved(true);
+          setTimeout(() => {
+        setHasSaved(false)
+    }, 5000)  
         }
-        setHasSaved(true);
+     
+}
+
     }
 async function newQuestion() {
     let getid = await supabase.from('questions').select().eq('module', createModule).eq('step', createStep).eq('optionid', '');
@@ -138,6 +148,9 @@ async function newQuestion() {
     });  
     }
     sethasCreated(true);
+    setTimeout(() => {
+        sethasCreated(false)
+    }, 5000)
 }
     const [createMenu, setCreateMenu] = useState(false);
 return (
@@ -151,36 +164,37 @@ return (
         sethasCreated(false);
         setCreateModule(''),
         setCreateStep(''),
+        sethasCreated(false),
         setCreateMenu(false)}} className="fixed inset-0 flex items-center justify-center z-50">
 <div className="absolute bg-black opacity-30 inset-0"></div>
 <div onClick={(e) => e.stopPropagation()} className="bg-white p-5 rounded-xl z-10 overflow-y-auto
- font-poppins font-extrabold text-blue-400 text-3xl max-h-130 min-w-2/3" >
+ font-poppins font-extrabold text-blue-400 text-3xl min-h-4/5 min-w-4/5" >
 New Question 
 <div className="flex flex-col gap-4 mt-3">
     <div className="flex flex-row gap-5">
     {
     options2.map((e) => 
-    <input 
+    <select 
 onChange={(er: any)=> {
     e == 'Step' ? setCreateStep(er.target.value) : setCreateModule(er.target.value)
 }}
-placeholder={e}
-className="border-2 mt-2 border-blue-400 font-poppins rounded-lg p-2 w-fit text-lg text-blue-500 font-bold">
-
-</input>
+className="border-2 mt-2 border-blue-400 font-poppins rounded-lg p-2 w-fit text-lg text-blue-400 font-normal">
+  <option>Select a {e == 'Step' ? 'step' : 'module'}...</option>
+   { e=='Step' ? stepList.map((e) => <option>{e['stepname']}</option>) :  moduleList.map((e) => <option>{e['modulename']}</option>) }
+</select>
 )}
 </div>
-     <input
+     <textarea
      value={createQuestion}
      onChange={(e) => {
         setCreatedQuestion(e.target.value)
      }}
-     placeholder="Enter Question..." className="font-poppins font-extrabold text-black text-2xl rounded-lg p-2"></input> 
- <div className="flex flex-col gap-5  mt-1.5">
+     placeholder="Enter Question..." className="font-poppins font-extrabold text-black text-2xl rounded-lg p-2"></textarea> 
+ <div className="flex flex-col gap-5  mt-0.5">
  {
     Object.values(createOptions).map((entrye:any,i ) => 
    <div className="flex flex-row gap-3 w-full">
-        <input
+        <textarea
     value={entrye}
     onChange={(er) => {
       
@@ -197,7 +211,7 @@ console.log('did it work?', {...createOptions, [i == 0 ? 'A' : i==1 ? 'B' : i==2
     className='cursor-pointer border-2 font-medium p-2.5 text-lg w-full rounded-lg flex flex-row font-inter 
 '>
 
-    </input>
+    </textarea>
     <Check
     onClick={() => setCreateCorrect(i == 0 ? 'A' : i==1 ? 'B' : i==2?'C':
             'D')}
@@ -233,7 +247,7 @@ text-white gap-2  font-poppins`}>
       }} className="fixed inset-0 flex items-center justify-center z-50">
 <div className="absolute bg-black opacity-30 inset-0"></div>
 <div onClick={(e) => e.stopPropagation()} className="bg-white p-5 rounded-xl z-10 overflow-y-auto
- font-poppins font-extrabold text-blue-400 text-3xl max-h-130 min-w-2/3" >
+ font-poppins font-extrabold text-blue-400 text-3xl min-h-4/5 min-w-4/5" >
 Edit Question 
 <div className="flex flex-col gap-1 mt-3">
     <div className="flex flex-row gap-5">
@@ -250,7 +264,7 @@ className="border-2 mt-2 border-blue-400 font-poppins rounded-lg p-2 w-fit text-
 )} */}
 </div>
   {qBank.length >1 && <p className="font-poppins mt-2 text-xl text-gray-500 ml-1 align-baseline font-normal ">Question {currentEdit+1} of {qBank.length}</p>}
-     <input
+     <textarea
      value={qBank[currentEdit]['questiontext']}
      onChange={(e) => {
        setQBank(prev => {
@@ -262,12 +276,13 @@ className="border-2 mt-2 border-blue-400 font-poppins rounded-lg p-2 w-fit text-
         return updated;
        })
      }}
-     placeholder="Enter Question..." className="font-poppins font-extrabold text-black text-2xl rounded-lg p-2 mb-2"></input> 
- <div className="flex flex-col gap-5  mt-1.5">
+     placeholder="Enter Question..." className="font-poppins font-extrabold text-black text-2xl rounded-lg p-2 mb-0.5"></textarea> 
+ <div className="flex flex-col gap-5  ">
  {
     Object.values(qBank[currentEdit]['options']).map((entrye: any,i ) => 
    <div className="flex flex-row gap-3 w-full">
-        <input
+        <textarea
+   
     value={entrye['optiontext']}
     onChange={(er) => {
    
@@ -292,10 +307,10 @@ setQBank(prev => {
         
      } }
         
-    className='cursor-pointer border-2 p-2.5 font-medium text-lg w-full rounded-lg flex flex-row font-poppins
+    className='cursor-pointer border-2 p-2.5  font-medium text-lg w-full rounded-lg flex flex-row items-center justify-center font-poppins
 '>
 
-    </input>
+    </textarea>
     <Check
     onClick={(er) => {
          let letter = i == 0 ? 'A' : i==1 ? 'B' : i==2?'C':
@@ -404,7 +419,7 @@ duration-300 py-2 w-full mt-4
 text-white gap-2 bg-blue-500 font-poppins">
 Edit
 </button> 
-<p className="mt-2 text-gray-500 font-bold">OR</p>
+<p className="mt-3 text-gray-500 font-bold font-poppins ">OR</p>
 <button
 onClick={() => {
     setCreateMenu(true)

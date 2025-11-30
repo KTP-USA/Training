@@ -12,6 +12,9 @@ const [hasSaved, setHasSaved] = useState(false);
   async function saveEdits() {
     await supabase.from('users').update(editData[0]).eq('id', editData[0]['id']);
    setHasSaved(true) 
+     setTimeout(() => {
+        setHasSaved(false)
+    }, 5000)
     let list: any = userData.map((e) => { return e==userData.find((em)=> em['id'] ==editData[0]['id']) ? editData[0] :
  e})
 console.log('list', list, editData[0], userData.find((em)=> em['id'] ==editData[0]['id']))
@@ -93,6 +96,9 @@ loadData();
 const response = await supabase.functions.invoke('add-user', {body: {createData, email, password}});
 if (response.error == null){
 sethasCreated(true);
+  setTimeout(() => {
+        sethasCreated(false)
+    }, 5000)
 }
  let newa: any = [...userData, {'id':null, 'active':'Y', 'username':createData['username'], 'hiredate':createData['hiredate'], 'module':createData['module'], 'machine':createData['machine'],
   'supervisor':createData['supervisor'],

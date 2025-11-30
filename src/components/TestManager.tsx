@@ -19,7 +19,8 @@ const j = Math.floor(Math.random() * (i+1));
   if (!file){
     return;
   }
-    const filePath = `uploads/${file.name.replace(/\s/g, "_")}`; 
+    // const filePath = `uploads/${file.name.replace(/\s/g, "_")}`; 
+    const filePath = `uploads/${entry['id']}`; 
     console.log('file', filePath, file, entry)
  
 

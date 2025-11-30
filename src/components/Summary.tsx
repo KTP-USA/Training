@@ -10,15 +10,22 @@ const Summary = () => {
     const [testData, setTestData] = useState([]);
 
      const [testData2, setTestData2] = useState([]);
+     async function openUrl(step: String, module: String) {
+        console.log('step, module', step, module)
+        let entry = await supabase.from('documents').select().eq('step', step).eq('module', module)
+        console.log('entry', entry);
+         let url =supabase.storage.from('module').getPublicUrl(entry.data![0]['path']);
+     console.log('url', url)
+      window.open(url.data.publicUrl.replace('%0D%0A', ''), "_blank", "noopener,noreferrer");
+     }
      const [isAdmin, setIsAdmin] = useState(false);
     const [userData, setUserData] = useState([])
     const navigate = useNavigate()
     async function LoadData() {
         let user: any = await supabase.from('users').select().eq('role', 'USER');
        
-        const {data, error}=  await supabase.from('users').select()
-        console.log('hi', data, error)
-      console.log('user', user, );
+        await supabase.from('users').select()
+     
        let test: any= await supabase.from('testrecords').select();
        setUserData(user.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])));
        setTestData2(test.data)
@@ -31,6 +38,7 @@ const Summary = () => {
     if (userData1.data[0]['role'] == 'USER'){
     setTestData(test.data)
     setUserData2(user.data)
+    setSelectedUser(user.data[0]['username'])
 }
     }
     useEffect(() =>{
@@ -85,8 +93,9 @@ userData.map((entry) =>
 }
            <div className="flex flex-row">
 {
-    modules.map((e)=>
-        <div className="flex flex-col ">
+    modules.map((e)=> {
+      
+    return     <div className="flex flex-col ">
     <div className={`p-3 text-white  font-poppins text-center px-7 py-5 font-bold text-2xl ${e=='30D' ? 'bg-red-400' : e=='90D' ? 'bg-orange-800' : 
 e == '180D' ? 'bg-orange-500' : e == '1Y' ? 'bg-yellow-500' : e == '2Y' ? 'bg-green-400' :
 'bg-cyan-400'
@@ -98,10 +107,10 @@ e == '180D' ? 'bg-orange-500' : e == '1Y' ? 'bg-yellow-500' : e == '2Y' ? 'bg-gr
     <div className={`border-blue-500 border-2 p-3 font-poppins
         
         font-bold
-        text-2xl min-h-15 ${ (userData2.length == 0 || (selectedUser == '' || !isAdmin))
+        text-2xl min-h-15 ${ (userData2.length == 0 || (selectedUser == '' && !isAdmin))
     ? '' :  userData2[0]['actualstep'] == e ?  'text-yellow-500' : 'text-blue-400'}`}>
      {
-    ( userData2.length == 0 || (selectedUser == 'no user' || !isAdmin))
+    ( userData2.length == 0 || (selectedUser == '' && !isAdmin))
     ? '' :
      userData2[0]['actualstep'] == e ? 'CURRENT' : modules.indexOf(userData2[0]['actualstep']) < modules.indexOf(e) ? '' : 'READY'}
     </div>
@@ -130,6 +139,9 @@ e == '180D' ? 'bg-orange-500' : e == '1Y' ? 'bg-yellow-500' : e == '2Y' ? 'bg-gr
         onClick={() => {
          if ( item == 'Trainer List'){
             navigate('/training-topics', {state: [selectedUser, e]})
+         } else {
+            openUrl(e, userData2[0]['module']);
+             
          }
         }}
         className={`p-3 text-white cursor-pointer font-poppins text-center rounded-4xl mt-4 px-7  font-bold text-xl ${e=='30D' ? 'bg-red-400' : e=='90D' ? 'bg-orange-800' : 
@@ -144,6 +156,7 @@ e == '180D' ? 'bg-orange-500' : e == '1Y' ? 'bg-yellow-500' : e == '2Y' ? 'bg-gr
 }
   </div>
     </div>
+    }
     )
 }
 </div> 
