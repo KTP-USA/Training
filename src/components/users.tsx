@@ -30,11 +30,25 @@ console.log('list', list, editData[0], userData.find((em)=> em['id'] ==editData[
     const [selectedSupervisor, setSupervisor] = useState('Supervisor')
     const [supervisors, setSupList] = useState([])
     const [uniqueUsers, setUniqueUsers] = useState([]);
+    function getDates(date: string){
+    if (date == '' || date == null){
+      return '';
+    } else {
+let date2 = new Date(date)
+    return date2.toLocaleDateString('en-US', {
+  month:'numeric',
+            
+day:'2-digit',
+year:'numeric',
+        });
+      }
+    
+  }
     const [supervisorList, setSupervisorList] = useState([]);
     const [stepList, setStepList]= useState([]);
     const [moduleList, setModuleList] =useState([]);
     const [trainerList, setTrainerList] =useState([]);
-    const [password, setPassword] = useState('');
+    const [password, setPassword] = useState('kurzusa1234');
     const [email, setEmail] = useState('');
     const [editData, setEditData] = useState([]);
     const [hasSupervisor, setSupervisora] = useState(true);
@@ -68,6 +82,7 @@ let sups =await supabase.from('supervisor').select();
 let hi: any = sups.data
 setSupervisorList(hi);
 let mods =await supabase.from('module').select();
+  
 let mods2: any = mods.data
 setModuleList(mods2);
 let step =await supabase.from('step').select();
@@ -180,6 +195,7 @@ onChange={(o) => {
         </select> :
   e == 'Email' || e == 'Password' ?
    <input 
+   
 value={e=='Email' ? email : password}
 onChange={(o) => {
  e=='Email' ? setEmail(o.target.value) : setPassword(o.target.value)
@@ -371,7 +387,7 @@ onClick={() => {
  setCreateData({'machine':null, 'username':null, 'hiredate':null, 'module': null,
   'supervisor':null, 'actualstep':null, 'nextdate':null, 'role': 'USER', 'active':'Y',  'trainer':null,
  });
- setPassword('');
+ setPassword('kurz1234');
  setEmail('');
 }}
 className="
@@ -489,7 +505,10 @@ onClick={() =>{
     setEditOpen(true)
 }}
 className="mr-1 cursor-pointer hover:text-blue-400"></Edit> </div> :
-<p>{entrye}</p>
+
+i == 3 || i==8
+? <p>{getDates(entrye)}</p>
+: <p>{entrye}</p>
  
  }
   

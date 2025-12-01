@@ -5,7 +5,7 @@ import LogIn from "../components/LogIn";
 
 const JoinTestPage = () => {
   return (
-    <div className="h-screen  justify-center bg-gradient-to-r from-white to-blue-600 ">
+    <div className="h-screen  bg-gradient-to-r from-white to-blue-600 ">
       <Navigation />
       <LogIn/>
       {/* <Form />

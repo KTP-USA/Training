@@ -11,11 +11,11 @@ const Summary = () => {
 
      const [testData2, setTestData2] = useState([]);
      async function openUrl(step: String, module: String) {
-        console.log('step, module', step, module)
+       
         let entry = await supabase.from('documents').select().eq('step', step).eq('module', module)
-        console.log('entry', entry);
+      
          let url =supabase.storage.from('module').getPublicUrl(entry.data![0]['path']);
-     console.log('url', url)
+     
       window.open(url.data.publicUrl.replace('%0D%0A', ''), "_blank", "noopener,noreferrer");
      }
      const [isAdmin, setIsAdmin] = useState(false);
@@ -46,7 +46,7 @@ LoadData();
     }, [])
     return (
         <section className="mx-15 flex flex-col mt-14 justify-center items-center mb-10">
-            <div className=" flex flex-row">
+            <div className=" flex flex-row gap-4 mb-2">
             <h1 className="font-poppins text-blue-500 font-bold text-5xl mb-4 mr-5">Summary</h1>
            
 <button
@@ -56,7 +56,7 @@ navigate('/manager')
     }
 }
 className=" h-min
-flex flex-row rounded-3xl  cursor-pointer p-3 w-35 text-lg items-center justify-center hover:scale-102 transition-all
+flex flex-row rounded-2xl  cursor-pointer p-3 w-35 text-lg items-center justify-center hover:scale-102 transition-all
 duration-300 hover:bg-blue-600 py-2
 text-white gap-2 bg-blue-500 font-poppins">
 Details
@@ -64,7 +64,7 @@ Details
             </div>
                 { 
     isAdmin &&
-            <div className="flex flex-row items-center ">
+            <div className="flex flex-row items-center  mb-4">
              
 
                 <p className="font-poppins"> Choose a user:</p>
@@ -78,7 +78,7 @@ Details
 setTestData(testData2.filter((e)=> e['username'] == er.target.value))
 console.log('rr ', userData.filter((e)=> e['username'] == er.target.value), testData2.filter((e)=> e['username'] == er.target.value) )
   }}
-   className='border-2 ml-3 rounded-md  border-blue-400 p-2 mb-4
+   className='border-2 ml-3 rounded-md  border-blue-400 p-2
  font-poppins'>
    <option>Select a user...</option>
   {
@@ -91,14 +91,16 @@ userData.map((entry) =>
  </div> 
 
 }
-           <div className="flex flex-row">
+           <div className="flex flex-row ">
 {
     modules.map((e)=> {
       
     return     <div className="flex flex-col ">
-    <div className={`p-3 text-white  font-poppins text-center px-7 py-5 font-bold text-2xl ${e=='30D' ? 'bg-red-400' : e=='90D' ? 'bg-orange-800' : 
-e == '180D' ? 'bg-orange-500' : e == '1Y' ? 'bg-yellow-500' : e == '2Y' ? 'bg-green-400' :
-'bg-cyan-400'
+    <div className={`p-3 text-white
+    border-blue-500 border-2
+    ${e=='30D' ? 'rounded-tl-lg' : e=='3Y' ? 'rounded-tr-lg':''}  font-poppins text-center px-7 py-5 font-bold text-2xl ${e=='30D' ? 'bg-[#fe0a0a]': e=='90D' ?  'bg-[#ff6565]'  : 
+e == '180D' ? 'bg-[#ff8888]' : e == '1Y' ? 'bg-[#504afe]'  : e == '2Y' ? 'bg-[#3933fd]'  :
+'bg-[#1d15ff]' 
 
     }`}>
 {e} <br/> Module
@@ -132,21 +134,29 @@ e == '180D' ? 'bg-orange-500' : e == '1Y' ? 'bg-yellow-500' : e == '2Y' ? 'bg-gr
     ? ''
     : `${(testData.find((e2) => e2['step'] == e && e2['type'] == 'Performance review') ?? {'score':''})['score'] ??''}`}</p>
     </div>
-      <div className="border-blue-500 border-2 p-3 font-poppins ">
+      <div className={`border-blue-500 border-2 p-3 font-poppins  ${e=='30D' ? 'rounded-bl-lg' 
+: e=='3Y' ? 'rounded-br-lg' :''
+
+      }`}>
     {
         modules2.map((item) =>
      <div
         onClick={() => {
          if ( item == 'Trainer List'){
             navigate('/training-topics', {state: [selectedUser, e]})
+         } else if (item == 'SOPs') {
+            navigate('/sops', {state: [e, userData2[0]['module']]})
          } else {
             openUrl(e, userData2[0]['module']);
              
          }
+
         }}
-        className={`p-3 text-white cursor-pointer font-poppins text-center rounded-4xl mt-4 px-7  font-bold text-xl ${e=='30D' ? 'bg-red-400' : e=='90D' ? 'bg-orange-800' : 
-e == '180D' ? 'bg-orange-500' : e == '1Y' ? 'bg-yellow-500' : e == '2Y' ? 'bg-green-400' :
-'bg-cyan-400'
+        className={`p-3 text-white cursor-pointer font-poppins text-center rounded-4xl mt-4 px-7  font-bold text-xl  ${
+
+            e=='30D' ? 'bg-[#fe0a0a]': e=='90D' ?  'bg-[#ff6565]'  : 
+e == '180D' ? 'bg-[#ff8888]' : e == '1Y' ? 'bg-[#504afe]'  : e == '2Y' ? 'bg-[#3933fd]'  :
+'bg-[#1d15ff]' 
 
     }`}>
 {item == '30D Module' ? `${e} Module` : item} <br/> 

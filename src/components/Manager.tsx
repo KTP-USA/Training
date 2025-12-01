@@ -7,6 +7,20 @@ const Manager = () => {
      const [testData, setTestData] = useState([]);
     const [testData2, setTestData2] = useState([]);
     const [notAdmin, setNotAdmin] = useState(false);
+      function getDates(date: string){
+    if (date == '' || date == null){
+      return '';
+    } else {
+let date2 = new Date(date)
+    return date2.toLocaleDateString('en-US', {
+  month:'numeric',
+            
+day:'2-digit',
+year:'numeric',
+        });
+      }
+    
+  }
     const navigate = useNavigate();
     const [selectedPhase, setSelectedPhaae] = useState('');
      async function fetchUserData() {
@@ -262,7 +276,10 @@ i==2 ?'w-[20%]':
 'w-[20%]'
   }
     `}>
- {  entrye}
+    
+ { i==4 ? getDates(entrye) : entrye
+ 
+ }
   
      </div>
    )

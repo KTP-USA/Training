@@ -84,6 +84,20 @@ for (const entry of insertList){
 }
 
   }
+  function getDates(date: string){
+    if (date == '' || date == null){
+      return '';
+    } else {
+let date2 = new Date(date)
+    return date2.toLocaleDateString('en-US', {
+  month:'numeric',
+            
+day:'2-digit',
+year:'numeric',
+        });
+      }
+    
+  }
   const testTypes = ['Competency Test', 'Technical Evaluation', 'Performance review']
   const navigater = useNavigate();
   const [selectedUser, setSelectUser] = useState('Username')
@@ -449,7 +463,7 @@ text-white gap-2 bg-blue-500 font-poppins">
 </button> 
 
 : <p className="font-extrabold text-blue-500 ml-5 ">Code: {entrye}</p>
-: entry == 'Next Date' ? <p>{entrye}</p> :<p>{entrye}</p>
+:i == 1 || i==6 ? <p>{getDates(entrye)}</p> :<p>{entrye}</p>
  
  }
   
