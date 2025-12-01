@@ -243,7 +243,7 @@ entry == 'Module' ?'w-[20%]':
     () => {
       if (entry['Test Type'] == 'Technical Evaluation'){
     console.log('idddd', entry['id'], entry)
-navigate('/evaluation', {state: [userData[0]['username'], entry['id']]})
+navigate('/evaluation', {state: [userData[0]['username'], entry['result'] != null ? entry['id'] : 'no id']})
   }  else if (entry['Test Type'] == 'Competency Test'){
 savedTest(entry);
   } else {

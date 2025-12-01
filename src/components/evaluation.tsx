@@ -180,6 +180,7 @@ const [userData2, setUserData2] = useState([]);
 const [selectedUser, setSelectedUser] = useState('');
 const [trainerName, setTrainerName] = useState('');
 async function loadData(){
+   
      let session = await supabase.auth.getSession();
     let userData1: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
 setTrainerName(userData1.data[0]['username'])

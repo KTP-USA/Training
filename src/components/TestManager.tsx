@@ -447,7 +447,8 @@ className="hidden"/>
 onClick={() => {
   if (entry['Test Type'] == 'Technical Evaluation'){
     console.log('ihhh', entry['User'])
-navigater('/evaluation', {state: [ entry['User'], null]})
+navigater('/evaluation', {state: [ entry['User'], 
+'no id']})
   } else if (entry['Test Type'] == 'Competency Test') {
 generateTest(entry['Step'], entry['Module'], entry['User'], entry['Test Type'], entry);
   } else{
