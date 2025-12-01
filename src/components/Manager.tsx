@@ -45,9 +45,9 @@ year:'numeric',
   setModulePhase(userData.data[0]['actualstep']);
   setSelectedPhaae(userData.data[0]['actualstep']);
   setdueDate(userData.data[0]['nextdate']);
-} else if (userData.data[0]['role'] == 'SUPERVISOR'){
-     let userData2: any = await supabase.from('users').select().eq('role', 'USER').eq('supervisor', userData.data[0]['username']);
-       let usertest2: any = await supabase.from('testrecords').select().eq('supervisor', userData.data[0]['username']);;
+} else if (userData.data[0]['role'] == 'SUPERVISOR' || userData.data[0]['role'] =='TRAINER'){
+     let userData2: any = await supabase.from('users').select().eq('role', 'USER')
+       let usertest2: any = await supabase.from('testrecords').select()
        
       setUserData(userData2.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])));
           setUserData2(userData2.data);
