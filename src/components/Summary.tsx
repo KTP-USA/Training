@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
+import { RefreshCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 const Summary = () => {
     const fakedata = [];
     const modules =['30D', '90D', '180D', '1Y', '2Y', '3Y']
-    const modules2=['30D Module', 'Trainer List', 'SOPs'];
+    const modules2=['30D Module', 'Trainer List', ];
     const [selectedUser, setSelectedUser] = useState('no user');
     const [userData2, setUserData2] = useState([])
     const [testData, setTestData] = useState([]);
@@ -128,7 +129,14 @@ e == '180D' ? 'bg-[#ff8888]' : e == '1Y' ? 'bg-[#504afe]'  : e == '2Y' ? 'bg-[#3
     <p className="mt-1">Competency Test: {
             testData.length == 0 && (selectedUser == 'no user' || !isAdmin)
     ? ''
-    : `${(testData.find((e2) => e2['step'] == e && e2['type'] == 'Competency Test') ?? {'score':''})['score']??'' }`
+    : `${(testData.filter((e2) => e2['step'] == e && e2['type'] == 'Competency Test') .sort((a, b) => {
+        let bDate: any = new Date(b['created_at'])
+        let aDate: any = new Date(a['created_at'])
+       return bDate-aDate;
+    })[0]
+
+      
+        ?? {'score':''})['score']??'' }`
         }</p>
     <p className="mt-1">Performance Review:   {  testData.length == 0
     ? ''
@@ -144,9 +152,10 @@ e == '180D' ? 'bg-[#ff8888]' : e == '1Y' ? 'bg-[#504afe]'  : e == '2Y' ? 'bg-[#3
         onClick={() => {
          if ( item == 'Trainer List'){
             navigate('/training-topics', {state: [selectedUser, e]})
-         } else if (item == 'SOPs') {
-            navigate('/sops', {state: [e, userData2[0]['module']]})
-         } else {
+        //  } else if (item == 'SOPs') {
+        //     navigate('/sops', {state: [e, userData2[0]['module']]})
+         }
+          else {
             openUrl(e, userData2[0]['module']);
              
          }

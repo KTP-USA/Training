@@ -211,20 +211,25 @@ const  date = new Date();
      {
         id == 'no id' &&
     <button
-
+onClick={() => {
+   
+    if (Object.keys(textMap).length == rawData.length && !isComplete && !prevComplete){
+        console.log('coming back 2 u')
+    completeEvaluation();
+   
+} }}
 className={`
-flex flex-row rounded-3xl  self-end cursor-pointer p-3 w-35 text-lg items-center justify-center hover:scale-105 transition-all
+flex flex-row rounded-3xl  self-end p-3 w-35 text-lg items-center justify-center transition-all
 duration-300  py-2 px-2 mr-5 scale-104
-text-white gap-2 ${isComplete ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-500 hover:bg-blue-600'} font-poppins`}>
+text-white gap-2 ${isComplete ? 'bg-green-500 ' : 'bg-blue-500 hover:bg-blue-600 hover:scale-105  cursor-pointer'} font-poppins`}>
 {isComplete ? 'Completed': 'Complete'}
 </button> 
      }
 </div> :  <button
 onClick={() => {
-    console.log('im still', 
-        prevComplete, isComplete,  Object.keys(textMap).length == rawData.length, rawData.length,  Object.keys(textMap).length, rawData, Object.keys(textMap), textMap )
+  
     if (Object.keys(textMap).length == rawData.length && !isComplete && !prevComplete){
-        console.log('coming back 2 u')
+       
     completeEvaluation();
    
 } }

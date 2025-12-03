@@ -72,7 +72,7 @@ correctcount= correctcount+1
 day:'2-digit',
 year:'2-digit',
         });
- } else  if (step == '60D'){
+ } else  if (step == '90D'){
     date.setDate(date.getDate()+180);
     return date.toLocaleDateString('en-US', {
   month:'numeric',
@@ -159,7 +159,8 @@ if (stuoidlist.data.length >= 2  && score>=0.8){
 
  console.log('ddddd', data, error)
 for (const item of list){
- let date: Date =new  Date(rawList[0]['nextdate'])
+ let date: Date =new  Date(rawList[0]['nextdate']);
+console.log('loggerrr', getNextDate(rawList[0]['hiredate'], stuoidlist.data[0]['step']  ), rawList[0]['hiredate'], stuoidlist.data[0]['step'])
 const {data, error} =await supabase.from('testrecords').insert({
    
     'username': rawList[0]['username'],

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 import { TailSpin } from "react-loader-spinner";
 import { useNavigate } from "react-router-dom";
+// import { RefreshCcw } from "lucide-react";
 const TestManager = () =>{
   function shuffleList(myList: any){
     for (let i: number = 0; i<myList.length; i++){
@@ -21,7 +22,6 @@ const j = Math.floor(Math.random() * (i+1));
   }
     // const filePath = `uploads/${file.name.replace(/\s/g, "_")}`; 
     const filePath = `uploads/${entry['id']}`; 
-    console.log('file', filePath, file, entry)
  
 
 
@@ -37,7 +37,6 @@ const j = Math.floor(Math.random() * (i+1));
     return;
   }
 
-  console.log("SUCCESS:", data);
 await supabase.from('testrecords').update({'path':filePath}).eq(
   'id', entry['id']
 
@@ -53,7 +52,6 @@ let list: any = userData.map((e) => { return e==entry ? {...entry, 'path': fileP
   
    
   let qBankData2 = shuffleList(qBankData.data);
-   console.log('shuffled', qBankData2)
    let qBank: Array<any> = [];
 
    while (qBank.length < (step == '30D' ? 10 : step == '90D' ? 15 : step=='180D'? 20 : step=='1Y' ? 30 :step=='2y' ? 40 : 50 )){
@@ -62,7 +60,6 @@ let list: any = userData.map((e) => { return e==entry ? {...entry, 'path': fileP
   qBank.push(qBankData2[qBank.length]);
 
   }
-  console.log('hh', qBank)
   let fetchcontrolnbr = await supabase.from('testrecords').select().eq('step', step).eq('module', module).eq('username', username).eq('type', type).is('result', null);
   await supabase.from('testrecords').update({'controlnbr':fetchcontrolnbr.data![0]['id']}).eq('id', fetchcontrolnbr.data![0]['id'])
   let insertList = qBank.map((e, i)=> {
@@ -101,6 +98,9 @@ year:'numeric',
   const testTypes = ['Competency Test', 'Technical Evaluation', 'Performance review']
   const navigater = useNavigate();
   const [selectedUser, setSelectUser] = useState('Username')
+let now = new Date;
+now.setDate(now.getDate() +10);
+  const [maxDate, setMaxDate] =useState(now.toISOString().split('T')[0])
     const [isLoading, setisLoading]=useState(true);
     const [selectedSupervisor, setSupervisor] = useState('Supervisor')
     const [supervisors, setSupList] = useState([])
@@ -108,6 +108,68 @@ year:'numeric',
     const [uploadData, setUploadData] = useState({});
     const [hasSupervisor, setSupervisora] = useState(true);
     const [testType, setTestType] = useState('Test Type')
+    async function regenData() {
+      setisLoading(true);
+  let trainer: boolean = false;
+   let session = await supabase.auth.getSession();
+    let userData1: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
+  
+    if (userData1.data[0]['trainer'] == 'Y'){
+trainer= true;
+    }
+let loadedData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase.from('users').select().eq('supervisor', userData1.data[0]['username'])
+
+    : await supabase.from('users').select().eq('role', "USER")
+    
+    loadedData = loadedData.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username']))
+    let testData: any =  trainer ? await supabase.from('testrecords').select().is('result', null).is('score', null ).neq('type', 'Performance Review')
+    : await supabase.from('testrecords').select().neq
+    ('type', 'Technical Evaluation').is('result', null).is('score', null);
+;
+let data2 = await supabase.from('testrecords').select().is('path', null).not('result','is', null)
+.not('score','is', null).neq('result', 'NOT READY')
+.eq('type', 'Performance review');
+testData['data'] = [...testData.data, ...data2.data ?? []]
+testData =testData.data.sort((a: any,b:any) => {
+ let aDate: Date = new Date(a['nextdate']);
+  let bDate: Date = new Date(b['nextdate']);
+ return aDate.getTime() -bDate.getTime();
+    });
+
+    let data: any = [];
+    let supervisors: any = [];
+    for (const entry of loadedData){
+      if (!supervisors.includes(entry['supervisor'])){
+supervisors.push(entry['supervisor']);
+      }
+        let testsUncompleted = testData.filter(
+    
+            (testentry: any) => {
+           
+    return entry['username'] == testentry['username'] && entry['actualstep'] == testentry['step'] })
+           
+            for (const entry2 of testsUncompleted){
+data.push({'User':entry['username'], 'Hire Date':entry['hiredate'], 'Module':entry['module'],
+    "Supervisor":entry['supervisor'],
+    'Test Type':entry2['type'],
+    'Step':entry['actualstep'], 'Next Date':entry2['nextdate'], 'Action':
+    entry2['result'] == 'READY' ? 'READY' :
+    entry2['controlnbr'] != null ? entry2['controlnbr'] : 'no number',
+    'path':entry2['path'], 'id':entry2['id']
+})
+         
+    }
+}
+data = data.sort((a: any,b:any) => {
+ let aDate: Date = new Date(a['Next Date']);
+  let bDate: Date = new Date(b['Next Date']);
+ return aDate.getTime() -bDate.getTime();
+    });
+
+     setUserData(data);
+    setisLoading(false);
+    
+    }
     useEffect(() => {
 async function loadData(){
 
@@ -125,16 +187,14 @@ let loadedData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase
     : await supabase.from('users').select().eq('role', "USER")
     
     loadedData = loadedData.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username']))
-    let testData: any =  trainer ? await supabase.from('testrecords').select().is('result', null).is('score', null )
+    let testData: any =  trainer ? await supabase.from('testrecords').select().is('result', null).is('score', null ).neq('type', 'Performance Review')
     : await supabase.from('testrecords').select().neq
     ('type', 'Technical Evaluation').is('result', null).is('score', null);
 ;
 let data2 = await supabase.from('testrecords').select().is('path', null).not('result','is', null)
 .not('score','is', null).neq('result', 'NOT READY')
 .eq('type', 'Performance review');
-console.log('data', data2, testData)
 testData['data'] = [...testData.data, ...data2.data ?? []]
-console.log('datana', testData)
 testData =testData.data.filter((entry:any) => {
         let nextDate: Date = new Date(entry['nextdate']);
         let now: Date = new Date;
@@ -171,13 +231,11 @@ data.push({'User':entry['username'], 'Hire Date':entry['hiredate'], 'Module':ent
          
     }
 }
-console.log("data11", data);
 data = data.sort((a: any,b:any) => {
  let aDate: Date = new Date(a['Next Date']);
   let bDate: Date = new Date(b['Next Date']);
  return aDate.getTime() -bDate.getTime();
     });
-    console.log('data22', data)
 
     setUserData(data);
     setSupList(supervisors);
@@ -185,45 +243,46 @@ data = data.sort((a: any,b:any) => {
     setisLoading(false);
 }
 loadData();
-    }, [])
-       function getNextDate(date: any, step: String){
- date = new Date(date);
- if (step == '30D'){
-    date = date.setDate(date.getDate()+60);
-    return date.toLocaleDateString('en-US', {
-year:'2-digit',
-month:'numeric',
-day:'2-digit'
-        });
- } else  if (step == '60D'){
-    date = date.setDate(date.getDate()+180);
-    return date.toLocaleDateString('en-US', {
-year:'2-digit',
-month:'numeric',
-day:'2-digit'
-        });
- } else  if (step == '180D'){
-    date = date.setDate(date.getFullYear()+1);
-    return date.toLocaleDateString('en-US', {
-year:'2-digit',
-month:'numeric',
-day:'2-digit'
-        });
- } else  if (step == '1Y'){
-    date = date.setDate(date.getDate()+2);
-    return date.toLocaleDateString('en-US', {
-year:'2-digit',
-month:'numeric',
-day:'2-digit'
-        });
- }  else  if (step == '2Y'){
-    date = date.setDate(date.getDate()+3);
-    return date.toLocaleDateString('en-US', {
-year:'2-digit',
-month:'numeric',
-day:'2-digit'
-        });
- } 
+    }, []);
+    const [regenIds, setRegenIds] = useState<Array<any>>([]);
+ async   function regenTest(controlnbr: any){
+  
+let fetchTest = await supabase.from('savedtest').select().eq('controlnbr', controlnbr);
+let step = fetchTest.data![0]['step'];
+let mod = fetchTest.data![0]['module'];
+    let qBankData = await supabase.from('questions').select().eq('step', step).eq('module', mod).eq('optiontext', '') ;
+  
+   
+  let qBankData2 = shuffleList(qBankData.data);
+   let qBank: Array<any> = [];
+
+   while (qBank.length < (step == '30D' ? 10 : step == '90D' ? 15 : step=='180D'? 20 : step=='1Y' ? 30 :step=='2y' ? 40 : 50 )){
+    
+
+  qBank.push(qBankData2[qBank.length]);
+
+  }
+  let insertList = qBank.map((e, i)=> {
+   
+    return {'questiontest':i+1, 'questionid': e['questionid'], 
+     
+      'correcttest': e['correctoption'], 
+ 'useranswer':null, 
+
+    }
+  });
+
+for (const entry of insertList){
+  await supabase.from('savedtest').update(entry).eq('questionid', entry['questionid']).eq('controlnbr', controlnbr);
+  
+}
+
+let b4 = regenIds;
+let insert: any = [...regenIds, controlnbr]
+setRegenIds(insert) 
+     setTimeout(() => {
+        setRegenIds(b4)
+    }, 5000)
     }
     const [userData, setUserData] = useState([]);
 //     async function handlePassFail(data: any, type: any){
@@ -377,7 +436,32 @@ supervisors.map((entry) =>
 
 }
         </select>
+        
 }
+ <input
+ type="date"
+ value={maxDate}
+        onChange={(e) => {
+          let now= new Date;
+          now.setDate(now.getDate()+10)
+          let eDate = new Date(e.target.value);
+if (now >= eDate){
+          setMaxDate(e.target.value)
+} else {
+  setMaxDate(e.target.value)
+  regenData();
+}
+        
+        }}
+         className="rounded-lg
+        
+        border-blue-300  font-normal border-2  text-gray-900 font-poppins py-2 w-35
+        cursor-pointer hover:bg-blue-400/20 hover:border-blue-400 hover:scale-103 transtion-all duration-300 justify-center px-1 overflow-ellipsis
+        ">
+
+           
+
+        </input>
    
 
 </div>
@@ -400,9 +484,17 @@ entry == 'Module' ?'w-[10%]': entry == 'Next Date' ? 'w-[10%]' :
 </div>
 <div className="flex flex-col font-poppins ">
 {
-userData.filter((entry) => (testType == 'Test Type' ? true : entry['Test Type'] == testType) &&
+userData.filter((entry) =>{ 
+ 
+  let entryDate: Date = new Date(entry['Next Date']);
+  let maxDates: Date = new Date(maxDate)
+  return (testType == 'Test Type' ? true : entry['Test Type'] == testType) &&
  (selectedUser == 'Username' ? true : entry['User'] == selectedUser) &&
- (selectedSupervisor == 'Supervisor' ? true : entry['Supervisor'] == selectedSupervisor) 
+ (selectedSupervisor == 'Supervisor' ? true : entry['Supervisor'] == selectedSupervisor) && (
+  
+  entryDate <= maxDates)
+}
+ 
 ).map((entry) =>
    <div>
    <div className={`flex flex-row items-center`}>
@@ -436,7 +528,6 @@ duration-300 hover:bg-blue-600 py-2 text-white gap-2 bg-blue-500 font-poppins">
   // setUploadMenu(true);
   handleUpload(e, entry)
   setUploadData(entry);
-  console.log('ent ent', entry)
 
 }}
 type="file"
@@ -446,7 +537,6 @@ className="hidden"/>
 <button
 onClick={() => {
   if (entry['Test Type'] == 'Technical Evaluation'){
-    console.log('ihhh', entry['User'])
 navigater('/evaluation', {state: [ entry['User'], 
 'no id']})
   } else if (entry['Test Type'] == 'Competency Test') {
@@ -462,8 +552,14 @@ duration-300 hover:bg-blue-600 py-2
 text-white gap-2 bg-blue-500 font-poppins">
 {entry['Test Type'] == 'Technical Evaluation' ? 'Start' : entry['Test Type'] == 'Competency Test' ? 'Generate' : 'Start'}
 </button> 
-
-: <p className="font-extrabold text-blue-500 ml-5 ">Code: {entrye}</p>
+:<p className="font-extrabold text-blue-500 ml-5 ">Code: {entrye}</p>
+// : <div className="flex flex-row gap-4"><p className="font-extrabold text-blue-500 ml-5 ">Code: {entrye}</p>
+// <div
+// onClick={() => regenTest(entrye)}
+// title="Regenerate" className={`w-min cursor-pointer
+// ${ regenIds.includes(entrye) ? 'text-green-500 scale-105': 'hover:text-blue-400  hover:scale-104'}
+//   transition-all`}><RefreshCcw></RefreshCcw></div>
+// </div>
 :i == 1 || i==6 ? <p>{getDates(entrye)}</p> :<p>{entrye}</p>
  
  }
