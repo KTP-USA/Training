@@ -9,21 +9,22 @@ const TrainerList = () => {
     const location = useLocation();
     const navigate = useNavigate();
          const printRef = useRef<HTMLDivElement>(null);
-    
+   
       const handlePrint = useReactToPrint({
        documentTitle: 'Training Topics',
        contentRef: printRef,
-    
+   
       });
     const [name, step] = location.state ?? ['no name', 'no step'];
       const [rawData, setRawDate] = useState([]);
       const [savedAnswers, setSavedAnswers] = useState<Record<any, any>>({});
     const [sectionsData, setSectionData] =useState([]);
 async function formatData (usersdata: any){
-    
-let data: any = 
+   
+let data: any =
 await supabase.from('technical').select().eq('module', usersdata[0]['module']).eq('step', usersdata[0]['actualstep'])
 ;
+
 
 setRawDate(data.data);
 let masterList: any = [];
@@ -37,6 +38,7 @@ for (const entry of masterList){
     let list2: any =   data.data!.filter((e: any) => e['section'] == entry);
     sectionData.push({'label':entry, 'topics':list2.map((e:any) => e['topic'])});
    
+
 
 }
 setSectionData(sectionData)
@@ -78,8 +80,9 @@ year:'2-digit',
 month:'numeric',
 day:'2-digit'
         });
- } 
+ }
     }
+
 
 const [userData, setUserData] = useState([]);
 const [textMap, setTextMap] = useState({});
@@ -89,10 +92,13 @@ async function loadData(){
      let session = await supabase.auth.getSession();
     let userData1: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
 
+
 let userData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase.from('users').select().eq('supervisor', userData1.data[0]['username'])
+.eq('active', 'Y')
+
 
     : await supabase.from('users').select().eq('role', 'USER')
-
+.eq('active', 'Y')
 setUserData(userData.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])));
 if (name != 'no name'){
     formatData(userData.data.filter((e: any)=> e['username'] == name))
@@ -103,10 +109,11 @@ if (name != 'no name'){
 useEffect(()=>{
 loadData();
 }, []);
-const  date = new Date(); 
+const  date = new Date();
     return (
        
 <section  
+
 
 className=" flex flex-col mt-15">
      { name != 'no name' ?
@@ -126,15 +133,15 @@ flex flex-row rounded-3xl  self-end cursor-pointer p-3 w-35 text-lg items-center
 duration-300 hover:bg-blue-600 py-2 px-2 mr-15 scale-104
 text-white gap-2 bg-blue-500 font-poppins">
 Print
-</button> 
+</button>
      
 </div> :  <button
 onClick={() => {
-  
+ 
   handlePrint();
    
  }
-} 
+}
 className="
 flex flex-row rounded-3xl  self-end cursor-pointer p-3 w-35 text-lg items-center justify-center hover:scale-105 transition-all
 duration-300 hover:bg-blue-600 py-2 px-2 mr-5 scale-104 mr-15
@@ -148,17 +155,17 @@ Print
     <div className="grid grid-cols-2 w-full px-40 gap-y-5 pt-4 pb-4 ">
 {
     topBar.map((e, i) =>
-    <div 
+    <div
         className={`font-poppins flex flex-row ${i == 0 || i ==2 || i==4 || i==6 ? "justify-self-start" : "justify-self-end"}`}>
-            {e} 
+            {e}
             { e != 'Name' &&
             <p className="ml-2"> {    e == 'Step:' ? (
                 step != 'no step'  ? step :
-                userData2.length == 0 ? '' : userData2[0]['actualstep']) : e == 'Supervisor:' ? (userData2.length == 0 ? '' : userData2[0]['supervisor']) : 
+                userData2.length == 0 ? '' : userData2[0]['actualstep']) : e == 'Supervisor:' ? (userData2.length == 0 ? '' : userData2[0]['supervisor']) :
             e == 'Module:' ?(userData2.length == 0 ? '' :userData2[0]['module']) : e=='Machine:' ? ( userData2.length == 0 ? '' : userData2[0]['machine']) :
         e == 'Date:' ?   `${date.toLocaleDateString('en-US', {
   month:'numeric',
-            
+           
 day:'2-digit',
 year:'2-digit',
         })}`:  '' }</p>
@@ -166,15 +173,16 @@ year:'2-digit',
             {
                 e == 'Name:'  && (
                 name != 'no name' ? <p className="ml-2">{name}</p> :
-             <select 
+             <select
  value={selectedUser}
   onChange={(er)=> {
     setSelectedUser(er.target.value)
     setUserData2(userData.filter((entry) => entry['username'] == er.target.value))
 
+
     formatData(userData.filter((entry) => entry['username'] == er.target.value));
   }}
-   className='border-2 ml-3 rounded-md  border-blue-400 p-2 
+   className='border-2 ml-3 rounded-md  border-blue-400 p-2
  font-poppins'>
    <option>Select a user...</option>
   {
@@ -188,9 +196,12 @@ userData.map((entry) =>
     )
 }
 
-</div>
 
 </div>
+
+
+</div>
+
 
 <div className="border-x-blue-500 bg-blue-50 border-b-blue-500  flex flex-row border-x-2 border-b-2   font-poppins justify-center">
 {
@@ -201,9 +212,9 @@ e == 'Topic' ?'w-[60%]'
  : 'w-[10%]'
 }
 `}>
-    
+   
     <p className={`font-poppins text-blue-400 font-bold
-   p-2 
+   p-2
 `} >{e} </p>
 <div className="flex-1"></div>
 { i != 3 &&
@@ -214,8 +225,13 @@ e == 'Topic' ?'w-[60%]'
 }
 
 
+
+
 </div>
 <div className="flex flex-col mb-10 "
+
+
+
 
 
 
@@ -223,8 +239,8 @@ e == 'Topic' ?'w-[60%]'
 {
     sectionsData.map((e: any,i) =>
     <div className="flex flex-row w-full">
-<div className={`w-[20%] p-1 items-center flex justify-center 
-font-poppins font-bold  text-2xl border-x-2 border-x-blue-500 border-b-blue-500 border-b-2 bg-gray-300 
+<div className={`w-[20%] p-1 items-center flex justify-center
+font-poppins font-bold  text-2xl border-x-2 border-x-blue-500 border-b-blue-500 border-b-2 bg-gray-300
 ${ i==sectionsData.length-1 ? '  rounded-bl-xl' : ''
 }` }>
     {e['label']}
@@ -237,10 +253,11 @@ ${ i==sectionsData.length-1 ? '  rounded-bl-xl' : ''
        ${topic== 'Process of adding Oil' ? 'border-b-2 ' : 'border-b-2'}
        `}>
 
+
         {topic}
        </div >
        <div className="w-[12.5%]">
-        { 
+        {
        <div
      
           className={`border-y-blue-500   border-r-blue-500 p-2 font-poppins border-t-1 border-r-2  w-full h-full
@@ -249,7 +266,7 @@ ${ i==sectionsData.length-1 ? '  rounded-bl-xl' : ''
 }
        </div>
                  <div className="w-[12.5%]">
-        { 
+        {
        <div
      
           className={`border-y-blue-500 border-r-blue-500 p-2 font-poppins border-t-1 border-r-2  w-full h-full
@@ -261,7 +278,9 @@ ${ i==sectionsData.length-1 ? '  rounded-bl-xl' : ''
     )
 }
 
+
 </div>
+
 
     </div>
     )
@@ -270,7 +289,10 @@ ${ i==sectionsData.length-1 ? '  rounded-bl-xl' : ''
 </div>
 </section>
 
+
     );
 }
 
+
 export default  TrainerList;
+

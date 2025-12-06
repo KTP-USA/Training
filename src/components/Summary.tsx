@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
-import { RefreshCcw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 const Summary = () => {
-    const fakedata = [];
     const modules =['30D', '90D', '180D', '1Y', '2Y', '3Y']
     const modules2=['30D Module', 'Trainer List', ];
     const [selectedUser, setSelectedUser] = useState('no user');
     const [userData2, setUserData2] = useState([])
     const [testData, setTestData] = useState([]);
 
+
+
+
      const [testData2, setTestData2] = useState([]);
      async function openUrl(step: String, module: String) {
        
         let entry = await supabase.from('documents').select().eq('step', step).eq('module', module)
-      
+     
          let url =supabase.storage.from('module').getPublicUrl(entry.data![0]['path']);
      
       window.open(url.data.publicUrl.replace('%0D%0A', ''), "_blank", "noopener,noreferrer");
@@ -23,17 +24,24 @@ const Summary = () => {
     const [userData, setUserData] = useState([])
     const navigate = useNavigate()
     async function LoadData() {
-        let user: any = await supabase.from('users').select().eq('role', 'USER');
+        let user: any = await supabase.from('users').select().eq('role', 'USER').eq('active', 'Y');
        
-        await supabase.from('users').select()
-     
        let test: any= await supabase.from('testrecords').select();
        setUserData(user.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])));
        setTestData2(test.data)
 
 
+
+
+
+
+
+
         let session = await supabase.auth.getSession();
     let userData1: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
+
+
+
 
     setIsAdmin(userData1.data[0]['role'] != "USER")
     if (userData1.data[0]['role'] == 'USER'){
@@ -53,7 +61,7 @@ LoadData();
 <button
 onClick={
     () => {
-navigate('/manager')
+navigate('/manager', {state: selectedUser})
     }
 }
 className=" h-min
@@ -63,21 +71,29 @@ text-white gap-2 bg-blue-500 font-poppins">
 Details
 </button>
             </div>
-                { 
+                {
     isAdmin &&
             <div className="flex flex-row items-center  mb-4">
              
 
+
+
+
                 <p className="font-poppins"> Choose a user:</p>
 
 
-    <select 
+
+
+
+
+
+
+    <select
  value={selectedUser}
   onChange={(er)=> {
     setSelectedUser(er.target.value)
     setUserData2(userData.filter((entry) => entry['username'] == er.target.value))
 setTestData(testData2.filter((e)=> e['username'] == er.target.value))
-console.log('rr ', userData.filter((e)=> e['username'] == er.target.value), testData2.filter((e)=> e['username'] == er.target.value) )
   }}
    className='border-2 ml-3 rounded-md  border-blue-400 p-2
  font-poppins'>
@@ -87,28 +103,40 @@ userData.map((entry) =>
   <option>{entry['username']}</option>
 )
 }
- </select> 
+ </select>
 
- </div> 
+
+
+
+ </div>
+
+
+
 
 }
            <div className="flex flex-row ">
 {
     modules.map((e)=> {
-      
+     
     return     <div className="flex flex-col ">
     <div className={`p-3 text-white
     border-blue-500 border-2
-    ${e=='30D' ? 'rounded-tl-lg' : e=='3Y' ? 'rounded-tr-lg':''}  font-poppins text-center px-7 py-5 font-bold text-2xl ${e=='30D' ? 'bg-[#fe0a0a]': e=='90D' ?  'bg-[#ff6565]'  : 
+    ${e=='30D' ? 'rounded-tl-lg' : e=='3Y' ? 'rounded-tr-lg':''}  font-poppins text-center px-7 py-5 font-bold text-2xl ${e=='30D' ? 'bg-[#fe0a0a]': e=='90D' ?  'bg-[#ff6565]'  :
 e == '180D' ? 'bg-[#ff8888]' : e == '1Y' ? 'bg-[#504afe]'  : e == '2Y' ? 'bg-[#3933fd]'  :
-'bg-[#1d15ff]' 
+'bg-[#1d15ff]'
+
+
+
 
     }`}>
 {e} <br/> Module
 
+
+
+
     </div>
     <div className={`border-blue-500 border-2 p-3 font-poppins
-        
+       
         font-bold
         text-2xl min-h-15 ${ (userData2.length == 0 || (selectedUser == '' && !isAdmin))
     ? '' :  userData2[0]['actualstep'] == e ?  'text-yellow-500' : 'text-blue-400'}`}>
@@ -135,15 +163,21 @@ e == '180D' ? 'bg-[#ff8888]' : e == '1Y' ? 'bg-[#504afe]'  : e == '2Y' ? 'bg-[#3
        return bDate-aDate;
     })[0]
 
-      
+
+
+
+     
         ?? {'score':''})['score']??'' }`
         }</p>
     <p className="mt-1">Performance Review:   {  testData.length == 0
     ? ''
     : `${(testData.find((e2) => e2['step'] == e && e2['type'] == 'Performance review') ?? {'score':''})['score'] ??''}`}</p>
     </div>
-      <div className={`border-blue-500 border-2 p-3 font-poppins  ${e=='30D' ? 'rounded-bl-lg' 
+      <div className={`border-blue-500 border-2 p-3 font-poppins  ${e=='30D' ? 'rounded-bl-lg'
 : e=='3Y' ? 'rounded-br-lg' :''
+
+
+
 
       }`}>
     {
@@ -160,15 +194,27 @@ e == '180D' ? 'bg-[#ff8888]' : e == '1Y' ? 'bg-[#504afe]'  : e == '2Y' ? 'bg-[#3
              
          }
 
+
+
+
         }}
         className={`p-3 text-white cursor-pointer font-poppins text-center rounded-4xl mt-4 px-7  font-bold text-xl  ${
 
-            e=='30D' ? 'bg-[#fe0a0a]': e=='90D' ?  'bg-[#ff6565]'  : 
+
+
+
+            e=='30D' ? 'bg-[#fe0a0a]': e=='90D' ?  'bg-[#ff6565]'  :
 e == '180D' ? 'bg-[#ff8888]' : e == '1Y' ? 'bg-[#504afe]'  : e == '2Y' ? 'bg-[#3933fd]'  :
-'bg-[#1d15ff]' 
+'bg-[#1d15ff]'
+
+
+
 
     }`}>
-{item == '30D Module' ? `${e} Module` : item} <br/> 
+{item == '30D Module' ? `${e} Module` : item} <br/>
+
+
+
 
     </div>
         )
@@ -178,10 +224,21 @@ e == '180D' ? 'bg-[#ff8888]' : e == '1Y' ? 'bg-[#504afe]'  : e == '2Y' ? 'bg-[#3
     }
     )
 }
-</div> 
+</div>
+
+
+
 
         </section>
     )
 }
 
+
+
+
 export default Summary;
+
+
+
+
+
