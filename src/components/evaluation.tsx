@@ -2,28 +2,34 @@ import {  useEffect, useState, } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
+import { TailSpin } from "react-loader-spinner";
 const Evaluation = () => {
+    const [isLoading, setIsLoading] = useState(false);
     const topBar = ['Name:', 'Supervisor:', 'Module:', 'Date:', 'Machine:', 'Trainer:', 'Step:']
     const labels = ['Section', 'Topic', 'Score (1-4)'];
     const [prevComplete, setPrevComplete] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
-    const [name, id] = location.state ?? ['no name', 'no id'];
+    const [name, id, step] = location.state ?? ['no name', 'no id', 'no step'];
       const [rawData, setRawDate] = useState([]);
       const [savedAnswers, setSavedAnswers] = useState<Record<any, any>>({});
     const [sectionsData, setSectionData] =useState([]);
 async function formatData (usersdata: any){
    
 let data: any =
-await supabase.from('technical').select().eq('module', usersdata[0]['module']).eq('step', usersdata[0]['actualstep'])
+
+await supabase.from('technical').select().eq('module', usersdata[0]['module']).eq('step', step != 'no step' && step != null ? step : usersdata[0]['actualstep'])
 ;
-let tstrecs: any = await supabase.from('testrecords').select().eq('username', usersdata[0]['username']).eq('step', usersdata[0]['actualstep'])
-.eq('module', usersdata[0]['module']).eq('step', usersdata[0]['actualstep']).eq('type', 'Technical Evaluation').eq('result', 'READY')
-;
+let tstrecs: any = id == 'no id' ? await supabase.from('testrecords').select().eq('username', usersdata[0]['username']).eq('step', usersdata[0]['actualstep'])
+.eq('module', usersdata[0]['module']).eq('step', 
+    
+    usersdata[0]['actualstep']).eq('type', 'Technical Evaluation').eq('result', 'READY')
+: await supabase.from('testrecords').select().eq('id', id).eq('result', 'READY')
+console.log('tstrecs', tstrecs, id, step)
 if (tstrecs.data.length != 0){
    setIsComplete(true);
-  let hihi: any =  await  supabase.from('savedtest').select().eq('module', usersdata[0]['module']).eq('step', usersdata[0]['actualstep']).eq('controlnbr',
-    id == 'no id' ? tstrecs.data[0]['id'] : id).eq('username', usersdata[0]['username']);
+  let hihi: any = id == 'no id' ?  await  supabase.from('savedtest').select().eq('module', usersdata[0]['module']).eq('step', usersdata[0]['actualstep']).eq('controlnbr',
+    id == 'no id' ? tstrecs.data[0]['id'] : id).eq('username', usersdata[0]['username']) : await  supabase.from('savedtest').select().eq('controlnbr', id) ;
     // setTextMap(
       hihi=  hihi.data?.map((e: any) => {
        
@@ -97,7 +103,7 @@ day:'2-digit'
  }
     }
 async function completeEvaluation(){
-   
+   setIsLoading(true);
 let responseList = Object.values(textMap).map((e) => e)
 let totalsum = 0;
 for (const item of responseList){
@@ -173,7 +179,9 @@ await supabase.from('testrecords').insert({
     'module': userData2[0]['module'],
 })
 }
+
 setIsComplete(true);
+setIsLoading(false);
 }
 const [isComplete, setIsComplete] = useState(false);
 const [userData, setUserData] = useState([]);
@@ -226,7 +234,14 @@ className={`
 flex flex-row rounded-3xl  self-end  p-3 w-35 text-lg items-center justify-center transition-all
 duration-300  py-2 px-2 mr-5 scale-104
 text-white gap-2 ${isComplete ? 'bg-green-500 ' : 'bg-blue-500 hover:bg-blue-600  hover:scale-105 cursor-pointer'} font-poppins`}>
-{isComplete ? 'Completed': 'Complete'}
+{
+
+isComplete ? 'Completed':
+isLoading ?     
+  <TailSpin
+  height={25} width={25} 
+  color="white" ></TailSpin> :
+'Complete'}
 </button>
      }
 </div> :  <button
@@ -242,7 +257,12 @@ className={`
 flex flex-row rounded-3xl  self-end  p-3 w-35 text-lg items-center justify-center transition-all
 duration-300  py-2 px-2 mr-5 scale-104
 text-white gap-2 ${isComplete ? 'bg-green-500 ' : 'bg-blue-500 hover:bg-blue-600  hover:scale-105 cursor-pointer'} font-poppins`}>
-{isComplete ? 'Completed': 'Complete'}
+{isComplete ? 'Completed':
+isLoading ?     
+  <TailSpin
+  height={25} width={25} 
+  color="white" ></TailSpin> :
+'Complete'}
 </button>
   }
 
@@ -256,7 +276,7 @@ text-white gap-2 ${isComplete ? 'bg-green-500 ' : 'bg-blue-500 hover:bg-blue-600
         className={`font-poppins flex flex-row ${i == 0 || i ==2 || i==4 || i==6 ? "justify-self-start" : "justify-self-end"}`}>
             {e}
             { e != 'Name' &&
-            <p className="ml-2"> {    e == 'Step:' ? (userData2.length == 0 ? '' : userData2[0]['actualstep']) : e == 'Supervisor:' ? (userData2.length == 0 ? '' : userData2[0]['supervisor']) :
+            <p className="ml-2"> {    e == 'Step:' ? (step != null && step != 'no step' ? step : userData2.length == 0 ? '' : userData2[0]['actualstep']) : e == 'Supervisor:' ? (userData2.length == 0 ? '' : userData2[0]['supervisor']) :
             e == 'Module:' ?(userData2.length == 0 ? '' :userData2[0]['module']) : e=='Machine:' ? ( userData2.length == 0 ? '' : userData2[0]['machine']) :
         e == 'Date:' ?   `${date.toLocaleDateString('en-US', {
 year:'2-digit',

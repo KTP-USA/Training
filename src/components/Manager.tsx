@@ -27,11 +27,13 @@ year:'numeric',
   }
     const navigate = useNavigate();
     const [selectedPhase, setSelectedPhaae] = useState('');
+    const [isUser, setIsUser] =useState(false);
      async function fetchUserData() {
     let session = await supabase.auth.getSession();
     let userData: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
    
     if (userData.data[0]['role'] == 'USER'){
+      setIsUser(true);
       setNotAdmin(true);
        setSelectedUser(userData.data[0]['username']);
      let newTestData: any = await supabase.from('testrecords').select().eq('username', userData.data[0]['username']).eq('step', userData.data[0]['actualstep']);
@@ -42,6 +44,7 @@ year:'numeric',
       'step':entry['step'], 'id':entry['id'],
       'Test Type': entry['type'], 'Date':entry['date'], 'Score':entry['score'], 'Result':entry['result'], 'path': entry['path']});
   }
+ 
  setTestData(newer);
   setUserData(userData.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])) )
   setModulePhase(userData.data[0]['actualstep']);
@@ -52,6 +55,7 @@ year:'numeric',
        let usertest2: any = await supabase.from('testrecords').select();
         setUserData(userData2.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])));
           setUserData2(userData2.data);
+        
           setTestData2(usertest2.data);
        if (username != 'none'){
    setSelectedUser(username);
@@ -115,6 +119,7 @@ fetchUserData();
     for (const entrye of idk3){
 idk2[entrye['questionid']] = entrye['useranswer']
     }
+    
 navigate(`/test/${entry['id']}`, {state: idk2})
   }
 
@@ -152,7 +157,8 @@ justify-baseline
   setSelectedUser(e.target.value);
   let newUserData = userData2.filter((entry)=> entry['username'] == e.target.value);
  
-  let newTestData = testData2.filter((entry)=> entry['username'] == e.target.value && entry['step'] == newUserData[0]['actualstep'])
+  let newTestData = testData2.filter((entry)=> entry['username'] == e.target.value && entry['step'] == newUserData[0]['actualstep']);
+  console.log('newTestData', newTestData, testData2)
   let newer: any = []
   for (const entry of newTestData){
    
@@ -160,6 +166,7 @@ justify-baseline
       'step':entry['step'], 'id':entry['id'],
       'Test Type': entry['type'], 'Date':entry['date'], 'Score':entry['score'], 'Result':entry['result'], 'path':entry['path']});
   }
+  console.log('newer', newer)
  setTestData(newer);
   setUserData(newUserData )
   setModulePhase(newUserData[0]['actualstep']);
@@ -265,10 +272,12 @@ entry == 'Module' ?'w-[20%]':
    onClick={
     () => {
       if (entry['Test Type'] == 'Technical Evaluation'){
-   
-navigate('/evaluation', {state: [userData[0]['username'], entry['result'] != null ? entry['id'] : 'no id']})
+   console.log('result', entry['result'], entry)
+navigate('/evaluation', {state: [userData[0]['username'], entry['Result'] != null ? entry['id'] : 'no id', entry['step']]})
   }  else if (entry['Test Type'] == 'Competency Test'){
+    if (!isUser){
 savedTest(entry);
+    }
   } else {
     if (entry['path'] != null){
        let url =supabase.storage.from('Files').getPublicUrl(entry['path']);

@@ -72,6 +72,7 @@ let list: any = userData.map((e) => { return e==entry ? {...entry, 'path': fileP
    
 }
   async function generateTest(step: String, module: String, username: String , type: String, entry: any ){
+    
     let qBankData = await supabase.from('questions').select().eq('step', step).eq('module', module).eq('optiontext', '') ;
  
    
@@ -263,8 +264,8 @@ let loadedData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase
 
 
     : await supabase.from('users').select().eq('role', "USER").eq('active', 'Y')
-    console.log('looo', loadedData)
-   
+    
+  
     loadedData = loadedData.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username']))
    
     let testData: any =  trainer ? await supabase.from('testrecords').select().is('result', null).is('score', null ).neq('type', 'Performance review')
@@ -272,9 +273,9 @@ let loadedData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase
    ( userData1.data[0]['trainer'] == 'Y' && userData1.data[0]['role'] == 'SUPERVISOR' ) || userData1.data[0]['role'] == 'ADMIN'
    ?  
      
-    await supabase.from('testrecords').select().is('result', null).is('score', null):
+    await supabase.from('testrecords').select().is('result', null).is('score', null) :
     await supabase.from('testrecords').select().neq
-    ('type', 'Technical Evaluation').is('result', null).is('score', null);
+    ('type', 'Technical Evaluation').is('result', null).is('score', null)
 
 
 let data2 = trainer?
@@ -742,7 +743,7 @@ Print
 onClick={() => {
   if (entry['Test Type'] == 'Technical Evaluation'){
 navigater('/evaluation', {state: [ entry['User'],
-'no id']})
+'no id', 'no step']})
   } else if (entry['Test Type'] == 'Competency Test') {
 generateTest(entry['Step'], entry['Module'], entry['User'], entry['Test Type'], entry);
   } else{

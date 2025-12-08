@@ -1,8 +1,10 @@
 import {  useEffect, useState, useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import { useLocation, useNavigate } from "react-router-dom";
+import { TailSpin } from "react-loader-spinner";
 import { supabase } from "../supabaseClient";
 const PerformanceReview = () => {
+    const [isLoading, setIsLoading] = useState(false);
      const printRef = useRef<HTMLDivElement>(null);
 
 
@@ -97,6 +99,7 @@ const PerformanceReview = () => {
     const location = useLocation();
     const [chosen, setChosen] = useState('');
        async function handlePassFail(data: any, type: any){
+        setIsLoading(true);
    let date = new Date();
  
     let fetchcontrolnbr: any = await supabase.from('testrecords').select()
@@ -187,6 +190,7 @@ await supabase.from('testrecords').insert({
 
 
 }
+setIsLoading(false);
     }
     const [name, id, step, file] = location.state ?? ['no name', 'no id', 'no step', 'no path'];
       const [rawData, setRawDate] = useState([]);
@@ -340,7 +344,12 @@ className="
 flex flex-row rounded-3xl mr-5 self-end cursor-pointer p-3 w-35 text-lg items-center justify-center hover:scale-105 transition-all
 duration-300 hover:bg-green-600 py-2 px-2  scale-104
 text-white gap-2 bg-green-500 font-poppins">
-Ready
+ { isLoading ?     
+  <TailSpin
+  height={25} width={25} 
+  color="white" ></TailSpin> :
+  'Ready' }
+
 </button>
 }
 {
@@ -357,7 +366,11 @@ className="
 flex flex-row rounded-3xl mr-5 self-end cursor-pointer p-3 w-35 text-lg items-center justify-center hover:scale-105 transition-all
 duration-300 hover:bg-red-600 py-2 px-2  scale-104
 text-white gap-2 bg-red-500 font-poppins">
-Not Ready
+ { isLoading ?     
+  <TailSpin
+  height={25} width={25} 
+  color="white" ></TailSpin> :
+  'Not Ready' }
 
 
 </button>
