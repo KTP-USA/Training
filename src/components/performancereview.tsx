@@ -112,6 +112,8 @@ const PerformanceReview = () => {
     'performid':item,
     'perfomanser': textMap[item],
     'username': userData2[0]['username'],
+    'supervisor':userData2[0]['supervisor'],
+    'trainer':userData2[0]['trainer'],
    'controlnbr':fetchcontrolnbr.data[0]['id'],
     'module': userData2[0]['module'],
     'step':step != 'no step' && step != null ? step : userData2[0]['actualstep']
@@ -127,6 +129,8 @@ const PerformanceReview = () => {
 const {status} = await supabase.from('savedtest').insert({
  
     'username': userData2[0]['username'],
+       'supervisor':userData2[0]['supervisor'],
+    'trainer':userData2[0]['trainer'],
    'controlnbr':fetchcontrolnbr.data[0]['id'],
     'module': userData2[0]['module'],
     'step':step != 'no step' && step != null ? step : userData2[0]['actualstep'],
@@ -160,7 +164,7 @@ year:'2-digit',
           let insert = date.setDate(date.getDate()+30)
   await supabase.from('testrecords').insert({
    
-   
+    'trainer': data[0]['trainer'],
     'supervisor':data[0]['supervisor'],
      'username': data[0]['username'],
     'type': 'Performance review',
@@ -181,6 +185,7 @@ if (stuoidlist.data.length >= 2 && type=='pass'){
 await supabase.from('testrecords').insert({
    
     'username': data[0]['username'],
+     'trainer': data[0]['trainer'],
     'supervisor':data[0]['supervisor'],
     'type': 'Competency Test',
 'nextdate': date,

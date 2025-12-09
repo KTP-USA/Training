@@ -167,6 +167,7 @@ year:'2-digit',
    
     'username': rawList[0]['username'],
     'supervisor':rawList[0]['supervisor'],
+    'trainer': rawList[0]['trainer'],
     'type': 'Competency Test',
  'nextdate':date,
     'module': rawList[0]['module'],
@@ -209,6 +210,7 @@ await supabase.from('testrecords').insert({
    
     'username': rawList[0]['username'],
     'supervisor':rawList[0]['supervisor'],
+     'trainer': rawList[0]['trainer'],
     'type': item,
     'nextdate':getNextDate(rawList[0]['hiredate'], stuoidlist.data[0]['step']  ),
     'step': stuoidlist.data[0]['step'] == '30D' ? '90D' : stuoidlist.data[0]['step']== '90D' ? '180D' :stuoidlist.data[0]['step'] == '180D' ? '1Y' :

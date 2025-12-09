@@ -96,10 +96,11 @@ let list: any = userData.map((e) => { return e==entry ? {...entry, 'path': fileP
   }
   let fetchcontrolnbr = await supabase.from('testrecords').select().eq('step', step).eq('module', module).eq('username', username).eq('type', type).is('result', null);
   await supabase.from('testrecords').update({'controlnbr':fetchcontrolnbr.data![0]['id']}).eq('id', fetchcontrolnbr.data![0]['id'])
+  let userdata : any = await supabase.from('users').select().eq('username', fetchcontrolnbr.data![0]['username']);
   let insertList = qBank.map((e, i)=> {
    
     return {'questiontest':i+1, 'questionid': e['questionid'], 'module': module, 'step':step,
-     
+     'trainer':userdata.data[0]['trainer'], 'supervisor':userdata.data[0]['supervisor'],
       'correcttest': type == 'Competency Test' ? e['correctoption'] : null,
 'controlnbr':fetchcontrolnbr.data![0]['id'], 'username':username
 

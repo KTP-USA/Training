@@ -98,6 +98,7 @@ let train2: any = train.data
 setTrainerList(train2);
 setStepList(step2);
     setUserData(loadedData);
+    console.log('loaded data:', loadedData)
     setSupList(supervisors);
     setUniqueUsers(loadedData.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])).map((e:any) => e['username']))
     setisLoading(false);
@@ -105,7 +106,10 @@ setStepList(step2);
 loadData();
     }, [])
     async function deacUser(isDeactivating: boolean){
+
       let now = new Date();
+    
+      
  await supabase.from('users').update({
 
 
@@ -116,6 +120,7 @@ loadData();
     'year':'numeric'
   }) : null
 }).eq('id', editData[0]['id'])
+
 let usesdate: any =userData;
 usesdate[userData.indexOf(editData[0])]['active'] = isDeactivating ?'N' : 'Y';
 setUserData(usesdate);
@@ -162,6 +167,7 @@ return (
  <p> Update User </p>
   <button
 onClick={() => {
+  console.log('user ', editData)
 deacUser(editData[0]['active'] == 'Y')
 }}
 className={`
@@ -553,8 +559,9 @@ userData.filter((entry) => (testType == 'Test Type' ? true : entry['Test Type'] 
    <div>
    <div className={`flex flex-row items-center`}>
  {   Object.values(entry).map((entrye: any, i) => {
- 
-if (i == 1  || i == 0 || i== 9||i==11 || i==12 || i==13 ){
+console.log('entrye and i', entrye, i)
+if (i == 1  || i == 0 || i== 9||i==11 ||i==13 || i==14  || i==12){
+
   return;
 }
    return (
@@ -570,6 +577,7 @@ if (i == 1  || i == 0 || i== 9||i==11 || i==12 || i==13 ){
 i == 10 ? <div className="flex flex-row">{entrye } <div className="flex-1"></div><Edit
 onClick={() =>{
     setEditData(userData.filter((e) => e['username'] == entry['username'] ));
+    console.log('edit date 1st set:', userData.filter((e) => e['username'] == entry['username'] ))
     setEditOpen(true)
 }}
 className="mr-1 cursor-pointer hover:text-blue-400"></Edit> </div> :

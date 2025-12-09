@@ -122,6 +122,8 @@ await supabase.from('savedtest').insert({
     'techid':item['id'],
     'techanswer': textMap[item['topic']],
     'username': userData2[0]['username'],
+       'supervisor':userData2[0]['supervisor'],
+    'trainer':userData2[0]['trainer'],
    'controlnbr':fetchcontrolnbr.data[0]['id'],
     'module': userData2[0]['module'],
     'step':userData2[0]['actualstep']
@@ -150,7 +152,7 @@ if (avg < 3){
      let date: Date =new  Date();
           let insert = date.setDate(date.getDate()+30)
  await supabase.from('testrecords').insert({
-   
+    'trainer': userData2[0]['trainer'],
     'username': userData2[0]['username'],
     'supervisor':userData2[0]['supervisor'],
     'type': 'Technical Evaluation',
@@ -171,6 +173,7 @@ if (stuoidlist.data.length >= 2 && avg >=3){
 await supabase.from('testrecords').insert({
    
     'username': userData2[0]['username'],
+     'trainer': userData2[0]['trainer'],
     'supervisor':userData2[0]['supervisor'],
     'type': 'Competency Test',
     'nextdate':date,
