@@ -258,13 +258,7 @@ settestTypes(['Competency Test', 'Technical Evaluation'])
 settestTypes(['Competency Test', 'Performance Review'])
     }
    
-let loadedData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase.from('users').select().eq('supervisor', userData1.data[0]['username'])
-.is('deactive', null)
-
-
-
-
-    : await supabase.from('users').select().eq('role', "USER").eq('active', 'Y')
+let loadedData: any = await supabase.from('users').select().eq('role', "USER").eq('active', 'Y')
     
   
     loadedData = loadedData.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username']))
