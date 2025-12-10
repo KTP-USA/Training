@@ -490,7 +490,7 @@ setRegenIds(insert)
 
 // }
 //     }
-const [selectedTrainer, setSelectedTrainer] = useState('');
+const [selectedTrainer, setSelectedTrainer] = useState('Trainer');
     let columns = ['Username', 'Hire Date', 'Module', 'Supervisor', 'Trainer',  'Test Type', 'Step', 'Next Date', '']
 return (
 <section className="flex justify-center items-center flex-col my-15 mx-10">
@@ -707,7 +707,7 @@ userData.filter((entry) =>{
   let entryDate: Date = new Date(entry['Next Date']);
   let maxDates: Date = new Date(maxDate)
   return (testType == 'Test Type' ? true : entry['Test Type'] == testType) &&
- (selectedUser == 'Username' ? true : entry['User'] == selectedUser) && (selectedTrainer == '' ? true : entry['Trainer'] == selectedTrainer) &&
+ (selectedUser == 'Username' ? true : entry['User'] == selectedUser) && (selectedTrainer == 'Trainer' ? true : entry['Trainer'] == selectedTrainer) &&
  (selectedSupervisor == 'Supervisor' ? true : entry['Supervisor'] == selectedSupervisor) && (
  
   entryDate <= maxDates)
