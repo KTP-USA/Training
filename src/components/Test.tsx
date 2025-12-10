@@ -92,7 +92,7 @@ correctcount= correctcount+1
    function getNextDate(date: any, step: String){
  date = new Date(date);
  if (step == '30D'){
-   date.setDate(date.getDate()+60);
+   date.setDate(date.getDate()+90);
     return date.toLocaleDateString('en-US', {
   month:'numeric',
            

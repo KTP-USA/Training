@@ -236,6 +236,7 @@ now.setDate(now.getDate() +10);
 //     setisLoading(false);
    
 //     }
+const [Trainers, setTrainers] = useState([]);
     useEffect(() => {
 async function loadData(){
 
@@ -258,7 +259,14 @@ settestTypes(['Competency Test', 'Technical Evaluation'])
 settestTypes(['Competency Test', 'Performance Review'])
     }
    
-let loadedData: any = await supabase.from('users').select().eq('role', "USER").eq('active', 'Y')
+let loadedData: any = 
+userData1.data[0]['role']== 'SUPERVISOR'  ? 
+await supabase.from('users').select().eq('role', "USER").eq('active', 'Y').eq('supervisor', userData1.data[0]['username'])
+:
+userData1.data[0]['role']== 'TRAINER'  ? 
+await supabase.from('users').select().eq('role', "USER").eq('active', 'Y').eq('trainer', userData1.data[0]['username'])
+:
+await supabase.from('users').select().eq('role', "USER").eq('active', 'Y')
     
   
     loadedData = loadedData.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username']))
@@ -295,6 +303,7 @@ testData =testData.data.sort((a: any,b:any) => {
     let data: any = [];
     let idk : any = [];
     let supervisors: any = [];
+    let trainers: any = [];
   let findit: any = await supabase.from('testrecords').select().eq('type', 'Competency Test').eq('result', 'PASS')
     testData = testData.filter((e: any) => {
      
@@ -322,6 +331,9 @@ if (findit2 != null && findit2.length != 0 ){
       if (!supervisors.includes(entry['supervisor'])){
 supervisors.push(entry['supervisor']);
       }
+        if (!trainers.includes(entry['trainer'])){
+trainers.push(entry['trainer']);
+      }
         let testsUncompleted = testData.filter(
    
             (testentry: any) => {
@@ -332,11 +344,13 @@ supervisors.push(entry['supervisor']);
             for (const entry2 of testsUncompleted){
 data.push({'User':entry['username'], 'Hire Date':entry['hiredate'], 'Module':entry['module'],
     "Supervisor":entry['supervisor'],
-    'Test Type':entry2['type'],
+        "Trainer": entry['trainer'], 
+    'Test Type':entry2['type'], 
+
     'Step':entry2['step'], 'Next Date':entry2['nextdate'], 'Action':
     entry2['result'] == 'READY' ? 'READY' :
     entry2['controlnbr'] != null ? entry2['controlnbr'] : 'no number',
-    'path':entry2['path'], 'id':entry2['id']
+    'path':entry2['path'], 'id':entry2['id'], 
 })
          
     }
@@ -351,6 +365,7 @@ data = data.sort((a: any,b:any) => {
 
 
     setUserData(data);
+    setTrainers(trainers);
     setSupList(supervisors);
     setUniqueUsers(loadedData.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])).map((e:any) => e['username']))
     setisLoading(false);
@@ -475,7 +490,8 @@ setRegenIds(insert)
 
 // }
 //     }
-    let columns = ['Username', 'Hire Date', 'Module', 'Supervisor', 'Test Type', 'Step', 'Next Date', '']
+const [selectedTrainer, setSelectedTrainer] = useState('');
+    let columns = ['Username', 'Hire Date', 'Module', 'Supervisor', 'Trainer',  'Test Type', 'Step', 'Next Date', '']
 return (
 <section className="flex justify-center items-center flex-col my-15 mx-10">
    {/* {
@@ -581,8 +597,8 @@ Username
 
 
         </select >
-        {
-        !hasSupervisor &&
+        {/* {
+        !hasSupervisor && */}
         <select
              onChange={(e) => {setSupervisor(e.target.value)}}
            value={selectedSupervisor}
@@ -607,7 +623,30 @@ supervisors.map((entry) =>
 }
         </select>
        
+{/* } */}
+    <select
+             onChange={(e) => {setSelectedTrainer(e.target.value)}}
+           value={selectedTrainer}
+           className="rounded-lg border-blue-300  font-normal border-2  text-gray-900 font-poppins py-2 w-30
+        cursor-pointer hover:bg-blue-400/20 hover:border-blue-400 hover:scale-103 transtion-all duration-300 justify-center px-1 overflow-ellipsis
+        ">
+
+
+
+
+            <option>
+Trainer
+</option>
+{
+Trainers.map((entry) =>
+  <option>{entry}</option>
+  )
+
+
+
+
 }
+        </select>
  <input
  type="date"
  value={maxDate}
@@ -649,8 +688,8 @@ if (now >= eDate){
 {
   columns.map((entry) =>
   <div className= {`m-2 ml-5 ${
-  entry == 'Test Type' ?
-'w-[10%]' : entry == 'Supervisor' ? 'w-[10%]' :
+  entry == 'Test Type' ? 
+'w-[10%]' : entry == 'Step' ? 'w-[7%]' : entry == 'Supervisor' ? 'w-[10%]' :
 entry == 'User' ? 'w-[10%]' : entry == 'Hire Date' ? 'w-[10%]' :
 entry == 'Module' ?'w-[10%]': entry == 'Next Date' ? 'w-[10%]' :  entry == '' ? 'w-[20%]' :
 'w-[10%]'
@@ -668,7 +707,7 @@ userData.filter((entry) =>{
   let entryDate: Date = new Date(entry['Next Date']);
   let maxDates: Date = new Date(maxDate)
   return (testType == 'Test Type' ? true : entry['Test Type'] == testType) &&
- (selectedUser == 'Username' ? true : entry['User'] == selectedUser) &&
+ (selectedUser == 'Username' ? true : entry['User'] == selectedUser) && (selectedTrainer == '' ? true : entry['Trainer'] == selectedTrainer) &&
  (selectedSupervisor == 'Supervisor' ? true : entry['Supervisor'] == selectedSupervisor) && (
  
   entryDate <= maxDates)
@@ -678,8 +717,8 @@ userData.filter((entry) =>{
    <div>
    <div className={`flex flex-row items-center`}>
  {   Object.values(entry).map((entrye: any, i) => {
- 
-if (i==8 || i==9){
+ console.log('entry', entrye, i )
+if (i==10 || i==9){
   return;
 }
    return (
@@ -690,12 +729,12 @@ columns[i] == 'Test Type' ?
 'w-[10%]' : columns[i] == 'Supervisor' ? 'w-[10%]' :
 columns[i] == 'Username' ? 'w-[10%]' : columns[i] == 'Hire Date' ? 'w-[10%]' :
 columns[i] == 'Module' ?'w-[10%]': columns[i] == 'Next Date' ? 'w-[10%]' :
-columns[i] == 'Step' ? 'w-[10%]' : i ==7 ? 'w-[20%]' :
+columns[i] == 'Step' ? 'w-[7%]' : i ==8 ? 'w-[20%]' :
 'w-[10%]'
   }
     `}>
  {
- i == 7 ?
+ i == 8?
  entrye == 'no number' || entry['Test Type'] == 'Performance review' ?
  entry['Test Type'] == 'Performance review' && entry['Action'] == 'READY'
  ?
@@ -760,7 +799,7 @@ text-white gap-2 bg-blue-500 font-poppins">
 // ${ regenIds.includes(entrye) ? 'text-green-500 scale-105': 'hover:text-blue-400  hover:scale-104'}
 //   transition-all`}><RefreshCcw></RefreshCcw></div>
 // </div>
-:i == 1 || i==6 ? <p>{getDates(entrye)}</p> :<p>{entrye}</p>
+:i == 1 || i==7? <p>{getDates(entrye)}</p> :<p>{entrye}</p>
  
  }
  

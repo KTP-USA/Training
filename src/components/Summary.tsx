@@ -24,7 +24,19 @@ const Summary = () => {
     const [userData, setUserData] = useState([])
     const navigate = useNavigate()
     async function LoadData() {
-        let user: any = await supabase.from('users').select().eq('role', 'USER').eq('active', 'Y');
+        
+
+        let session = await supabase.auth.getSession();
+    let userData1: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
+
+        let user: any =
+userData1.data[0]['role']== 'SUPERVISOR'  ? 
+await supabase.from('users').select().eq('role', "USER").eq('active', 'Y').eq('supervisor', userData1.data[0]['username'])
+:
+userData1.data[0]['role']== 'TRAINER'  ? 
+await supabase.from('users').select().eq('role', "USER").eq('active', 'Y').eq('trainer', userData1.data[0]['username'])
+:
+await supabase.from('users').select().eq('role', "USER").eq('active', 'Y')
        
        let test: any= await supabase.from('testrecords').select();
        setUserData(user.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])));
@@ -35,10 +47,6 @@ const Summary = () => {
 
 
 
-
-
-        let session = await supabase.auth.getSession();
-    let userData1: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
 
 
 

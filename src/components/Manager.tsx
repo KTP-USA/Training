@@ -51,7 +51,14 @@ year:'numeric',
   setSelectedPhaae(userData.data[0]['actualstep']);
   setdueDate(userData.data[0]['nextdate']);
 } else {
-      let userData2: any = await supabase.from('users').select().eq('role', 'USER').eq('active', 'Y')
+      let userData2: any = userData.data[0]['role']== 'SUPERVISOR'  ? 
+await supabase.from('users').select().eq('role', "USER").eq('active', 'Y').eq('supervisor', userData.data[0]['username'])
+:
+userData.data[0]['role']== 'TRAINER'  ? 
+await supabase.from('users').select().eq('role', "USER").eq('active', 'Y').eq('trainer', userData.data[0]['username'])
+:
+await supabase.from('users').select().eq('role', "USER").eq('active', 'Y')
+    
        let usertest2: any = await supabase.from('testrecords').select();
         setUserData(userData2.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])));
           setUserData2(userData2.data);
