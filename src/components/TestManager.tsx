@@ -125,11 +125,13 @@ for (const entry of insertList){
 
 
   }
-  function getDates(date: string){
+  function getDates(date: string, entrh: any){
+    console.log('getdates', date, entrh)
     if (date == '' || date == null){
       return '';
     } else {
 let date2 = new Date(date)
+
     return date2.toLocaleDateString('en-US', {
   month:'numeric',
            
@@ -340,7 +342,7 @@ trainers.push(entry['trainer']);
            
     return entry['username'] == testentry['username'] && (idk.includes(testentry['id']) ? true : entry['actualstep'] == testentry['step']) })
    
-           
+          
             for (const entry2 of testsUncompleted){
 data.push({'User':entry['username'], 'Hire Date':entry['hiredate'], 'Module':entry['module'],
     "Supervisor":entry['supervisor'],
@@ -717,7 +719,7 @@ userData.filter((entry) =>{
    <div>
    <div className={`flex flex-row items-center`}>
  {   Object.values(entry).map((entrye: any, i) => {
- console.log('entry', entrye, i )
+
 if (i==10 || i==9){
   return;
 }
@@ -799,7 +801,7 @@ text-white gap-2 bg-blue-500 font-poppins">
 // ${ regenIds.includes(entrye) ? 'text-green-500 scale-105': 'hover:text-blue-400  hover:scale-104'}
 //   transition-all`}><RefreshCcw></RefreshCcw></div>
 // </div>
-:i == 1 || i==7? <p>{getDates(entrye)}</p> :<p>{entrye}</p>
+:i == 1 || i==7? <p>{getDates(entrye, entry)}</p> :<p>{entrye}</p>
  
  }
  

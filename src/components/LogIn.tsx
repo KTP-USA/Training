@@ -7,11 +7,10 @@ import { supabase } from "../supabaseClient";
  const LogIn = () =>{
     async function wheretogo() {
        
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data,  } = await supabase.auth.signInWithPassword({
   email: email,
   password: password,
 });
-
 
     let userData: any = await supabase.from('user_profiles').select().eq('uid', data.user?.id);
    console.log('userDAta', userData)

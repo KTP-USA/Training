@@ -16,15 +16,16 @@ navigate('/login')
     const navigate = useNavigate();
     async function handleHash(){
 const hash = window.location.hash;
-if (hash.includes('acess_token')){
+console.log('the hashs', hash)
+if (hash.includes('access_token')){
     await supabase.auth.exchangeCodeForSession(hash)
 }
     }
  useEffect(() => {
 handleHash();
- }
+ }, []
 
- )
+ );
   const [password, setPassword] = useState('');
     return ( <section  style={{ height: "calc(100vh - 200px)" }} className=" mt-15 flex items-center justify-center bg-gradient-to-r from-white to-blue-600 flex-col">
 <h1 className="font-poppins  font-extrabold text-5xl text-blue-600  ">Reset Password</h1>
