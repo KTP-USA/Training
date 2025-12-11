@@ -258,7 +258,7 @@ settestTypes(['Competency Test', 'Technical Evaluation'])
      if (userData1.data[0]['trainer'] == null && userData1.data[0]['role']== 'SUPERVISOR' ){
 
 
-settestTypes(['Competency Test', 'Performance Review'])
+settestTypes(['Competency Test', 'Performance review'])
     }
    
 let loadedData: any = 
