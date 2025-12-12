@@ -37,6 +37,7 @@ year:'numeric',
       setNotAdmin(true);
        setSelectedUser(userData.data[0]['username']);
      let newTestData: any = await supabase.from('testrecords').select().eq('username', userData.data[0]['username']).eq('step', userData.data[0]['actualstep']);
+  let newTestData2: any = await supabase.from('testrecords').select().eq('username', userData.data[0]['username']);
  
   let newer: any = []
   for (const entry of newTestData.data){
@@ -46,6 +47,7 @@ year:'numeric',
   }
  
  setTestData(newer);
+  setTestData2(newTestData2.data);
   setUserData(userData.data.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])) )
   setModulePhase(userData.data[0]['actualstep']);
   setSelectedPhaae(userData.data[0]['actualstep']);
@@ -165,7 +167,7 @@ justify-baseline
   let newUserData = userData2.filter((entry)=> entry['username'] == e.target.value);
  
   let newTestData = testData2.filter((entry)=> entry['username'] == e.target.value && entry['step'] == newUserData[0]['actualstep']);
-  console.log('newTestData', newTestData, testData2)
+ 
   let newer: any = []
   for (const entry of newTestData){
    
@@ -173,7 +175,7 @@ justify-baseline
       'step':entry['step'], 'id':entry['id'],
       'Test Type': entry['type'], 'Date':entry['date'], 'Score':entry['score'], 'Result':entry['result'], 'path':entry['path']});
   }
-  console.log('newer', newer)
+
  setTestData(newer);
   setUserData(newUserData )
   setModulePhase(newUserData[0]['actualstep']);
@@ -225,8 +227,10 @@ entry =='Hire Date:' ?
 
 
 onClick={()=>{
+  
     let newTestData = testData2.filter((entrye)=> entrye['username'] ==selectedUser && entrye['step'] == entry)
   let newer: any = []
+ 
   for (const entry of newTestData){
    
     newer.push({'Module':entry['module'],
@@ -279,7 +283,7 @@ entry == 'Module' ?'w-[20%]':
    onClick={
     () => {
       if (entry['Test Type'] == 'Technical Evaluation'){
-   console.log('result', entry['result'], entry)
+
 navigate('/evaluation', {state: [userData[0]['username'], entry['Result'] != null ? entry['id'] : 'no id', entry['step']]})
   }  else if (entry['Test Type'] == 'Competency Test'){
     if (!isUser){

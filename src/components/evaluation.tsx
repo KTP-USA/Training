@@ -14,6 +14,7 @@ const Evaluation = () => {
       const [rawData, setRawDate] = useState([]);
       const [savedAnswers, setSavedAnswers] = useState<Record<any, any>>({});
     const [sectionsData, setSectionData] =useState([]);
+    const [isConfirmOpen, setConfirmOpen] = useState(false);
 async function formatData (usersdata: any){
    
 let data: any =
@@ -23,9 +24,9 @@ await supabase.from('technical').select().eq('module', usersdata[0]['module']).e
 let tstrecs: any = id == 'no id' ? await supabase.from('testrecords').select().eq('username', usersdata[0]['username']).eq('step', usersdata[0]['actualstep'])
 .eq('module', usersdata[0]['module']).eq('step', 
     
-    usersdata[0]['actualstep']).eq('type', 'Technical Evaluation').eq('result', 'READY')
-: await supabase.from('testrecords').select().eq('id', id).eq('result', 'READY')
-console.log('tstrecs', tstrecs, id, step)
+    usersdata[0]['actualstep']).eq('type', 'Technical Evaluation').not('result', 'is', null)
+: await supabase.from('testrecords').select().eq('id', id).not('result', 'is', null)
+console.log('tstrecs', tstrecs, id, step, usersdata)
 if (tstrecs.data.length != 0){
    setIsComplete(true);
   let hihi: any = id == 'no id' ?  await  supabase.from('savedtest').select().eq('module', usersdata[0]['module']).eq('step', usersdata[0]['actualstep']).eq('controlnbr',
@@ -120,7 +121,7 @@ for (const item of rawData){
  
 await supabase.from('savedtest').insert({
     'techid':item['id'],
-    'techanswer': textMap[item['topic']],
+    'techanswer': Object.values(textMap).length == 0 ? 'N/A' :   textMap[item['topic']] ?? 'N/A',
     'username': userData2[0]['username'],
        'supervisor':userData2[0]['supervisor'],
     'trainer':userData2[0]['trainer'],
@@ -216,6 +217,49 @@ loadData();
 const  date = new Date();
     return (
 <section className="mx-15 flex flex-col mt-15">
+       {
+  isConfirmOpen &&
+      <div onClick={() => {
+  setConfirmOpen(false); 
+      }} className="fixed inset-0 flex items-center justify-center z-50">
+<div className="absolute bg-black opacity-30 inset-0 "></div>
+<div onClick={(e) => e.stopPropagation()} className="bg-white p-5 rounded-xl z-10 overflow-y-auto font-poppins  max-h-100 " >
+  <div className="flex flex-col gap-5 items-center justify-center">
+ <p className="text-red-500 text-4xl font-extrabold"> Confirm</p>
+
+<p className="text-lg font-normal text-center  text-gray-900">You have not yet answered some questions.<br></br> Would you still like to proceed? </p>
+  </div>
+    <div className="flex flex-row gap-4 justify-center mb-5">
+        <button
+onClick={() => {
+ setConfirmOpen(false);
+}}
+
+className={`
+   border-red-500 border-2 hover:border-red-600 hover:scale-102 transition-all duration-300 cursor-pointer
+
+flex flex-row rounded-3xl  p-3 w-35 mt-6 font-normal text-lg items-center justify-center   py-2
+text-red-500 gap-2 font-poppins`}>
+Cancel
+</button>
+<button
+onClick={() => {
+completeEvaluation(); 
+setConfirmOpen(false);
+}}
+
+className={`
+   bg-blue-500 hover:bg-blue-600 hover:scale-102 transition-all duration-300 cursor-pointer
+
+flex flex-row rounded-3xl  p-3 w-35 mt-6 font-normal text-lg items-center justify-center   py-2
+text-white gap-2 font-poppins`}>
+Continue
+</button>
+</div>
+      </div>
+
+       </div>
+       }
      { name != 'no name' ?
     <div className="flex flex-row justify-between">
        
@@ -232,7 +276,12 @@ onClick={() => {
    
     completeEvaluation();
    
-} }}
+} else  if (Object.keys(textMap).length >= 5) {
+    setConfirmOpen(true);
+}
+
+
+}}
 className={`
 flex flex-row rounded-3xl  self-end  p-3 w-35 text-lg items-center justify-center transition-all
 duration-300  py-2 px-2 mr-5 scale-104
@@ -254,6 +303,8 @@ onClick={() => {
        
     completeEvaluation();
    
+} else  if (Object.keys(textMap).length >= 5) {
+    setConfirmOpen(true);
 } }
 }
 className={`

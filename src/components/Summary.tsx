@@ -53,9 +53,9 @@ await supabase.from('users').select().eq('role', "USER").eq('active', 'Y')
 
     setIsAdmin(userData1.data[0]['role'] != "USER")
     if (userData1.data[0]['role'] == 'USER'){
-    setTestData(test.data)
-    setUserData2(user.data)
-    setSelectedUser(user.data[0]['username'])
+    setTestData(test.data.filter((e: any) => e['username'] == userData1.data[0]['username']))
+    setUserData2(userData1.data)
+    setSelectedUser(userData1.data[0]['username'])
 }
     }
     useEffect(() =>{
