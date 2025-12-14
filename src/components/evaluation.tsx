@@ -1,4 +1,4 @@
-import {  useEffect, useState, } from "react";
+import {  useEffect, useRef, useState, } from "react";
 import { ArrowLeft } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "../supabaseClient";
@@ -14,6 +14,7 @@ const Evaluation = () => {
       const [rawData, setRawDate] = useState([]);
       const [savedAnswers, setSavedAnswers] = useState<Record<any, any>>({});
     const [sectionsData, setSectionData] =useState([]);
+
     const [isConfirmOpen, setConfirmOpen] = useState(false);
 async function formatData (usersdata: any){
    
@@ -62,6 +63,8 @@ for (const entry of masterList){
 
 
 }
+
+
 setSectionData(sectionData)
     }
     function getNextDate(date: any, step: String){
@@ -189,12 +192,14 @@ await supabase.from('testrecords').insert({
 setIsComplete(true);
 setIsLoading(false);
 }
+const focusRef = useRef<Record<number, HTMLDivElement | null>>({});
 const [isComplete, setIsComplete] = useState(false);
 const [userData, setUserData] = useState([]);
 const [textMap, setTextMap] = useState({});
 const [userData2, setUserData2] = useState([]);
 const [selectedUser, setSelectedUser] = useState('');
 const [trainerName, setTrainerName] = useState('');
+let flatIndex=0;
 async function loadData(){
      let session = await supabase.auth.getSession();
     let userData1: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
@@ -416,7 +421,9 @@ e == 'Topic' ?'w-[70%]'
 >
 {
     sectionsData.map((e: any,i) =>
-    <div className="flex flex-row ">
+    <div 
+    
+    className="flex flex-row ">
 <div className={`w-[20%] p-1 items-center flex justify-center
 font-poppins font-bold  text-2xl border-x-2 border-x-blue-500  border-b-2 border-b-blue-500
 ${i == 0 ? 'bg-red-500 border-t-blue-500 border-1' : i == 1 ? 'bg-blue-400' :i==2 ?
@@ -426,8 +433,14 @@ ${i == 0 ? 'bg-red-500 border-t-blue-500 border-1' : i == 1 ? 'bg-blue-400' :i==
 </div >
 <div className="flex flex-col w-[80%]">
 {
-    e['topics'].map((topic: string, i2:any) =>
-        <div className="flex flex-row">
+    e['topics'].map((topic: string, i2:any) =>{
+const indexs = flatIndex++
+  return      <div
+    
+     
+
+        
+        className="flex flex-row">
        <div className={`border-y-blue-500 w-[94%] border-r-blue-500 p-2 font-poppins border-t-1 border-r-2
        ${topic== 'Process of adding Oil' ? 'border-b-2 ' : 'border-b-2'}
        `}>
@@ -439,6 +452,9 @@ ${i == 0 ? 'bg-red-500 border-t-blue-500 border-1' : i == 1 ? 'bg-blue-400' :i==
         {
         id == 'no id' && !prevComplete ?
         <input
+         ref={(el) => {
+   focusRef.current[indexs] = el;
+  }}
           maxLength={1}
           onChange={(er) => {
             setTextMap({...textMap, [topic]:er.target.value })
@@ -446,6 +462,18 @@ ${i == 0 ? 'bg-red-500 border-t-blue-500 border-1' : i == 1 ? 'bg-blue-400' :i==
           onKeyDown={(e) => {
             if (!['1','2','3','4', 'Backspace'].includes(e.key)){
                 e.preventDefault();
+            }
+            if (e.key == 'ArrowDown' || e.key == 'Enter'  ){
+         
+                const nextKey = indexs+1;
+                
+                focusRef.current[nextKey]?.focus();
+            }
+            if (e.key == 'ArrowUp'){
+            
+                const nextKey = indexs-1;
+                
+                focusRef.current[nextKey]?.focus();    
             }
           }}
           className={`border-y-blue-500 border-r-blue-500 p-2 font-poppins border-t-1 border-r-2  w-full h-full
@@ -469,6 +497,7 @@ ${i == 0 ? 'bg-red-500 border-t-blue-500 border-1' : i == 1 ? 'bg-blue-400' :i==
 }
        </div>
        </div>
+    }
     )
 }
 {/* <div className="flex flex-col w-[25%]">
