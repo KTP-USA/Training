@@ -69,7 +69,10 @@ function setScreen(){
 }
 const [isSubmitted, setIsSubmitted] = useState(false);
 async function submitAnswer(){
- 
+    let session = await supabase.auth.getSession();
+    let userData1: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
+    
+let trainname = userData1.data[0]['username'];
  
   let   testList:any = await supabase.from('savedtest').select().eq('controlnbr', code ?? 29108);
     let   stupidList:any = await supabase.from('users').select().eq('username', testList.data[0]['username']);
@@ -135,7 +138,7 @@ year:'2-digit',
     }
  let date = new Date();
   await supabase.from('testrecords').update({
-       
+       'doneby': trainname,
         'username':rawList[0]['username'],
         'date': date.toLocaleDateString('en-US', {
             month:'numeric',

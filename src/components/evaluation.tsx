@@ -113,7 +113,8 @@ for (const item of responseList){
 let date = new Date();
 
 
-let avg = (Math.round(totalsum/responseList.length * 10)/10);
+let avg = (Math.round(totalsum/responseList.length * 100))/100;
+
    let fetchcontrolnbr: any = await supabase.from('testrecords').select().eq('step', userData2[0]['actualstep']).eq('module', userData2[0]['module']).eq('username',  userData2[0]['username']).
      eq('type', 'Technical Evaluation').is('result', null)
  
@@ -136,7 +137,8 @@ await supabase.from('savedtest').insert({
 
 
 await supabase.from('testrecords').update({
-    'score':avg,
+    'doneby':trainerName,
+    'score': avg.toString().length == 1 ? `${avg}.00` :  avg.toString().length == 3 ?`${avg}0` : avg,
     'result': avg >= 3 ? 'READY' : 'NOT READY',
     'username': userData2[0]['username'],
     'supervisor':userData2[0]['supervisor'],
@@ -196,6 +198,7 @@ const [trainerName, setTrainerName] = useState('');
 async function loadData(){
      let session = await supabase.auth.getSession();
     let userData1: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
+    
 setTrainerName(userData1.data[0]['username'])
 let userData: any = userData1.data[0]['role'] == 'SUPERVISOR' ? await supabase.from('users').select().eq('supervisor', userData1.data[0]['username'])
 .eq('active', 'Y')

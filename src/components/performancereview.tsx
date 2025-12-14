@@ -140,7 +140,7 @@ const {status} = await supabase.from('savedtest').insert({
  })
  console.log('status:', status)
   const {error, } = await supabase.from('testrecords').update({
-       
+       'doneby':trainername,
         'username':data['username'],
         'date': date.toLocaleDateString('en-US', {
   month:'numeric',

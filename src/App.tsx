@@ -15,6 +15,7 @@ import SummaryPage from "./pages/SummaryPage";
 import UsersPage from "./pages/UserPage";
 import QuestionsPage from "./pages/QuestionsPage";
 import ResetPassPage from "./pages/resetPassPage"
+import LogPage from "./pages/LogPage";
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -34,6 +35,7 @@ const App = () => (
       <BrowserRouter basename="/Training">
       <ScrollToTop></ScrollToTop>
         <Routes>
+          <Route path="/log" element={<LogPage/>}></Route>
           <Route path="/" element={<LogInPage/>} />
                 <Route path='/reset-password' element={<ResetPassPage/>}/>
              <Route path='/training-topics' element={<TrainerPage/>}/>

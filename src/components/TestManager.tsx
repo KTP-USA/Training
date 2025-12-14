@@ -95,7 +95,7 @@ let list: any = userData.map((e) => { return e==entry ? {...entry, 'path': fileP
 
   }
   let fetchcontrolnbr = await supabase.from('testrecords').select().eq('step', step).eq('module', module).eq('username', username).eq('type', type).is('result', null);
-  await supabase.from('testrecords').update({'controlnbr':fetchcontrolnbr.data![0]['id']}).eq('id', fetchcontrolnbr.data![0]['id'])
+  await supabase.from('testrecords').update({'controlnbr':fetchcontrolnbr.data![0]['id'], }).eq('id', fetchcontrolnbr.data![0]['id'])
   let userdata : any = await supabase.from('users').select().eq('username', fetchcontrolnbr.data![0]['username']);
   let insertList = qBank.map((e, i)=> {
    
@@ -125,8 +125,8 @@ for (const entry of insertList){
 
 
   }
-  function getDates(date: string, entrh: any){
-    console.log('getdates', date, entrh)
+  function getDates(date: string, ){
+    
     if (date == '' || date == null){
       return '';
     } else {
@@ -238,6 +238,7 @@ now.setDate(now.getDate() +10);
 //     setisLoading(false);
    
 //     }
+const [username, setUsername] = useState('');
 const [Trainers, setTrainers] = useState([]);
     useEffect(() => {
 async function loadData(){
@@ -248,6 +249,7 @@ async function loadData(){
   let trainer: boolean = false;
    let session = await supabase.auth.getSession();
     let userData1: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
+    setUsername(userData1.data[0]['username']);
     if ( userData1.data[0]['role'] != 'SUPERVISOR'){
 setSupervisora(false);
     }
@@ -801,7 +803,7 @@ text-white gap-2 bg-blue-500 font-poppins">
 // ${ regenIds.includes(entrye) ? 'text-green-500 scale-105': 'hover:text-blue-400  hover:scale-104'}
 //   transition-all`}><RefreshCcw></RefreshCcw></div>
 // </div>
-:i == 1 || i==7? <p>{getDates(entrye, entry)}</p> :<p>{entrye}</p>
+:i == 1 || i==7? <p>{getDates(entrye )}</p> :<p>{entrye}</p>
  
  }
  
