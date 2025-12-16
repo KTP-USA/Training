@@ -32,20 +32,20 @@ const Navigation = () => {
            
            userData.data[0]['role'] == 'ADMIN' ?
              userData.data[0]['trainer'] == 'Y' ?
-             [
+             ['Reports',
                'Log',
                'Tutorial', 
                 'Questions',
                 'Users',  'Manager', 'Summary', 'Competency', 'Log Out']
              :
-               [ 'Log', 'Tutorial',  
+               ['Reports', 'Log', 'Tutorial',  
                  'Questions',
                 'Users',  'Manager', 'Summary',  'Competency', 'Log Out']
             :
                 userData.data[0]['trainer'] == 'Y' ?
-             ['Log', 'Tutorial',  'Manager', 'Summary',  'Competency', 'Log Out']
+             ['Reports', 'Log', 'Tutorial',  'Manager', 'Summary',  'Competency', 'Log Out']
              :
-            ['Log', 'Tutorial',   'Manager', 'Summary', 'Competency', 'Log Out']
+            ['Reports', 'Log', 'Tutorial',   'Manager', 'Summary', 'Competency', 'Log Out']
             );
 
 
@@ -68,7 +68,7 @@ const Navigation = () => {
         <nav className="
        items-center
         top-0 left-0 right-0 z-60 px-4 py-5 flex flex-row bg-blue-400 rounded-bl-xl rounded-br-xl">
-<p onClick={()=>{navigate('/')}} className="text-white cursor-pointer font-bold text-xl ml-2 font-inter"> Kurz Training Module - V1.8.8</p>
+<p onClick={()=>{navigate('/')}} className="text-white cursor-pointer font-bold text-xl ml-2 font-inter"> Kurz Training Module - V1.8.9</p>
 <div className="flex-1"></div>
 <div className="flex flex-row gap-10 mr-10">
 <div className="md:flex flex-row items-center hidden ">
@@ -85,6 +85,7 @@ const Navigation = () => {
     
     :
 navigate(
+    entry == 'Reports'  ? '/reports' :
     entry == 'Log' ? '/log':
     entry == 'Test Center' ? '/join-test' :
     entry == 'Questions' ? '/questions' :
