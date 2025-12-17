@@ -22,12 +22,21 @@ year:'numeric',
     async function loadData() {
         const tdy  = new Date();
         tdy.setDate(tdy.getDate()-30);
-    const logs: any =    await supabase.from('testrecords_joined').select().gte('last_saved_at', tdy.toISOString() );
-    setLogData(logs.data.sort((a: any,b: any) => {
+    const logs: any =    await supabase.from('testrecords').select().gte('date', tdy.toISOString() );
+   let logs2: any =  logs.data.map((e:any) => {
+      return {
+ 'username':e['username'], 'module': e['module'], 'step':e['step'], 
+
+'supervisor':e['supervisor'], 'trainer':e['trainer'], 'type':e['type'], 'result':e['result']
+, 'doneby':e['doneby'], 'last_saved_at':e['date']
+      }
+    })
+
+    setLogData(logs2.sort((a: any,b: any) => {
  let    aDate = new Date( a['last_saved_at'])
   let   bDate =new Date(b['last_saved_at'])
 
-return bDate.getDate() - aDate.getDate();
+return bDate.getTime() - aDate.getTime();
 
 } ))
     }
@@ -50,6 +59,7 @@ return <section className=" flex justify-center items-center flex-col my-10 mx-1
   )
 }
 </div>
+
 <div className="flex flex-col font-poppins mb-10 ">
 {
 logData
@@ -73,9 +83,6 @@ logData
    <div className={`flex flex-row items-center   border-b-2 border-b-gray-400`}>
  {   Object.values(entry).map((entrye: any, i) => {
 
-if (i==0){
-    return;
-}
    return (
 
  <div  className= {`ml-5 
@@ -84,7 +91,7 @@ if (i==0){
    w-[10%]
     `}>
 {
-    <p> {i== 9 ? getDates(entrye) : entrye}</p>
+    <p> {i== 8 ? getDates(entrye) : entrye}</p>
  
  }
  
@@ -103,6 +110,7 @@ if (i==0){
   )
 }
 </div>
+
 </div>
 </div>
 </section>
