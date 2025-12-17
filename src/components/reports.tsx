@@ -13,6 +13,7 @@ let months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'A
 return months[i-1]
           }
     const [lineData, setLineData] = useState([]);
+    const [stepData, setStepData] = useState([]);
     const [rawData, setRawData] = useState([]);
     const [SupList, setsuplist] = useState([]);
     const [modList, setModList] = useState([]);
@@ -82,6 +83,29 @@ return months[i-1]
             return {'name':e['modulename'],...stepData2
         }})
        setSegmentedBarData(data2);
+
+       let newUsers = rawUserData.filter((entry: any) =>{
+        let rawDate = new Date( entry['hiredate']);
+              return (fromDate2 == null ? 
+       fromDate == '' ?
+          true : (rawDate.getTime() > fromDate4.getTime()) : (rawDate.getTime() > fromDate3.getTime()) )
+        &&
+        ( toDate2 == null ?
+          toDate == '' ?
+          true : (rawDate.getTime() < toDate4.getTime()) : (rawDate.getTime() < toDate3.getTime()))
+      
+        })
+      
+        let data3: any = 
+            [ {'name': '30D', 'count': newUsers.filter((entry: any) => 
+         entry['actualstep'] == '30D').length},
+        {'name': '90D', 'count': newUsers.filter((entry: any) =>  entry['actualstep'] == '90D').length,},
+         {'name': '180D', 'count':  newUsers.filter((entry: any) =>  entry['actualstep'] == '180D').length},
+          {'name': '1Y', 'count': newUsers.filter((entry: any) =>  entry['actualstep'] == '1Y').length},
+        { 'name': '2Y', 'count':  newUsers.filter((entry: any) => entry['actualstep'] == '2Y').length,},
+        { 'name': '3Y', 'count':  newUsers.filter((entry: any) => entry['actualstep'] == '3Y').length,}
+        ]
+        setStepData(data3);
    const now = new Date();
           let month = fromDate2 != null 
       ?
@@ -230,6 +254,17 @@ return months[i-1]
           '2Y': users.data.filter((entry: any) => entry['module'] == 
           e['modulename'] && entry['actualstep'] == '2Y').length,
         }})
+            let data3: any = 
+            [ {'name': '30D', 'count': users.data.filter((entry: any) => 
+         entry['actualstep'] == '30D').length},
+        {'name': '90D', 'count': users.data.filter((entry: any) =>  entry['actualstep'] == '90D').length,},
+         {'name': '180D', 'count':  users.data.filter((entry: any) =>  entry['actualstep'] == '180D').length},
+          {'name': '1Y', 'count': users.data.filter((entry: any) =>  entry['actualstep'] == '1Y').length},
+        { 'name': '2Y', 'count':  users.data.filter((entry: any) => entry['actualstep'] == '2Y').length,},
+        { 'name': '3Y', 'count':  users.data.filter((entry: any) => entry['actualstep'] == '3Y').length,}
+        ]
+        setStepData(data3);
+        
        setSegmentedBarData(data2);
         let pieData: any = [{'name': 'On Time', 'count':dataRaw.data?.filter((e: any) =>
         {
@@ -493,7 +528,7 @@ const [toDate, setToDate] = useState('');
                  <div className="flex flex-col w-full">
                  <div className="w-full h-110 flex flex-col self-baseline mt-10 mb-5">
   <p className="font-poppins w-full font-bold text-2xl self-baseline ml-10 mb-5">Trainees per Module and Step</p>
-<ResponsiveContainer width='100%' height='100%'>
+  <ResponsiveContainer width='100%' height='100%'>
 <BarChart data={segmentedBarData}>
 <YAxis></YAxis>
 <Tooltip></Tooltip>
@@ -504,7 +539,20 @@ const [toDate, setToDate] = useState('');
 <Bar dataKey='1Y' stackId='a' fill="#add8e6"></Bar>
 <Bar dataKey='2Y' stackId='a' fill="#95c8d8"></Bar>
 </BarChart>
+</ResponsiveContainer>
 
+                 </div>
+                   <div className="w-full h-110 flex flex-col self-baseline mt-10 mb-5">
+  <p className="font-poppins w-full font-bold text-2xl self-baseline ml-10 mb-5">Trainees per Step</p>
+
+<ResponsiveContainer width='100%' height='100%'>
+<BarChart  data={stepData}>
+<YAxis ></YAxis>
+<Tooltip></Tooltip>
+    <XAxis dataKey="name"  ></XAxis>
+<Bar fill="#3b82f6" dataKey="count"></Bar>
+</BarChart>
+ 
 </ResponsiveContainer> 
                  </div>
                  <div className="w-full h-90 flex flex-col  mb-100">
