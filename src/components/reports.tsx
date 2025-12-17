@@ -1,15 +1,16 @@
-import {BarChart, XAxis, YAxis, Bar, ResponsiveContainer, Tooltip, PieChart, Pie, Cell} from "recharts";
+import {BarChart, XAxis, YAxis, Bar, ResponsiveContainer, Tooltip, PieChart, Pie, Cell, Line, LineChart} from "recharts";
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 
 const Reports = () => {
   const [segmentedBarData, setSegmentedBarData] = useState([]);
     const [data, setData] = useState([]);
+    const [lineData, setLineData] = useState([]);
     const [rawData, setRawData] = useState([]);
     const [SupList, setsuplist] = useState([]);
     const [modList, setModList] = useState([]);
     const [rawUserData, setRawUserDate] = useState([]);
-    const columns = ['2025', 'Trainees in the Program', 'Hired in 2025', 'Terminated/Resigned',
+    const columns = ['Month', 'Trainees in the Program', 'Hired Monthly', 'Terminated/Resigned',
       'Turnover'
     ];
     const [pieData, setPieData]=useState([]);
@@ -69,32 +70,90 @@ const Reports = () => {
       
         }).length} });
          let stepData2 = Object.assign({}, ...stepData)
-         console.log('stepdata2', stepData2);
+         
             return {'name':e['modulename'],...stepData2
         }})
-        console.log('data2', data2)
        setSegmentedBarData(data2);
-  //       const dataRaw =
-  //       mod == null ?
-  //       sup == 'Name' ?  
-  //         module == 'Module' ? 
-  //       await supabase.from('testrecords').select().not('result', 'is', null) :
-  //       await supabase.from('testrecords').select().eq('module', module).not('result', 'is', null)
-  //       :
-  //       module == 'Module' ? 
-  //         await supabase.from('testrecords').select().eq('doneby', sup).not('result', 'is', null) :
-  //       await supabase.from('testrecords').select().eq('doneby', sup).eq('module', module).not('result', 'is', null)
-  //       : 
-  // mod == 'Module' ?  
-  //        user == 'Name' ? 
-  //       await supabase.from('testrecords').select().not('result', 'is', null) :
-  //       await supabase.from('testrecords').select().eq('name',user).not('result', 'is', null)
-  //       :
-  //       user == 'Name' ? 
-  //       await supabase.from('testrecords').select().eq('module', mod) .not('result', 'is', null)
-  //       :  await supabase.from('testrecords').select().eq('module', mod) .eq('doneby', user).not('result', 'is', null);
-  //       ;
-   
+   const now = new Date();
+          let month = fromDate2 != null 
+      ?
+       fromDate3.getMonth()+1
+: fromDate != '' 
+         ? fromDate4.getMonth() +1
+         : 1;
+         console.log('monthy', month)
+            let year = fromDate2 != null 
+      ?
+       fromDate3.getFullYear()
+: fromDate != '' 
+         ? fromDate4.getFullYear()
+         : now.getFullYear();
+        let hasTo = toDate !='' || toDate2 != null;
+         let hasFrom = fromDate !='' ||fromDate2 != null;
+          let formattedLine: any = [];
+          function getMonth(i: number){
+let months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEPT', 'OCT', 'NOV', 'DEC'];
+return months[i-1]
+          }
+
+            function getMonthAndYR(i: number, ){
+            
+let months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEPT', 'OCT', 'NOV', 'DEC'];
+let totalmonths = (month-1)+(i-1) ; 
+let months2 = (totalmonths % 12) +1;
+let totalyrs = year + Math.floor(totalmonths/12);
+return `${months[months2-1]} ${totalyrs}`
+              
+          }
+       
+         if (hasTo && year != (toDate2 == null ? toDate4.getFullYear() :toDate3.getFullYear())){
+         let toYear =toDate2 == null ? toDate4.getFullYear() : toDate3.getFullYear();
+ 
+         let toMonth = toDate2 == null ? toDate4.getMonth()+1 : toDate3.getMonth()+1
+       
+        
+let month2 = (toYear-year) * 12 + (toMonth - month) +1 
+
+ for (let i=1; i<month2+1; i++){
+  let totalmonths = (month-1)+(i-1) ; 
+  let months2 = (totalmonths % 12) +1;
+let totalyrs = year + Math.floor(totalmonths/12);
+formattedLine.push({'date': getMonthAndYR(i, ), 'count': dataRaw.filter((e: any) => {
+let eDate = new Date(e['date']);
+
+return (eDate.getMonth()+1) == months2 && eDate.getFullYear() == totalyrs
+}).length})
+          
+         } 
+       }  else if  (hasFrom && year != (toDate2 == null ? toDate4.getFullYear() : toDate == '' ? now.getFullYear() : toDate3.getFullYear())){
+        console.log('hi');
+     let endYear = toDate2 != null ? toDate4.getFullYear() : toDate == '' ? now.getFullYear(): now.getFullYear() +1;
+ 
+         let endMonth =toDate2 != null ? toDate4.getMonth()+1 : toDate == '' ? now.getMonth()+1 : now.getMonth() +1;
+       
+        
+let month2 = (endYear-year) * 12 + (endMonth - month) +1 
+console.log('endyr', endYear, endMonth, month2)
+ for (let i=1; i<month2+1; i++){
+  let totalmonths = (month-1)+(i-1) ; 
+  let months2 = (totalmonths % 12) +1;
+let totalyrs = year + Math.floor(totalmonths/12);
+formattedLine.push({'date': getMonthAndYR(i, ), 'count': dataRaw.filter((e: any) => {
+let eDate = new Date(e['date']);
+
+return (eDate.getMonth()+1) == months2 && eDate.getFullYear() == totalyrs
+}).length})
+          
+         }    
+       }else {
+   for (let i=1; i<Number(month)+1; i++){
+formattedLine.push({'date': getMonth(i), 'count': dataRaw.filter((e: any) => {
+let eDate = new Date(e['date']);
+return (eDate.getMonth()+1) ==i && eDate.getFullYear() == now.getFullYear()
+}).length})
+          } 
+          }
+          setLineData(formattedLine);      
       const userData: any = await supabase.from('users').select().eq('username', sup);
         let chartDatas: any = [{'name': 'On Time', 'count':dataRaw.filter((e: any) =>
         {
@@ -136,6 +195,7 @@ const Reports = () => {
             setModList(modules.data)
             setRawUserDate(users.data);
             setsuplist(sups.data);
+            
            let data2 = modules.data.map((e: any) => {
             
             return {'name':e['modulename'], '30D': users.data.filter((entry: any) => entry['module'] == 
@@ -161,7 +221,25 @@ const Reports = () => {
             let nextDate = new Date(e['nextdate'])
           return  lastDate.getTime() >nextDate.getTime()}).length},]
           setPieData(pieData)
-          console.log('pi', pieData)
+         
+          const now = new Date();
+          let month: number = now.getMonth()+1;
+          
+          let formattedLine: any = [];
+          function getMonth(i: number){
+let months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEPT', 'OCT', 'NOV', 'DEC'];
+return months[i-1]
+          }
+          for (let i=1; i<month+1; i++){
+       
+formattedLine.push({'date': getMonth(i), 'count': dataRaw.data.filter((e: any) => {
+let eDate = new Date(e['date']);
+
+return (eDate.getMonth()+1) ==i && eDate.getFullYear() == now.getFullYear()
+}).length})
+          }
+         
+          setLineData(formattedLine);
      let formattedData: any = [{'name':'Competency Test', 'count': dataRaw.data?.filter((e: any)=> e['type'] == 'Competency Test').length},
     {'name':'Performance review', 'count': dataRaw.data?.filter((e: any)=> e['type'] == 'Performance review').length}, 
 
@@ -232,7 +310,7 @@ const [toDate, setToDate] = useState('');
 <BarChart  data={data}>
 <YAxis ></YAxis>
 <Tooltip></Tooltip>
-    <XAxis dataKey="name" ></XAxis>
+    <XAxis dataKey="name" type="category" ></XAxis>
 <Bar fill="#3b82f6" dataKey="count"></Bar>
 </BarChart>
  
@@ -259,9 +337,26 @@ const [toDate, setToDate] = useState('');
 </div>
    </div>
            </div>
+           <div className="self-baseline">
+             <p className="font-poppins  font-bold text-2xl self-baseline ml-10 mb-5 mt-5">Tests Completed Over Time</p>
+             </div>
+                 <div className="w-full h-90 flex flex-col self-baseline mt-5 mb-5">
+  {/* <p className="font-poppins w-full font-bold text-2xl self-baseline ml-10 mb-5">Trainees per Module and Step</p> */}
+<ResponsiveContainer width='100%' height='100%'>
+<LineChart data={lineData}>
+<YAxis></YAxis>
+<Tooltip></Tooltip>
+<XAxis dataKey='date'></XAxis>
+<Line dataKey='count' fill="#0e4c92" dot={false} strokeWidth={3} ></Line>
+
+</LineChart>
+
+</ResponsiveContainer> 
+</div>
+
                  <p className="font-poppins  self-baseline mt-10 font-bold text-3xl text-blue-500  ">Trainees</p>
                  <div className="flex flex-col w-full">
-                 <div className="w-full h-90 flex flex-col self-baseline mt-10 mb-5">
+                 <div className="w-full h-110 flex flex-col self-baseline mt-10 mb-5">
   <p className="font-poppins w-full font-bold text-2xl self-baseline ml-10 mb-5">Trainees per Module and Step</p>
 <ResponsiveContainer width='100%' height='100%'>
 <BarChart data={segmentedBarData}>
@@ -286,7 +381,7 @@ const [toDate, setToDate] = useState('');
                     {
                     columns.map((e) =>
                       <div className="h-full border-r-2 border-r-blue-600 w-full   ">
-                   { e == 'Terminated/Resigned' || e== "Hired in 2024/2025"
+                   { e == 'Terminated/Resigned' || e== "Hired Monthly"
               ?  <div className="  flex flex-col items-center w-full ">
                  <div className="flex flex-col h-full items-center justify-center border-b-2 border-b-blue-600 w-full">
                 <p className="font-poppins font-bold p-2">{e}</p>

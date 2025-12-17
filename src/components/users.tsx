@@ -12,7 +12,8 @@ const [hasSaved, setHasSaved] = useState(false);
   const testTypes = ['Competency Test', 'Technical Evaluation', 'Performance review']
  
   async function saveEdits() {
-    await supabase.from('users').update(editData[0]).eq('id', editData[0]['id']);
+    const {error } = await supabase.from('users').update(editData[0]).eq('id', editData[0]['id']);
+    console.log('errr', error);
    setHasSaved(true)
      setTimeout(() => {
         setHasSaved(false)
@@ -559,8 +560,8 @@ userData.filter((entry) => (testType == 'Test Type' ? true : entry['Test Type'] 
    <div>
    <div className={`flex flex-row items-center`}>
  {   Object.values(entry).map((entrye: any, i) => {
-console.log('entrye and i', entrye, i)
-if (i == 1  || i == 0 || i== 9||i==11 ||i==13 || i==14  || i==12){
+console.log('entrye', entrye , i)
+if (i == 1  || i == 0 || i== 9||i==11 ||i==13 || i==14  || i==12 || i==15 || i==16){
 
   return;
 }
@@ -577,7 +578,6 @@ if (i == 1  || i == 0 || i== 9||i==11 ||i==13 || i==14  || i==12){
 i == 10 ? <div className="flex flex-row">{entrye } <div className="flex-1"></div><Edit
 onClick={() =>{
     setEditData(userData.filter((e) => e['username'] == entry['username'] ));
-    console.log('edit date 1st set:', userData.filter((e) => e['username'] == entry['username'] ))
     setEditOpen(true)
 }}
 className="mr-1 cursor-pointer hover:text-blue-400"></Edit> </div> :
