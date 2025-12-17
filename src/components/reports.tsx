@@ -546,10 +546,12 @@ const [toDate, setToDate] = useState('');
   <p className="font-poppins w-full font-bold text-2xl self-baseline ml-10 mb-5">Trainees per Step</p>
 
 <ResponsiveContainer width='100%' height='100%'>
-<BarChart  data={stepData}>
-<YAxis ></YAxis>
+<BarChart  
+layout="vertical"
+data={stepData}>
+<YAxis dataKey="name" type="category"></YAxis>
 <Tooltip></Tooltip>
-    <XAxis dataKey="name"  ></XAxis>
+    <XAxis type="number"    ></XAxis>
 <Bar fill="#3b82f6" dataKey="count"></Bar>
 </BarChart>
  
