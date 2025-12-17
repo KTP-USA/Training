@@ -57,7 +57,7 @@ const Navigation = () => {
         fetchUserData();
     }, [])
     const navigate = useNavigate();
-    const [tabs, setTabs] = useState([ 'Log Out'])
+    const [tabs, setTabs] = useState([ 'Log In'])
 
 
 

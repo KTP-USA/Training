@@ -1,14 +1,22 @@
-import {BarChart, XAxis, YAxis, Bar, ResponsiveContainer, Tooltip, PieChart, Pie, Cell, Line, LineChart} from "recharts";
+import {BarChart, XAxis, YAxis, Bar, 
+  Area,
+  ResponsiveContainer, Tooltip, PieChart, Pie, Cell, Line, LineChart} from "recharts";
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 
 const Reports = () => {
   const [segmentedBarData, setSegmentedBarData] = useState([]);
     const [data, setData] = useState([]);
+    const [usersData, setuserdata] = useState([]);
+     function getFullMonth(i: number){
+let months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+return months[i-1]
+          }
     const [lineData, setLineData] = useState([]);
     const [rawData, setRawData] = useState([]);
     const [SupList, setsuplist] = useState([]);
     const [modList, setModList] = useState([]);
+    const [traineeHireData, setHireDate] = useState([]);
     const [rawUserData, setRawUserDate] = useState([]);
     const columns = ['Month', 'Trainees in the Program', 'Hired Monthly', 'Terminated/Resigned',
       'Turnover'
@@ -194,8 +202,16 @@ return (eDate.getMonth()+1) == (i) && eDate.getFullYear() == now.getFullYear()
     async function loadData() {
         const dataRaw: any = await supabase.from('testrecords').select().not('result', 'is', null);
         setRawData(dataRaw.data);
+           let nows = new Date();
+       
+        function getMonth(i: number){
+let months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEPT', 'OCT', 'NOV', 'DEC'];
+return months[i-1]
+          }
+           
         const sups: any =  await supabase.from('users').select().neq('role', 'USER');
          const users:any =  await supabase.from('users').select().eq('role', 'USER');
+        setuserdata(users.data)
             const modules: any =  await supabase.from('module').select();
             setModList(modules.data)
             setRawUserDate(users.data);
@@ -231,10 +247,7 @@ return (eDate.getMonth()+1) == (i) && eDate.getFullYear() == now.getFullYear()
           let month: number = now.getMonth()+1;
           
           let formattedLine: any = [];
-          function getMonth(i: number){
-let months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEPT', 'OCT', 'NOV', 'DEC'];
-return months[i-1]
-          }
+          
           for (let i=1; i<month+1; i++){
        
 formattedLine.push({'date': getMonth(i), 'count': dataRaw.data.filter((e: any) => {
@@ -252,6 +265,123 @@ return (eDate.getMonth()+1) ==i && eDate.getFullYear() == now.getFullYear()
    
     ];
      setData(formattedData);
+    let monthList = nows.getFullYear() == 2025 ? 12 : 12 + nows.getMonth()+1;
+    
+      let before = new Date('2025-12-01')
+         let totalCount = users.data.filter((e: any) => {
+          let hireDate = new Date(e['hiredate']);
+          
+          return hireDate < before;
+         }).length
+  
+         let decCount = users.data.filter((e: any) => {
+          let hireDate = new Date(e['hiredate']);
+          return hireDate.getMonth() == 11 && hireDate.getFullYear() == 2025
+         }).length
+         let terminated = users.data.filter((e: any) => {
+          let hireDate = new Date(e['deactive']);
+          return hireDate.getMonth() == 11  && e['deactive'] != null && hireDate.getFullYear() == 2025
+         }).length
+         const tableData: any =
+         
+         
+         [ {'Month': 'Before December 2025', 'Trainees in the Program': totalCount, 'Hired Monthly': 
+          {'monthly': '', 'Total': totalCount}, 'Terminated/Resigned': 
+          {'monthly': '', 'Total':''},  'Turnover':  ''
+        },
+        {'Month': 'December 2025', 'Trainees in the Program': (decCount+totalCount-terminated), 'Hired Monthly': 
+          {'monthly': decCount, 'Total': decCount+totalCount}, 'Terminated/Resigned': 
+          {'monthly': terminated, 'Total': terminated},  'Turnover': 
+            `
+        
+            ${(((decCount+totalCount-terminated)/(decCount+totalCount))).toFixed(3)}       |     ${
+              ((1-((decCount+totalCount-terminated)/(decCount+totalCount)))*100).toFixed(2)}% `
+        }];
+      
+        for (let monthInt=13; monthInt<monthList+1; monthInt++){
+  let totalmonths = (monthInt-1)-11 ; 
+let totalyrs = 2025 + Math.floor(monthInt/12);
+ let hireCount = users.data.filter((e: any) => {
+          let hireDate = new Date(e['hiredate']);
+          return hireDate.getMonth() == totalmonths && hireDate.getFullYear() == totalyrs 
+         }).length
+            let terminatedCount = users.data.filter((e: any) => {
+          let hireDate = new Date(e['deactive']);
+          return hireDate.getMonth() == totalmonths && hireDate.getFullYear() == totalyrs  && e['deactive'] != null
+         }).length;
+       let  totalTerm =  terminatedCount + tableData[monthInt-12]['Terminated/Resigned']['Total'];
+       let totalHire = hireCount + tableData[monthInt-12]['Hired Monthly']['Total'];
+       let traineesInProgram = hireCount + tableData[monthInt-12]['Trainees in the Program']; - terminatedCount;
+          tableData.push({'Month': `${getFullMonth(totalmonths)} ${totalyrs}`, 'Trainees in the Program': traineesInProgram, 'Hired Monthly': 
+          {'monthly': hireCount, 'Total':totalHire}, 'Terminated/Resigned': 
+          {'monthly': terminatedCount, 'Total': terminatedCount + totalTerm},  
+          'Turnover': `${Math.round((hireCount/totalHire)).toFixed(2)}  |  ${(1-(Math.floor((hireCount/totalHire))))*100}% `
+        })
+        
+      }
+          setHireDate(tableData);
+    }
+    
+    async function moduleFilter(module: any) {
+      const nows = new Date();
+       let monthList = nows.getFullYear() == 2025 ? 12 : 12 + nows.getMonth()+1;
+      
+       const users:any = 
+   module == 'Module' ? usersData: 
+      usersData.filter((e)=> e['module'] == module)
+      let before = new Date('2025-12-01')
+         let totalCount = users.filter((e: any) => {
+          let hireDate = new Date(e['hiredate']);
+          
+          return hireDate < before;
+         }).length
+  
+         let decCount = users.filter((e: any) => {
+          let hireDate = new Date(e['hiredate']);
+          return hireDate.getMonth() == 11 && hireDate.getFullYear() == 2025
+         }).length
+         let terminated = users.filter((e: any) => {
+          let hireDate = new Date(e['deactive']);
+          return hireDate.getMonth() == 11  && e['deactive'] != null && hireDate.getFullYear() == 2025
+         }).length
+         const tableData: any =
+         
+         
+         [ {'Month': 'Before December 2025', 'Trainees in the Program': totalCount, 'Hired Monthly': 
+          {'monthly': '', 'Total': totalCount}, 'Terminated/Resigned': 
+          {'monthly': '', 'Total':''},  'Turnover':  ''
+        },
+        {'Month': 'December 2025', 'Trainees in the Program': (decCount+totalCount-terminated), 'Hired Monthly': 
+          {'monthly': decCount, 'Total': decCount+totalCount}, 'Terminated/Resigned': 
+          {'monthly': terminated, 'Total': terminated},  'Turnover': 
+            `
+        
+            ${(((decCount+totalCount-terminated)/(decCount+totalCount))).toFixed(3)}       |     ${
+              ((1-((decCount+totalCount-terminated)/(decCount+totalCount)))*100).toFixed(2)}% `
+        }];
+      
+        for (let monthInt=13; monthInt<monthList+1; monthInt++){
+  let totalmonths = (monthInt-1)-11 ; 
+let totalyrs = 2025 + Math.floor(monthInt/12);
+ let hireCount = users.filter((e: any) => {
+          let hireDate = new Date(e['hiredate']);
+          return hireDate.getMonth() == totalmonths && hireDate.getFullYear() == totalyrs 
+         }).length
+            let terminatedCount = users.filter((e: any) => {
+          let hireDate = new Date(e['deactive']);
+          return hireDate.getMonth() == totalmonths && hireDate.getFullYear() == totalyrs  && e['deactive'] != null
+         }).length;
+       let  totalTerm =  terminatedCount + tableData[monthInt-12]['Terminated/Resigned']['Total'];
+       let totalHire = hireCount + tableData[monthInt-12]['Hired Monthly']['Total'];
+       let traineesInProgram = hireCount + tableData[monthInt-12]['Trainees in the Program']; - terminatedCount;
+          tableData.push({'Month': `${getFullMonth(totalmonths)} ${totalyrs}`, 'Trainees in the Program': traineesInProgram, 'Hired Monthly': 
+          {'monthly': hireCount, 'Total':totalHire}, 'Terminated/Resigned': 
+          {'monthly': terminatedCount, 'Total': terminatedCount + totalTerm},  
+          'Turnover': `${Math.round((hireCount/totalHire)).toFixed(2)}  |  ${(1-(Math.floor((hireCount/totalHire))))*100}% `
+        })
+        
+      }
+          setHireDate(tableData);
     }
 useEffect(()=>{
 loadData();
@@ -352,7 +482,7 @@ const [toDate, setToDate] = useState('');
 <YAxis></YAxis>
 <Tooltip></Tooltip>
 <XAxis dataKey='date'></XAxis>
-<Line dataKey='count' fill="#0e4c92" dot={false} strokeWidth={3} ></Line>
+<Line dataKey='count' fill="#0e4c92" dot={false} strokeWidth={3}  ></Line>
 
 </LineChart>
 
@@ -377,24 +507,35 @@ const [toDate, setToDate] = useState('');
 
 </ResponsiveContainer> 
                  </div>
-                 <div className="w-full h-90 flex flex-col ">
+                 <div className="w-full h-90 flex flex-col  mb-100">
                  <p className="font-poppins  font-bold text-2xl self-baseline ml-10 mb-5">Trainee Hire Data</p>
+                  <select
+          onChange={(e) => moduleFilter(e.target.value)}
+          className="border-2 border-blue-500 rounded-lg w-35 p-2.5 self-baseline mb-5">
+
+            <option>Module</option>
+            {
+                modList.map((e: any) => 
+                    <option>{e['modulename']}</option>
+                )
+            }
+          </select>
                  <div className="flex flex-col mx-10">
-                  <div className="flex flex-row bg-gradient-to-r from-sky-100 to-blue-400 rounded-md justify-between  items-center 
+                  <div className="flex flex-row bg-gradient-to-r from-sky-100 to-blue-400 rounded-md  w-full items-center 
                   border-2 border-blue-500
                   ">
                     {
                     columns.map((e) =>
-                      <div className="h-full border-r-2 border-r-blue-600 w-full   ">
+                      <div className="h-full border-r-2 border-r-blue-600 w-1/5   ">
                    { e == 'Terminated/Resigned' || e== "Hired Monthly"
               ?  <div className="  flex flex-col items-center w-full ">
                  <div className="flex flex-col h-full items-center justify-center border-b-2 border-b-blue-600 w-full">
                 <p className="font-poppins font-bold p-2">{e}</p>
                 </div>
-                <div className="flex flex-row  gap-8  items-stretch ">
-   <p className="font-poppins font-bold p-2">Monthly</p>
+                <div className="flex flex-row  gap-3  items-stretch ">
+   <p className="font-poppins font-bold p-2 text-center">Monthly</p>
    <div className="w-0.5  bg-blue-600"></div>
-      <p className="font-poppins p-2 font-bold">Yearly</p>
+      <p className="font-poppins p-2 font-bold text-center">Total</p>
 
                 </div>
               
@@ -406,7 +547,32 @@ const [toDate, setToDate] = useState('');
                     )
                     }
                   </div>
-                 </div>
+              
+{
+  traineeHireData.map((entry) =>
+    <div className="flex flex-row ">
+      {Object.keys(entry).map((e) =>
+        <div className={`h-full border-r-2 w-1/5 border-r-blue-600 border-b-2 border-b-blue-600  ${e== 'Month' ?
+'border-l-blue-600 border-l-2 ' : ''
+
+         }   `}>
+          {
+     e == 'Terminated/Resigned' || e== "Hired Monthly"
+     ?   <div className="grid grid-cols-2 text-center ">
+            <p className="py-2 font-poppins">{entry[e]['monthly']}</p>
+            <p className="py-2 font-poppins ">{entry[e]['Total']}</p>
+          </div>: 
+        <div className="flex flex-col h-full items-center justify-center">
+                    <p className="p-2 font-poppins  ">{entry[e]}</p>
+                    </div>
+          } </div>
+      )}
+    </div>
+  )
+  }
+
+</div>
+                 
                  </div>
                  </div>
     </section>
