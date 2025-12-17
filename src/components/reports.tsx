@@ -146,10 +146,15 @@ return (eDate.getMonth()+1) == months2 && eDate.getFullYear() == totalyrs
           
          }    
        }else {
-   for (let i=1; i<Number(month)+1; i++){
+          let toMonth = toDate2 == null ?
+          toDate == '' ? now.getMonth()+1:
+          toDate4.getMonth()+1 : toDate3.getMonth()+1
+       
+        
+   for (let i=month; i<(toMonth+1); i++){
 formattedLine.push({'date': getMonth(i), 'count': dataRaw.filter((e: any) => {
 let eDate = new Date(e['date']);
-return (eDate.getMonth()+1) ==i && eDate.getFullYear() == now.getFullYear()
+return (eDate.getMonth()+1) == (i) && eDate.getFullYear() == now.getFullYear()
 }).length})
           } 
           }
@@ -159,7 +164,7 @@ return (eDate.getMonth()+1) ==i && eDate.getFullYear() == now.getFullYear()
         {
             let lastDate = new Date(e['date']);
             let nextDate = new Date(e['nextdate'])
-          return  lastDate.getTime() <nextDate.getTime()}).length}, 
+          return  lastDate.getTime() <= nextDate.getTime()}).length}, 
         {'name':'Late', 'count':dataRaw.filter((e: any) =>
         {
             let lastDate = new Date(e['date']);
@@ -214,7 +219,7 @@ return (eDate.getMonth()+1) ==i && eDate.getFullYear() == now.getFullYear()
         {
             let lastDate = new Date(e['date']);
             let nextDate = new Date(e['nextdate'])
-          return  lastDate.getTime() <nextDate.getTime()}).length}, 
+          return  lastDate.getTime() <= nextDate.getTime()}).length}, 
         {'name':'Late', 'count':dataRaw.data?.filter((e: any) =>
         {
             let lastDate = new Date(e['date']);
