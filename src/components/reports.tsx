@@ -1,11 +1,13 @@
 import {BarChart, XAxis, YAxis, Bar, 
-  Area,
+
   ResponsiveContainer, Tooltip, PieChart, Pie, Cell, Line, LineChart} from "recharts";
 import { useEffect, useState } from "react";
 import { supabase } from "../supabaseClient";
 
 const Reports = () => {
   const [segmentedBarData, setSegmentedBarData] = useState([]);
+  const [segmentedPassFail, setSegmentedPassFail] = useState([]);
+  const [passfailData, setPassFailData] = useState([]);
     const [data, setData] = useState([]);
     const [usersData, setuserdata] = useState([]);
      function getFullMonth(i: number){
@@ -123,7 +125,10 @@ return months[i-1]
         let hasTo = toDate !='' || toDate2 != null;
          let hasFrom = fromDate !='' ||fromDate2 != null;
           let formattedLine: any = [];
+          let passfail: any = [];
+         
           function getMonth(i: number){
+          
 let months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEPT', 'OCT', 'NOV', 'DEC'];
 return months[i-1]
           }
@@ -155,10 +160,20 @@ let eDate = new Date(e['date']);
 
 return (eDate.getMonth()+1) == months2 && eDate.getFullYear() == totalyrs
 }).length})
+ passfail.push({'date': getMonthAndYR(i), 'Pass': dataRaw.filter((e: any) =>
+        {
+          let eDate = new Date(e['date']);
+          return  (e['result'] == 'PASS' || e['result'] == 'READY') && (eDate.getMonth()+1) == months2 && eDate.getFullYear() == totalyrs
+        }).length,  'Fail': dataRaw.filter((e: any) =>
+        {
+          
+            let eDate = new Date(e['date']);
+            return  (e['result'] == 'FAIL' || e['result'] == 'NOT READY') && (eDate.getMonth()+1) ==months2 && eDate.getFullYear() ==totalyrs
+        }).length })
           
          } 
        }  else if  (hasFrom && year != (toDate2 == null ? toDate4.getFullYear() : toDate == '' ? now.getFullYear() : toDate3.getFullYear())){
-        console.log('hi');
+      
      let endYear = toDate2 != null ? toDate4.getFullYear() : toDate == '' ? now.getFullYear(): now.getFullYear() +1;
  
          let endMonth =toDate2 != null ? toDate4.getMonth()+1 : toDate == '' ? now.getMonth()+1 : now.getMonth() +1;
@@ -175,6 +190,16 @@ let eDate = new Date(e['date']);
 
 return (eDate.getMonth()+1) == months2 && eDate.getFullYear() == totalyrs
 }).length})
+ passfail.push({'date': getMonthAndYR(i), 'Pass': dataRaw.filter((e: any) =>
+        {
+          let eDate = new Date(e['date']);
+          return  (e['result'] == 'PASS' || e['result'] == 'READY') && (eDate.getMonth()+1) == months2 && eDate.getFullYear() == totalyrs
+        }).length,  'Fail': dataRaw.filter((e: any) =>
+        {
+          
+            let eDate = new Date(e['date']);
+            return  (e['result'] == 'FAIL' || e['result'] == 'NOT READY') && (eDate.getMonth()+1) == months2 && eDate.getFullYear() == totalyrs
+        }).length })
           
          }    
        }else {
@@ -188,9 +213,21 @@ formattedLine.push({'date': getMonth(i), 'count': dataRaw.filter((e: any) => {
 let eDate = new Date(e['date']);
 return (eDate.getMonth()+1) == (i) && eDate.getFullYear() == now.getFullYear()
 }).length})
+ passfail.push({'date': getMonth(i), 'Pass': dataRaw.filter((e: any) =>
+        {
+          let eDate = new Date(e['date']);
+          return  (e['result'] == 'PASS' || e['result'] == 'READY') && (eDate.getMonth()+1) ==i && eDate.getFullYear() == now.getFullYear()
+        }).length,  'Fail': dataRaw.filter((e: any) =>
+        {
+          
+            let eDate = new Date(e['date']);
+            return  (e['result'] == 'FAIL' || e['result'] == 'NOT READY') && (eDate.getMonth()+1) ==i && eDate.getFullYear() == now.getFullYear()
+        }).length })
+
           } 
           }
-          setLineData(formattedLine);      
+          setLineData(formattedLine);
+          setSegmentedPassFail(passfail)      
       const userData: any = await supabase.from('users').select().eq('username', sup);
         let chartDatas: any = [{'name': 'On Time', 'count':dataRaw.filter((e: any) =>
         {
@@ -204,6 +241,18 @@ return (eDate.getMonth()+1) == (i) && eDate.getFullYear() == now.getFullYear()
             
           return  lastDate.getTime() >nextDate.getTime()}).length},]
           setPieData(chartDatas)
+             let passDatas: any = [{'name': 'Pass', 'count':dataRaw.filter((e: any) =>
+        {
+          
+          return  e['result'] == 'PASS' || e['result'] == 'READY'
+        }).length}, 
+        {'name':'Fail', 'count':dataRaw.filter((e: any) =>
+        {
+          
+            
+            return  e['result'] == 'FAIL' || e['result'] == 'NOT READY'
+        }).length},]
+       setPassFailData(passDatas)
      let formattedData: any =
      userData.data!['role'] == 'TRAINER' ? 
         [{'name':'Competency Test', 'count': dataRaw.filter((e)=> e['type'] == 'Competency Test').length},
@@ -277,7 +326,19 @@ return months[i-1]
             let nextDate = new Date(e['nextdate'])
           return  lastDate.getTime() >nextDate.getTime()}).length},]
           setPieData(pieData)
-         
+                let passDatas: any = [{'name': 'Pass', 'count':dataRaw.data?.filter((e: any) =>
+        {
+          
+          return  e['result'] == 'PASS' || e['result'] == 'READY'
+        }).length}, 
+        {'name':'Fail', 'count':dataRaw.data?.filter((e: any) =>
+        {
+          
+            
+            return  e['result'] == 'FAIL' || e['result'] == 'NOT READY'
+        }).length},]
+       setPassFailData(passDatas)
+         let passfail: any = [];
           const now = new Date();
           let month: number = now.getMonth()+1;
           
@@ -290,8 +351,18 @@ let eDate = new Date(e['date']);
 
 return (eDate.getMonth()+1) ==i && eDate.getFullYear() == now.getFullYear()
 }).length})
+passfail.push({'date': getMonth(i), 'Pass': dataRaw.data?.filter((e: any) =>
+        {
+          let eDate = new Date(e['date']);
+          return  (e['result'] == 'PASS' || e['result'] == 'READY') && (eDate.getMonth()+1) ==i && eDate.getFullYear() == now.getFullYear()
+        }).length,  'Fail': dataRaw.data?.filter((e: any) =>
+        {
+          
+            let eDate = new Date(e['date']);
+            return  (e['result'] == 'FAIL' || e['result'] == 'NOT READY') && (eDate.getMonth()+1) ==i && eDate.getFullYear() == now.getFullYear()
+        }).length })
           }
-         
+         setSegmentedPassFail(passfail);
           setLineData(formattedLine);
      let formattedData: any = [{'name':'Competency Test', 'count': dataRaw.data?.filter((e: any)=> e['type'] == 'Competency Test').length},
     {'name':'Performance review', 'count': dataRaw.data?.filter((e: any)=> e['type'] == 'Performance review').length}, 
@@ -473,7 +544,7 @@ const [toDate, setToDate] = useState('');
          
        
         <div className="flex flex-row gap-6 h-90 w-full mt-10">
-        <div className="flex flex-col w-3/6">
+        <div className="flex flex-col w-2/5">
             <p className="font-poppins  font-bold text-2xl self-baseline ml-10 mb-5">Tests Performed</p>
                <div className="w-full h-80 ">
             <ResponsiveContainer width="100%" height='100%'>
@@ -486,7 +557,7 @@ const [toDate, setToDate] = useState('');
  
 </ResponsiveContainer>
  </div> </div>
- <div className="flex flex-col w-1/2">
+ <div className="flex flex-col w-3/10 min-w-110">
   <p className="font-poppins  font-bold text-2xl self-baseline ml-10 mb-5">Tests Completed On Time</p>
 <div className="w-full h-80"
 >
@@ -497,6 +568,26 @@ const [toDate, setToDate] = useState('');
  pieData.map((e) =>
  {
  return <Cell fill={e['name']== 'Late' ? '#d3d3d3' : "#3b82f6"}></Cell>
+ }
+ )
+          }
+    </Pie> 
+    <Tooltip/>
+</PieChart>
+</ResponsiveContainer>
+</div>
+   </div>
+    <div className="flex flex-col w-3/10 min-w-110">
+  <p className="font-poppins  font-bold text-2xl self-baseline ml-10 mb-5">Tests Passed and Failed</p>
+<div className="w-full h-80"
+>
+<ResponsiveContainer width='100%' height='100%'>
+<PieChart>
+   <Pie innerRadius={50} label={({name, percent}) => `${name}: ${(Math.round(percent! * 100)) }%`} data={passfailData} dataKey="count" nameKey="name">
+ { 
+ passfailData.map((e) =>
+ {
+ return <Cell fill={e['name']== 'Fail' ? '#ed2939' : "#3b82f6"}></Cell>
  }
  )
           }
@@ -522,7 +613,22 @@ const [toDate, setToDate] = useState('');
 </LineChart>
 
 </ResponsiveContainer> 
+
 </div>
+       <div className="w-full h-110 flex flex-col self-baseline mt-10 mb-5">
+  <p className="font-poppins w-full font-bold text-2xl self-baseline ml-10 mb-5">Tests Passed and Failed Over Time</p>
+  <ResponsiveContainer width='100%' height='100%'>
+<BarChart data={segmentedPassFail}>
+<YAxis></YAxis>
+<Tooltip></Tooltip>
+<XAxis dataKey='date'></XAxis>
+<Bar dataKey='Pass' stackId='a' fill="#3b82f6"></Bar>
+<Bar dataKey='Fail' stackId='a' fill="#d94141"></Bar>
+
+</BarChart>
+</ResponsiveContainer>
+
+                 </div>
 
                  <p className="font-poppins  self-baseline mt-10 font-bold text-3xl text-blue-500  ">Trainees</p>
                  <div className="flex flex-col w-full">
