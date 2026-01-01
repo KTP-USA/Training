@@ -7,7 +7,9 @@ import { supabase } from "../supabaseClient";
     const [hasSent, setHasSent] = useState(false);
     async function sendEmail() {
        
-  await supabase.auth.resetPasswordForEmail(email);
+  await supabase.auth.resetPasswordForEmail(email,  {
+redirectTo: 'https://ktp-usa.github.io/Training/reset-password'
+  });
  
    setHasSent(true);
     }
