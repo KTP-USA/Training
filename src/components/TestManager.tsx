@@ -130,14 +130,16 @@ for (const entry of insertList){
     if (date == '' || date == null){
       return '';
     } else {
-let date2 = new Date(date)
+const [year, month, day] = date.split('-').map(Number)
 
+const date2 = new Date(year, month - 1, day)
+ 
     return date2.toLocaleDateString('en-US', {
-  month:'numeric',
-           
+  month:'numeric', 
 day:'2-digit',
 year:'numeric',
         });
+      
       }
    
   }

@@ -44,16 +44,13 @@ onChange={(e)=>{setPassword(e.target.value)}}
 placeholder="Password"
 className="w-full ml-3 outline-none bg-transparent "></input>
 </div>
+<p
+onClick={()=> navigate('/forgot-password')}
+className="text-blue-600 font-bold font-poppins mt-4 cursor-pointer ">Reset Password</p>
 <button
 onClick={()=>{
-   
-   
-//     supabase.auth.signInWithPassword({
-// email,
-// password
-// })
-wheretogo();
 
+wheretogo();
 
 }}
 className=" hover:bg-blue-600

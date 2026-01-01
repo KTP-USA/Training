@@ -7,14 +7,16 @@ const Log = () => {
     if (date == '' || date == null){
       return '';
     } else {
-let date2 = new Date(date)
+const [year, month, day] = date.split('-').map(Number)
 
+const date2 = new Date(year, month - 1, day)
+ 
     return date2.toLocaleDateString('en-US', {
-  month:'numeric',
-           
+  month:'numeric', 
 day:'2-digit',
 year:'numeric',
         });
+      
       }
    
   }
@@ -24,6 +26,7 @@ year:'numeric',
         tdy.setDate(tdy.getDate()-30);
     const logs: any =    await supabase.from('testrecords').select().gte('date', tdy.toISOString() );
    let logs2: any =  logs.data.map((e:any) => {
+    
       return {
  'username':e['username'], 'module': e['module'], 'step':e['step'], 
 

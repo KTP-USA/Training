@@ -17,6 +17,7 @@ import QuestionsPage from "./pages/QuestionsPage";
 import ResetPassPage from "./pages/resetPassPage"
 import LogPage from "./pages/LogPage";
 import ReportsPage from "./pages/ReportsPage";
+import ForgotPassPage from "./pages/ForgotPassPage";
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -39,6 +40,7 @@ const App = () => (
                <Route path="/reports" element={<ReportsPage/>}></Route>
           <Route path="/log" element={<LogPage/>}></Route>
           <Route path="/" element={<LogInPage/>} />
+           <Route path="/forgot-password" element={<ForgotPassPage/>} />
                 <Route path='/reset-password' element={<ResetPassPage/>}/>
              <Route path='/training-topics' element={<TrainerPage/>}/>
              <Route  path='/questions' element={<QuestionsPage/>}></Route>
