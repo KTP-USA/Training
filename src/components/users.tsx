@@ -28,6 +28,7 @@ const [hasSaved, setHasSaved] = useState(false);
  })
     const [isLoading, setisLoading]=useState(true);
     const [isEditOpen, setEditOpen] = useState(false);
+    const [raw,setRaw] = useState([])
     const [isCreateOpen, setCreateOpen] = useState(false)
     const [selectedSupervisor, setSupervisor] = useState('Supervisor')
     const [supervisors, setSupList] = useState([])
@@ -49,14 +50,59 @@ year:'numeric',
       }
    
   }
+  function handleSort(sort: string, useRaw: boolean){
+   
+if (sort != 'Sort By'){
+ 
+  setUserData(
+ useRaw ?    
+
+  raw.sort((a: any, b: any) => {
+    let aDate = new Date( a['hiredate'] );
+    let bDate = new Date (b['hiredate']);
+     const aNull = a.hiredate == null;
+    const bNull = b.hiredate == null;
+
+    if (aNull && bNull) return 0;
+    if (aNull) return 1;
+    if (bNull) return -1;
+    return sort.includes('Ascending') ? aDate.getTime() - bDate.getTime() : bDate.getTime() - aDate.getTime()
+  }):
+    userData.sort((a: any, b: any) => {
+    let aDate = new Date( a['hiredate'] );
+    let bDate = new Date (b['hiredate']);
+     const aNull = a.hiredate == null;
+    const bNull = b.hiredate == null;
+
+    if (aNull && bNull) return 0;
+    if (aNull) return 1;
+    if (bNull) return -1;
+    return sort.includes('Ascending') ? aDate.getTime() - bDate.getTime() : bDate.getTime() - aDate.getTime()
+  }))
+} else {
+ setUserData( 
+  useRaw ?   raw.sort((a: any,b: any)=> a['username'].localeCompare(b['username'])) :
+  userData .sort((a: any,b: any)=> a['username'].localeCompare(b['username'])));
+}
+  }
+ function handleFilter(filter:string){
+    if  (filter != 'Filter By'){
+      setUserData(raw.filter((e) => filter == 'Active' ? e['active'] == 'Y' : e['active'] == 'N'))
+    } else {
+      handleSort(sortBy, true)
+    }
+  }
     const [supervisorList, setSupervisorList] = useState([]);
     const [stepList, setStepList]= useState([]);
     const [moduleList, setModuleList] =useState([]);
     const [trainerList, setTrainerList] =useState([]);
     const [password, setPassword] = useState('kurzusa1234');
     const [email, setEmail] = useState('');
+    const [filterBy, setFilterBy] = useState('Filter By');
     const [editData, setEditData] = useState([]);
     const [hasSupervisor, setSupervisora] = useState(true);
+    const [sortBy, setSortBy] = useState('Sort By'
+    )
     const [testType, setTestType] = useState('Test Type')
     useEffect(() => {
 async function loadData(){
@@ -101,6 +147,7 @@ let train =await supabase.from('trainer').select();
 let train2: any = train.data
 setTrainerList(train2);
 setStepList(step2);
+setRaw(loadedData)
     setUserData(loadedData);
     console.log('loaded data:', loadedData)
     setSupList(supervisors);
@@ -171,7 +218,6 @@ return (
  <p> Update User </p>
   <button
 onClick={() => {
-  console.log('user ', editData)
 deacUser(editData[0]['active'] == 'Y')
 }}
 className={`
@@ -449,6 +495,52 @@ text-white gap-2  font-poppins`}>
 placeholder="Search by username or supervisor..."
 className="mt-5 border-gray-500 rounded-lg p-2 w-full font-poppins border-2"></input> */}
 <div className="flex flex-row gap-5 mt-5 items-baseline w-full text-gray-500 font-poppins font-bold ">
+  <div className="flex flex-row gap-6">
+     <select
+        onChange={(e) => {setSortBy(e.target.value); handleSort(e.target.value, false);}}
+        value={sortBy} className="rounded-lg
+       
+        border-blue-300  font-normal border-2  text-gray-900 font-poppins py-2 w-30
+        cursor-pointer hover:bg-blue-400/20 hover:border-blue-400 hover:scale-103 transtion-all duration-300 justify-center px-1 overflow-ellipsis
+        ">
+
+
+
+
+            <option>
+Sort By
+</option>
+  <option>Hire Date - Ascending </option>
+  
+ <option>Hire Date - Descending </option>
+
+
+
+
+        </select>
+             <select
+
+        onChange={(e) => {setFilterBy(e.target.value); handleFilter(e.target.value);}}
+        value={filterBy} className="rounded-lg
+       
+        border-blue-300  font-normal border-2  text-gray-900 font-poppins py-2 w-30
+        cursor-pointer hover:bg-blue-400/20 hover:border-blue-400 hover:scale-103 transtion-all duration-300 justify-center px-1 overflow-ellipsis
+        ">
+
+
+
+
+            <option>
+Filter By
+</option>
+  <option>Active</option>
+  
+ <option>Inactive</option>
+
+
+
+
+        </select>
   <button
 onClick={() => {
  setCreateOpen(true);
@@ -464,6 +556,7 @@ duration-300 hover:bg-blue-600 py-2
 text-white gap-2 bg-blue-500 font-poppins font-normal">
 Create User
 </button>
+</div>
 
 
    {/* <p className="text-xl">Filter by: </p>
@@ -563,7 +656,7 @@ userData.filter((entry) => (testType == 'Test Type' ? true : entry['Test Type'] 
    <div>
    <div className={`flex flex-row items-center`}>
  {   Object.values(entry).map((entrye: any, i) => {
-console.log('entrye', entrye , i)
+
 if (i == 1  || i == 0 || i== 9||i==11 ||i==13 || i==14  || i==12 || i==15 || i==16){
 
   return;

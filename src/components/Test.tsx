@@ -332,18 +332,19 @@ myList.data.sort((a: any, b:any) => a['order'] - b['order'])
   let newList =
         myList.data.filter((entry: any) => entry['optiontext'] != '' && entry['questionid'] == item);
    let options: any = [];
+   console.log('newer', newList)
      for (const entry of newList){
       options.push({optiontext: entry['optiontext'],
-           optionid: entry['optionid']});
+           optionid: entry['optionid'], });
    }
 let questionItem = myList.data.find((entry: any) => entry['optiontext'] == '' && entry['questionid'] == item);
 
 
 options = options.sort((a: any,b:any) => {
  return   a['optionid'].localeCompare(b['optionid'])})
- 
+ console.log('qit', questionItem)
 qBank.push({options:options, questiontext: questionItem['questiontext'],
-                        questionid:questionItem['questionid'], });
+                        questionid:questionItem['questionid'], correcttest: questionItem['correctoption'] });
 
 
 
@@ -468,9 +469,12 @@ Submit
     entry['options'].map((entrye:any, ) =>
     <div
     onClick={() => {
+      
+      console.log('entre', entry)
         if (qna == 'no qna'){
         let iQ = entry.questionid
         let iO = entrye.optionid
+        
         setQuestionAndAnswer({...questionAndAnswer, [iQ]:iO})
 
 
@@ -482,12 +486,16 @@ Submit
      } }
        
     className={`cursor-pointer border-2 p-5 rounded-lg flex flex-row font-inter
-${questionAndAnswer[entry.questionid] == entrye.optionid ? 'bg-blue-500/10 border-blue-400' : ' border-gray-400  hover:border-blue-300 transition-all' }`}>
+${questionAndAnswer[entry.questionid] == entrye.optionid ? 
+entrye.optionid == entry['correcttest']  ?
+'bg-blue-500/10 border-blue-400' : 'bg-red-500/10 border-red-500' : ' border-gray-400  hover:border-blue-300 transition-all' }`}>
 {entrye.optiontext}
 <div className="flex-1"></div>
-<div className={`rounded-full relative border-2 border-black w-5 h-5 flex-shrink-0 flex items-center justify-center ${questionAndAnswer[entry.questionid] == entrye.optionid ? 'border-blue-400' : ''}`}>
+<div className={`rounded-full relative border-2 border-black w-5 h-5 flex-shrink-0 flex items-center justify-center ${questionAndAnswer[entry.questionid] == entrye.optionid ? 
+  entrye.optionid == entry['correcttest']  ?
+  'border-blue-400' : 'border-red-500' : ''}`}>
   {questionAndAnswer[entry.questionid] == entrye.optionid && (
-    <div className="bg-blue-400  rounded-full w-full h-full border-2 border-white self-center"></div>
+    <div className={`${ entrye.optionid != entry['correcttest'] ? 'bg-red-500' : 'bg-blue-400'}  rounded-full w-full h-full border-2 border-white self-center`}></div>
   )}
 </div>
     </div>
