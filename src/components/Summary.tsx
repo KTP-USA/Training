@@ -130,7 +130,7 @@ userData.map((entry) =>
     <div className={`p-3 text-white
     border-blue-500 border-2
     ${e=='30D' ? 'rounded-tl-lg' : e=='3Y' ? 'rounded-tr-lg':''}  font-poppins text-center px-7 py-5 font-bold text-2xl ${e=='30D' ? 'bg-[#fe0a0a]': e=='90D' ?  'bg-[#ff6565]'  :
-e == '180D' ? 'bg-[#ff8888]' : e == '1Y' ? 'bg-[#504afe]'  : e == '2Y' ? 'bg-[#3933fd]'  :
+e == '180D' ? 'bg-[#de3f3f]' : e == '1Y' ? 'bg-[#504afe]'  : e == '2Y' ? 'bg-[#3933fd]'  :
 'bg-[#1d15ff]'
 
 

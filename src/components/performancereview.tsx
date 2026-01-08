@@ -253,8 +253,12 @@ async function testData(userdata: any) {
 
 
 
-setRawDate(data.data.filter((e: any) => e['type'] == 'Technical Evaluation'));
-setResultData(data.data.filter((e: any) => e['type'] == 'Competency Test'))
+setRawDate(data.data.filter((e: any) => e['type'] == 'Technical Evaluation' && e['result'] == 'READY').length != 0 ? 
+data.data.filter((e: any) => e['type'] == 'Technical Evaluation' && e['result'] == 'READY') : data.data.filter((e: any) => e['type'] == 'Technical Evaluation' && e['result'] == 'NOT READY')
+);
+setResultData(data.data.filter((e: any) => e['type'] == 'Competency Test' && e['result'] == 'PASS').length != 0 ? data.data.filter((e: any) => e['type'] == 'Competency Test' && e['result'] == 'PASS') 
+
+: data.data.filter((e: any) => e['type'] == 'Competency Test' && e['result'] == 'FAIL'))
 
 
 
