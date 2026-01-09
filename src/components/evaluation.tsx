@@ -5,6 +5,25 @@ import { supabase } from "../supabaseClient";
 import { TailSpin } from "react-loader-spinner";
 const Evaluation = () => {
     const [isLoading, setIsLoading] = useState(false);
+      
+  function getDates(date: string, ){
+    
+    if (date == '' || date == null){
+      return '';
+    } else {
+const [year, month, day] = date.split('-').map(Number)
+
+const date2 = new Date(year, month - 1, day)
+ 
+    return date2.toLocaleDateString('en-US', {
+  month:'numeric', 
+day:'2-digit',
+year:'numeric',
+        });
+      
+      }
+   
+  }
     const topBar = ['Name:', 'Supervisor:', 'Module:', 'Date:', 'Machine:', 'Trainer:', 'Step:']
     const labels = ['Section', 'Topic', 'Score (1-4)'];
     const [prevComplete, setPrevComplete] = useState(false);
@@ -16,6 +35,7 @@ const Evaluation = () => {
     const [sectionsData, setSectionData] =useState([]);
 
     const [isConfirmOpen, setConfirmOpen] = useState(false);
+    const [Dates, setDate]=useState(null);
 async function formatData (usersdata: any){
    
 let data: any =
@@ -43,7 +63,7 @@ if (tstrecs.data.length != 0){
         });
         setPrevComplete(true);
         setSavedAnswers(Object.assign({}, ...hihi));
-   
+   setDate(tstrecs.data[0]['date'])
     // )
 }
 
@@ -340,7 +360,7 @@ isLoading ?
             { e != 'Name' &&
             <p className="ml-2"> {    e == 'Step:' ? (step != null && step != 'no step' ? step : userData2.length == 0 ? '' : userData2[0]['actualstep']) : e == 'Supervisor:' ? (userData2.length == 0 ? '' : userData2[0]['supervisor']) :
             e == 'Module:' ?(userData2.length == 0 ? '' :userData2[0]['module']) : e=='Machine:' ? ( userData2.length == 0 ? '' : userData2[0]['machine']) :
-        e == 'Date:' ?   `${date.toLocaleDateString('en-US', {
+        e == 'Date:' ?  Dates != null ? getDates(Dates):  `${date.toLocaleDateString('en-US', {
 year:'2-digit',
 month:'numeric',
 day:'2-digit'
