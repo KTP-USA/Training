@@ -25,7 +25,7 @@ await supabase.from('technical').select().eq('module', usersdata[0]['module']).e
 let tstrecs: any = id == 'no id' ? await supabase.from('testrecords').select().eq('username', usersdata[0]['username']).eq('step', usersdata[0]['actualstep'])
 .eq('module', usersdata[0]['module']).eq('step', 
     
-    usersdata[0]['actualstep']).eq('type', 'Technical Evaluation').not('result', 'is', null)
+    usersdata[0]['actualstep']).eq('type', 'Technical Evaluation').eq('result', 'READY')
 : await supabase.from('testrecords').select().eq('id', id).not('result', 'is', null)
 console.log('tstrecs', tstrecs, id, step, usersdata)
 if (tstrecs.data.length != 0){
