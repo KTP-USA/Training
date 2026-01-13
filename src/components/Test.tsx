@@ -487,15 +487,15 @@ Submit
        
     className={`cursor-pointer border-2 p-5 rounded-lg flex flex-row font-inter
 ${questionAndAnswer[entry.questionid] == entrye.optionid ? 
-entrye.optionid == entry['correcttest']  ?
+entrye.optionid == entry['correcttest'] || qna == 'no qna'  ?
 'bg-blue-500/10 border-blue-400' : 'bg-red-500/10 border-red-500' : ' border-gray-400  hover:border-blue-300 transition-all' }`}>
 {entrye.optiontext}
 <div className="flex-1"></div>
 <div className={`rounded-full relative border-2 border-black w-5 h-5 flex-shrink-0 flex items-center justify-center ${questionAndAnswer[entry.questionid] == entrye.optionid ? 
-  entrye.optionid == entry['correcttest']  ?
+  entrye.optionid == entry['correcttest'] || qna == 'no qna'?
   'border-blue-400' : 'border-red-500' : ''}`}>
   {questionAndAnswer[entry.questionid] == entrye.optionid && (
-    <div className={`${ entrye.optionid != entry['correcttest'] ? 'bg-red-500' : 'bg-blue-400'}  rounded-full w-full h-full border-2 border-white self-center`}></div>
+    <div className={`${  qna == 'no qna' ? 'bg-blue-400' :entrye.optionid != entry['correcttest']  ?'bg-red-500' : 'bg-blue-400'}  rounded-full w-full h-full border-2 border-white self-center`}></div>
   )}
 </div>
     </div>

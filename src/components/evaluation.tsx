@@ -189,14 +189,14 @@ if (avg < 3){
 });
 }
 let stuoidlist: any = await supabase.from('testrecords').select().eq('module', userData2[0]['module']).eq('step', userData2[0]['actualstep']).eq('username', userData2[0]['username'])
-.eq('supervisor', userData2[0]['supervisor']).eq('result', 'READY');
+.eq('supervisor', userData2[0]['supervisor']).eq('result', 'READY').eq('type', 'Performance review');
 console.log('sut', stuoidlist);
-if (stuoidlist.data.length >= 2 && avg >=3){
+if (stuoidlist.data.length >= 1 && avg >=3){
 
 
     let date: Date =new  Date(userData2[0]['nextdate'])
    
-await supabase.from('testrecords').insert({
+const {data,error} = await supabase.from('testrecords').insert({
    
     'username': userData2[0]['username'],
      'trainer': userData2[0]['trainer'],
@@ -206,7 +206,8 @@ await supabase.from('testrecords').insert({
     'machine':userData2[0]['machine'],
     'step': userData2[0]['actualstep'],
     'module': userData2[0]['module'],
-})
+});
+console.log('insert error:', error, data)
 }
 
 setIsComplete(true);
