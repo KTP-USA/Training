@@ -1,16 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "../supabaseClient";
  const JoinTest = () =>{
     const navigate = useNavigate();
     const [code, setCode] = useState('');
     async function canTakeTest() {
-        let loadTest = await supabase.from('savedtest').select().eq('controlnbr', code)
-        let idk: Array<any> = loadTest.data?.find((e)=> e['useranswer'] !=  null)
-   
-        if (idk == null){
+       
     navigate(`/test/${code}`)
-        }
+       
     }
     return <section style={{ height: "calc(100vh - 200px)" }} className="max-w-screen max-h-screen flex items-center justify-center bg-gradient-to-r from-sky-50 to-blue-400  flex-col">
 <h1 className="font-poppins  font-bold text-5xl text-blue-500  ">Join Test</h1>
