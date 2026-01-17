@@ -127,6 +127,7 @@ day:'2-digit'
  }
     }
 async function completeEvaluation(){
+    setProcessing(true);
    setIsLoading(true);
 let responseList = Object.values(textMap).map((e) => e)
 let totalsum = 0;
@@ -211,8 +212,10 @@ console.log('insert error:', error, data)
 }
 
 setIsComplete(true);
+setProcessing(false);
 setIsLoading(false);
 }
+const [isProcessing,setProcessing] = useState(false);
 const focusRef = useRef<Record<number, HTMLDivElement | null>>({});
 const [isComplete, setIsComplete] = useState(false);
 const [userData, setUserData] = useState([]);
@@ -246,6 +249,21 @@ loadData();
 const  date = new Date();
     return (
 <section className="mx-15 flex flex-col mt-15">
+      {
+   isProcessing &&
+      <div className="fixed inset-0 flex items-center justify-center z-50">
+<div className="absolute bg-black opacity-30 inset-0"></div>
+<div  className="bg-red-200 p-5 rounded-xl z-10 overflow-y-auto font-poppins font-bold text-blue-400 text-2xl max-h-100 min-w-1/3 
+flex flex-col items-center py-10
+justify-center" >
+<p className="text-red-500 font-poppins text-3xl">PLEASE WAIT!</p>
+<p className="mt-3 text-lg text-gray-900 text-center">The technical evaluation is processing.<br></br>Do not exit the tab.</p>
+
+  <div className="flex flex-row gap-5 items-center ">
+</div> 
+  </div>
+  </div>
+      }
        {
   isConfirmOpen &&
       <div onClick={() => {

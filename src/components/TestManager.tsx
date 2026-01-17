@@ -72,7 +72,7 @@ let list: any = userData.map((e) => { return e==entry ? {...entry, 'path': fileP
    
 }
   async function generateTest(step: String, module: String, username: String , type: String, entry: any ){
-    
+    setProcessing(true);
     let qBankData = await supabase.from('questions').select().eq('step', step).eq('module', module).eq('optiontext', '') ;
  
    
@@ -123,8 +123,9 @@ for (const entry of insertList){
 
 
 
-
+setProcessing(false)
   }
+  const [isProcessing,setProcessing] = useState(false);
   function getDates(date: string, ){
     
     if (date == '' || date == null){
@@ -500,6 +501,21 @@ const [selectedTrainer, setSelectedTrainer] = useState('Trainer');
     let columns = ['Username', 'Hire Date', 'Module', 'Supervisor', 'Trainer',  'Test Type', 'Step', 'Next Date', '']
 return (
 <section className="flex justify-center items-center flex-col my-15 mx-10">
+    {
+   isProcessing &&
+      <div className="fixed inset-0 flex items-center justify-center z-50">
+<div className="absolute bg-black opacity-30 inset-0"></div>
+<div  className="bg-red-200 p-5 rounded-xl z-10 overflow-y-auto font-poppins font-bold text-blue-400 text-2xl max-h-100 min-w-1/3 
+flex flex-col items-center py-10
+justify-center" >
+<p className="text-red-500 font-poppins text-3xl">PLEASE WAIT!</p>
+<p className="mt-3 text-lg text-gray-900 text-center">The test is being generated.<br></br>Do not exit the tab.</p>
+
+  <div className="flex flex-row gap-5 items-center ">
+</div> 
+  </div>
+  </div>
+      }
    {/* {
   uploamenu &&
       <div onClick={() =>setUploadMenu(false)} className="fixed inset-0 flex items-center justify-center z-50">
