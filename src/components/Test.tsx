@@ -177,8 +177,9 @@ year:'2-digit',
     'step': rawList[0]['actualstep']
 });  
     }
-let stuoidlist: any = await supabase.from('testrecords').select().eq('module', rawList[0]['module']).eq('step',rawList[0]['actualstep']).eq('username', rawList[0]['username'])
-.eq('supervisor', rawList[0]['supervisor']).eq('result', 'READY');
+let stuoidlist: any = await supabase.from('testrecords').select().eq('module', rawList[0]['module'])
+.eq('step',rawList[0]['actualstep']).eq('username', rawList[0]['username'])
+.eq('result', 'READY');
 const list = ['Technical Evaluation',  'Performance review']
 
 

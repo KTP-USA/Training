@@ -176,7 +176,7 @@ year:'2-digit',
     }
    
 let stuoidlist: any = await supabase.from('testrecords').select().eq('module', data[0]['module']).eq('step',data[0]['actualstep']).eq('username', data[0]['username'])
-.eq('supervisor', data[0]['supervisor']).eq('result', 'READY');
+.eq('result', 'READY');
 
 
 if (stuoidlist.data.length >= 2 && type=='pass'){
@@ -289,16 +289,16 @@ let cmt = getdata.data!;
  [e.performid]:e.perfomanser
 }));
  setTextMap(Object.assign({}, ...textymap));
- 
+
 setIsComplete(true);
 } else {
     setIsComplete(false)
 }
 
 
+
 }
 async function loadData(){
-    console.log('file', file)
      let session = await supabase.auth.getSession();
     let userData1: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
 setTrainerName(userData1.data[0]['username'])
@@ -329,13 +329,7 @@ loadData();
 }, []);
 const  date = new Date();
     return (
-         file != 'no path'  ?
-         <div>
-        <object data={file}   type="application/pdf"
-  width="100%"
-  height="600px"></object>
-        </div>
-        :
+     
 <section className="flex flex-col mt-15">
       {
    isProcessing &&

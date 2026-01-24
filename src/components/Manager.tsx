@@ -26,6 +26,35 @@ year:'numeric',
       }
    
   }
+   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>,  path: any) {
+ 
+  const file = e.target.files?.[0];
+  if (!file){
+    return;
+  }
+   
+    const upload = await supabase
+    .storage
+    .from("Files")
+    .update(path, file,  {upsert: true})
+
+
+
+
+console.log('File upload error:', upload)
+
+
+
+
+let list2: any =[...isUploaded, path]
+   setIsUploaded(list2)
+  //  setUserData(list)
+  //  let list2: any =[...isUploaded, entry['id']]
+  //  setIsUploaded(list2)
+   
+
+}
+const[isUploaded, setIsUploaded] = useState([])
     const navigate = useNavigate();
     const [selectedPhase, setSelectedPhaae] = useState('');
     const [isUser, setIsUser] =useState(false);
@@ -295,22 +324,28 @@ savedTest(entry);
        let url =supabase.storage.from('Files').getPublicUrl(entry['path']);
      
       window.open(url.data.publicUrl.replace('%0D%0A', ''), "_blank", "noopener,noreferrer");
+    } else {
+    
+navigate('/performance-review', {state: [userData[0]['username'], entry['Result'] != null ? entry['id'] : 'no id', entry['step']]})  
     }
-  }
+  } 
     }
    }
    className={`flex flex-row cursor-pointer hover:bg-gray-100 transition-all`}>
  {   Object.values(entry).map((entrye: any, i) => {
   if (i==1 || i==2 || i ==7) return null;
 
-
    return (
  
  <div
+ 
+
  onClick={()=> {
      
  }}
- className= {` m-2 py-2 ${entrye == 'PASS'  || entrye == 'READY' ? 'text-green-500 font-bold' : entrye == 'FAIL' || entrye == 'NOT READY' ? 'text-red-500 font-bold' : ''}
+ className= {`
+ 
+  m-2 py-2 ${entrye == 'PASS'  || entrye == 'READY' ? 'text-green-500 font-bold' : entrye == 'FAIL' || entrye == 'NOT READY' ? 'text-red-500 font-bold' : ''}
     ${
 i==0  ?
 'w-[20%]' :
@@ -321,7 +356,32 @@ i==2 ?'w-[20%]':
   }
     `}>
    
- { i==4 ? getDates(entrye) : entrye
+ { i==4 ? getDates(entrye) : 
+entry['path'] != null && i==6 ?
+<div className=" flex flex-row  gap-9 items-center">
+  {entrye}
+<label 
+onClick={(e)=>e.stopPropagation()}
+className= {`
+flex flex-row rounded-3xl   p-3 w-35  text-lg items-center justify-center  font-normal transition-all
+duration-300 py-2 text-white gap-2  font-poppins 
+${isUploaded.includes(entry['path']) ? 'bg-green-500' : 'hover:bg-orange-400  bg-orange-300 hover:scale-102 cursor-pointer'} 
+`}>
+ {isUploaded.includes(entry['path']) ? 'Reuploaded' : 'Reupload'}
+
+ <input
+ onChange={(e) => {
+handleUpload(e, entry['path']);
+
+
+}}
+type="file"
+className="hidden"/>
+</label>
+</div>
+
+: 
+ entrye
  
  }
  

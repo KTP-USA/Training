@@ -189,8 +189,8 @@ if (avg < 3){
     'step':userData2[0]['actualstep']
 });
 }
-let stuoidlist: any = await supabase.from('testrecords').select().eq('module', userData2[0]['module']).eq('step', userData2[0]['actualstep']).eq('username', userData2[0]['username'])
-.eq('supervisor', userData2[0]['supervisor']).eq('result', 'READY').eq('type', 'Performance review');
+let stuoidlist: any = await supabase.from('testrecords').select().eq('module', userData2[0]['module']).eq('step', userData2[0]['actualstep'])
+.eq('username', userData2[0]['username']).eq('result', 'READY').eq('type', 'Performance review');
 console.log('sut', stuoidlist);
 if (stuoidlist.data.length >= 1 && avg >=3){
 

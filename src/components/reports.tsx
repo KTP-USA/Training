@@ -385,6 +385,7 @@ passfail.push({'date': getMonth(i), 'Pass': dataRaw.data?.filter((e: any) =>
           return hireDate.getMonth() == 11 && hireDate.getFullYear() == 2025
          }).length
          let terminated = users.data.filter((e: any) => {
+
           let hireDate = new Date(e['deactive']);
           return hireDate.getMonth() == 11  && e['deactive'] != null && hireDate.getFullYear() == 2025
          }).length
@@ -406,22 +407,33 @@ passfail.push({'date': getMonth(i), 'Pass': dataRaw.data?.filter((e: any) =>
       
         for (let monthInt=13; monthInt<monthList+1; monthInt++){
   let totalmonths = (monthInt-1)-11 ; 
+
 let totalyrs = 2025 + Math.floor(monthInt/12);
+
  let hireCount = users.data.filter((e: any) => {
-          let hireDate = new Date(e['hiredate']);
-          return hireDate.getMonth() == totalmonths && hireDate.getFullYear() == totalyrs 
-         }).length
+          const [year, month, day] = e['hiredate'].split('-').map(Number)
+
+const hireDate = new Date(year, month - 1, day)
+          return hireDate.getMonth()+1 == totalmonths && hireDate.getFullYear() == totalyrs 
+         }).length;
+    
             let terminatedCount = users.data.filter((e: any) => {
-          let hireDate = new Date(e['deactive']);
+                if (e['deactive'] == null){
+                return false;
+              }
+         const [year, month, day] = e['deactive'].split('-').map(Number)
+
+const hireDate = new Date(year, month - 1, day)
           return hireDate.getMonth() == totalmonths && hireDate.getFullYear() == totalyrs  && e['deactive'] != null
          }).length;
        let  totalTerm =  terminatedCount + tableData[monthInt-12]['Terminated/Resigned']['Total'];
        let totalHire = hireCount + tableData[monthInt-12]['Hired Monthly']['Total'];
        let traineesInProgram = hireCount + tableData[monthInt-12]['Trainees in the Program']; - terminatedCount;
+  
           tableData.push({'Month': `${getFullMonth(totalmonths)} ${totalyrs}`, 'Trainees in the Program': traineesInProgram, 'Hired Monthly': 
           {'monthly': hireCount, 'Total':totalHire}, 'Terminated/Resigned': 
           {'monthly': terminatedCount, 'Total': terminatedCount + totalTerm},  
-          'Turnover': `${Math.round((hireCount/totalHire)).toFixed(2)}  |  ${(1-(Math.floor((hireCount/totalHire))))*100}% `
+          'Turnover': `${((traineesInProgram/totalHire)).toFixed(3)}  |  ${((1-((traineesInProgram/totalHire)))*100).toFixed(2)}% `
         })
         
       }
@@ -469,21 +481,32 @@ let totalyrs = 2025 + Math.floor(monthInt/12);
         for (let monthInt=13; monthInt<monthList+1; monthInt++){
   let totalmonths = (monthInt-1)-11 ; 
 let totalyrs = 2025 + Math.floor(monthInt/12);
+
  let hireCount = users.filter((e: any) => {
-          let hireDate = new Date(e['hiredate']);
-          return hireDate.getMonth() == totalmonths && hireDate.getFullYear() == totalyrs 
-         }).length
+          const [year, month, day] = e['hiredate'].split('-').map(Number)
+
+const hireDate = new Date(year, month - 1, day)
+          return hireDate.getMonth()+1 == totalmonths && hireDate.getFullYear() == totalyrs 
+         }).length;
+    
             let terminatedCount = users.filter((e: any) => {
-          let hireDate = new Date(e['deactive']);
+              if (e['deactive'] == null){
+                return false;
+              }
+         const [year, month, day] = e['deactive'].split('-').map(Number)
+
+const hireDate = new Date(year, month - 1, day)
           return hireDate.getMonth() == totalmonths && hireDate.getFullYear() == totalyrs  && e['deactive'] != null
          }).length;
        let  totalTerm =  terminatedCount + tableData[monthInt-12]['Terminated/Resigned']['Total'];
        let totalHire = hireCount + tableData[monthInt-12]['Hired Monthly']['Total'];
        let traineesInProgram = hireCount + tableData[monthInt-12]['Trainees in the Program']; - terminatedCount;
-          tableData.push({'Month': `${getFullMonth(totalmonths)} ${totalyrs}`, 'Trainees in the Program': traineesInProgram, 'Hired Monthly': 
+        
+       
+       tableData.push({'Month': `${getFullMonth(totalmonths)} ${totalyrs}`, 'Trainees in the Program': traineesInProgram, 'Hired Monthly': 
           {'monthly': hireCount, 'Total':totalHire}, 'Terminated/Resigned': 
           {'monthly': terminatedCount, 'Total': terminatedCount + totalTerm},  
-          'Turnover': `${Math.round((hireCount/totalHire)).toFixed(2)}  |  ${(1-(Math.floor((hireCount/totalHire))))*100}% `
+          'Turnover': `${((traineesInProgram/totalHire)).toFixed(3)}  |  ${((1-(traineesInProgram/totalHire))*100).toFixed(2)}% `
         })
         
       }
