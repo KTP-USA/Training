@@ -59,9 +59,16 @@ const[isUploaded, setIsUploaded] = useState([])
     const [selectedPhase, setSelectedPhaae] = useState('');
     const [isUser, setIsUser] =useState(false);
      async function fetchUserData() {
+        console.log('LIAR',supabase.storage.from('photos').getPublicUrl('Abram Mills.jpg')['data']['publicUrl']);
+try{ let dat=supabase.storage.from('photos').getPublicUrl('Abram Mills.jpg');
+console.log('get url data',  );
+console.log('get url data',  dat);
+} catch (e){
+  console.log('gt url error:', e);
+}
     let session = await supabase.auth.getSession();
     let userData: any = await supabase.from('user_profiles').select().eq('uid', session.data.session?.user.id);
-   
+
     if (userData.data[0]['role'] == 'USER'){
       setIsUser(true);
       setNotAdmin(true);
@@ -120,7 +127,8 @@ await supabase.from('users').select().eq('role', "USER").eq('active', 'Y')
 
    }
   useEffect(() => {
- 
+    console.log('LIAR')
+
 fetchUserData();
 }, []);
  function shouldBeBlue( i:any){
@@ -173,7 +181,8 @@ navigate(`/test/${entry['id']}`, {state: idk2})
 <div className="flex justify-center  flex-col w-full m-10">
 <div className="flex flex-row gap-15">
 
-
+<div className="flex flex-col">
+  <div className="flex flex-row gap-15">
 {
 topBar.map((entry) =>
 <div className="flex flex-col gap-4 items-baseline
@@ -247,9 +256,9 @@ entry =='Hire Date:' ?
   </div>
 )
 }
-
-
 </div>
+
+
 <div className="flex flex-row gap-5">
 {
  Object.keys(times).map((entry, i) =>
@@ -283,6 +292,20 @@ transition-all duration-300 ${
   `}
   >{entry}</div>
 )}
+</div>
+</div>
+<div className="flex-1"></div>
+{ userData.length != 0 &&
+<div  className="w-50 h-50"
+    style={{
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    // backgroundImage: `url('https://fjqbbgziphqfbvxuggkk.supabase.co/storage/v1/object/public/photos/Abram%20Mills.jpg')`
+     backgroundImage: `url(${supabase.storage.from('photos').getPublicUrl(`${userData[0]['username']}.jpg`)['data']['publicUrl']})`
+}}
+></div>
+}
 </div>
 <div className=" rounded-md mt-5">
   <div className="flex flex-row bg-gradient-to-r from-sky-100 to-blue-300 rounded-lg py-2 pl-2   font-bold font-inter">
@@ -357,30 +380,30 @@ i==2 ?'w-[20%]':
     `}>
    
  { i==4 ? getDates(entrye) : 
-entry['path'] != null && i==6 ?
-<div className=" flex flex-row  gap-9 items-center">
-  {entrye}
-<label 
-onClick={(e)=>e.stopPropagation()}
-className= {`
-flex flex-row rounded-3xl   p-3 w-35  text-lg items-center justify-center  font-normal transition-all
-duration-300 py-2 text-white gap-2  font-poppins 
-${isUploaded.includes(entry['path']) ? 'bg-green-500' : 'hover:bg-orange-400  bg-orange-300 hover:scale-102 cursor-pointer'} 
-`}>
- {isUploaded.includes(entry['path']) ? 'Reuploaded' : 'Reupload'}
+// entry['path'] != null && i==6 ?
+// <div className=" flex flex-row  gap-9 items-center">
+//   {entrye}
+// <label 
+// onClick={(e)=>e.stopPropagation()}
+// className= {`
+// flex flex-row rounded-3xl   p-3 w-35  text-lg items-center justify-center  font-normal transition-all
+// duration-300 py-2 text-white gap-2  font-poppins 
+// ${isUploaded.includes(entry['path']) ? 'bg-green-500' : 'hover:bg-orange-400  bg-orange-300 hover:scale-102 cursor-pointer'} 
+// `}>
+//  {isUploaded.includes(entry['path']) ? 'Reuploaded' : 'Reupload'}
 
- <input
- onChange={(e) => {
-handleUpload(e, entry['path']);
+//  <input
+//  onChange={(e) => {
+// handleUpload(e, entry['path']);
 
 
-}}
-type="file"
-className="hidden"/>
-</label>
-</div>
+// }}
+// type="file"
+// className="hidden"/>
+// </label>
+// </div>
 
-: 
+// : 
  entrye
  
  }
