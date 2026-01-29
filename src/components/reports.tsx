@@ -430,8 +430,8 @@ const hireDate = new Date(year, month - 1, day)
          }).length;
        let  totalTerm =  terminatedCount + tableData[monthInt-12]['Terminated/Resigned']['Total'];
        let totalHire = hireCount + tableData[monthInt-12]['Hired Monthly']['Total'];
-       let traineesInProgram = hireCount + tableData[monthInt-12]['Trainees in the Program']; - terminatedCount;
- 
+       let traineesInProgram = (hireCount + tableData[monthInt-12]['Trainees in the Program']) - terminatedCount;
+  
           tableData.push({'Month': `${getFullMonth(totalmonths)} ${totalyrs}`, 'Trainees in the Program': traineesInProgram, 'Hired Monthly': 
           {'monthly': hireCount, 'Total':totalHire}, 'Terminated/Resigned': 
           {'monthly': terminatedCount, 'Total':  totalTerm},  
@@ -504,9 +504,8 @@ const hireDate = new Date(year, month - 1, day)
          }).length;
        let  totalTerm =  terminatedCount + tableData[monthInt-12]['Terminated/Resigned']['Total'];
        let totalHire = hireCount + tableData[monthInt-12]['Hired Monthly']['Total'];
-       let traineesInProgram = hireCount + tableData[monthInt-12]['Trainees in the Program']; - terminatedCount;
+       let traineesInProgram = (hireCount + tableData[monthInt-12]['Trainees in the Program']) - terminatedCount;
         
-       
        tableData.push({'Month': `${getFullMonth(totalmonths)} ${totalyrs}`, 'Trainees in the Program': traineesInProgram, 'Hired Monthly': 
           {'monthly': hireCount, 'Total':totalHire}, 'Terminated/Resigned': 
           {'monthly': terminatedCount, 'Total':  totalTerm},  
