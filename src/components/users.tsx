@@ -9,8 +9,37 @@ import { Edit } from "lucide-react";
 const Users = () =>{
   const [hasCreated, sethasCreated] = useState(false)
 const [hasSaved, setHasSaved] = useState(false);
-  const testTypes = ['Competency Test', 'Technical Evaluation', 'Performance review']
+
+ async function handleUpload(e: React.ChangeEvent<HTMLInputElement>, entry: any) {
  
+  const file = e.target.files?.[0];
+  if (!file){
+    return;
+  }
+    const filePath = `${entry['username']}.jpg`;
+
+  const upload = await supabase
+    .storage
+    .from("photos")
+    .upload(filePath, file, { contentType: file.type, upsert: true });
+
+
+
+
+
+
+console.log('File upload error:', upload.error)
+await supabase.from('users').update({'uploaded':true}).eq('id', entry['id']);
+let list: any = userData.map((e) => { return e==entry ? {...entry, 'uploaded': true} :
+ e})
+
+
+   setUserData(list)
+   let list2: any = editData.map((me: any) => { return {...me, ['uploaded']:true}});
+   setEditData(list2);
+console.log('list is', list)
+   
+}
   async function saveEdits() {
     const {error } = await supabase.from('users').update(editData[0]).eq('id', editData[0]['id']);
     console.log('errr', error);
@@ -21,6 +50,7 @@ const [hasSaved, setHasSaved] = useState(false);
     let list: any = userData.map((e) => { return e==userData.find((em)=> em['id'] ==editData[0]['id']) ? editData[0] :
  e})
    setUserData(list)
+ 
   }
   const [selectedUser, setSelectUser] = useState('Username')
   const [createData, setCreateData] = useState({'machine':null, 'username':null, 'hiredate':null, 'module': null,
@@ -234,7 +264,28 @@ text-white gap-2 font-poppins`}>
 
   </div>
 <div className="flex flex-col gap-4 mt-6">
+  <label className="font-poppins text-lg text-gray-900 font-normal">Photo</label>
+  <label className= {`
+flex flex-row rounded-3xl   p-3 w-35 text-lg items-center justify-center  transition-all font-normal
+duration-300 ${(editData[0]['uploaded'] ?? false)  ? 'bg-green-500' : 'hover:bg-orange-400  bg-orange-300 hover:scale-102 cursor-pointer'} py-2 text-white gap-2  font-poppins `}>
+ {(editData[0]['uploaded'] ?? false) ? 'Uploaded' : 'Upload'}
+ <input
+ onChange={(e) => {
+  
+  if (!(editData[0]['uploaded'] ?? false)){
+  handleUpload(e, editData[0])
+  }
+  
+
+  
+
+
+}}
+type="file"
+className="hidden"/>
+</label>
 {
+  
     columns.map((e) => {
         return <div className="flex flex-col">
 <label className="font-poppins text-lg text-gray-900 font-normal">{e}</label>
