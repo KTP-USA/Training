@@ -59,7 +59,7 @@ const[isUploaded, setIsUploaded] = useState([])
     const [selectedPhase, setSelectedPhaae] = useState('');
     const [isUser, setIsUser] =useState(false);
      async function fetchUserData() {
-        console.log('LIAR',supabase.storage.from('photos').getPublicUrl('Abram Mills.jpg')['data']['publicUrl']);
+       
 try{ let dat=supabase.storage.from('photos').getPublicUrl('Abram Mills.jpg');
 console.log('get url data',  );
 console.log('get url data',  dat);
@@ -127,7 +127,7 @@ await supabase.from('users').select().eq('role', "USER").eq('active', 'Y')
 
    }
   useEffect(() => {
-    console.log('LIAR')
+ 
 
 fetchUserData();
 }, []);

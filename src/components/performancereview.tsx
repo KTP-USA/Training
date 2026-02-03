@@ -284,7 +284,7 @@ let cmt = getdata.data!;
  let cmnt = cmt.find((e) => e['comment'] != null);
 
 
- setComment(cmnt['comment'] ??'')
+ setComment(cmnt == null ? '': cmnt['comment'] ??'')
  let textymap = getdata.data!.map((e,) => ({
  [e.performid]:e.perfomanser
 }));

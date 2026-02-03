@@ -80,8 +80,10 @@ let list: any = userData.map((e) => { return e==entry ? {...entry, 'path': fileP
    let qBank: Array<any> = [];
 
 
-
-
+if ((qBankData.data?.length ?? 0) < (step == '30D' ? 10 : step == '90D' ? 15 : step=='180D'? 20 : step=='1Y' ? 30 :step=='2y' ? 40 : 50 ) ){
+qBank = qBankData2;
+}
+else {
    while (qBank.length < (step == '30D' ? 10 : step == '90D' ? 15 : step=='180D'? 20 : step=='1Y' ? 30 :step=='2y' ? 40 : 50 )){
    
 
@@ -91,15 +93,16 @@ let list: any = userData.map((e) => { return e==entry ? {...entry, 'path': fileP
   qBank.push(qBankData2[qBank.length]);
 
 
-
-
+   
+   }
   }
   let fetchcontrolnbr = await supabase.from('testrecords').select().eq('step', step).eq('module', module).eq('username', username).eq('type', type).is('result', null);
   await supabase.from('testrecords').update({'controlnbr':fetchcontrolnbr.data![0]['id'], }).eq('id', fetchcontrolnbr.data![0]['id'])
   let userdata : any = await supabase.from('users').select().eq('username', fetchcontrolnbr.data![0]['username']);
+  console.log('qbank ', qBank, 'og' , qBankData.data);
   let insertList = qBank.map((e, i)=> {
-   
-    return {'questiontest':i+1, 'questionid': e['questionid'], 'module': module, 'step':step,
+
+    return e == null ? null : {'questiontest':i+1, 'questionid': e['questionid'], 'module': module, 'step':step,
      'trainer':userdata.data[0]['trainer'], 'supervisor':userdata.data[0]['supervisor'],
       'correcttest': type == 'Competency Test' ? e['correctoption'] : null,
 'controlnbr':fetchcontrolnbr.data![0]['id'], 'username':username
@@ -116,8 +119,10 @@ let list: any = userData.map((e) => { return e==entry ? {...entry, 'Action':fetc
 
 
    setUserData(list)
+
 for (const entry of insertList){
-  await supabase.from('savedtest').insert(entry);
+  
+await supabase.from('savedtest').upsert(entry);
  
 }
 
