@@ -122,7 +122,7 @@ let list: any = userData.map((e) => { return e==entry ? {...entry, 'Action':fetc
 
 for (const entry of insertList){
   
-await supabase.from('savedtest').upsert(entry);
+await supabase.from('savedtest').insert(entry);
  
 }
 

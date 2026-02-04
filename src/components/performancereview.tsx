@@ -109,7 +109,7 @@ const PerformanceReview = () => {
  
    for (const item of qs){
    
-  const {error, status} = await supabase.from('savedtest').upsert({
+  const {error, status} = await supabase.from('savedtest').insert({
     'performid':item,
     'perfomanser': textMap[item],
     'username': userData2[0]['username'],
@@ -127,7 +127,7 @@ const PerformanceReview = () => {
 }
 
 
-const {status} = await supabase.from('savedtest').upsert({
+const {status} = await supabase.from('savedtest').insert({
  
     'username': userData2[0]['username'],
        'supervisor':userData2[0]['supervisor'],
