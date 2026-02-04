@@ -144,7 +144,7 @@ let avg = (Math.round(totalsum/responseList.length * 100))/100;
  
 for (const item of rawData){
  
-await supabase.from('savedtest').insert({
+await supabase.from('savedtest').upsert({
     'techid':item['id'],
     'techanswer': Object.values(textMap).length == 0 ? 'N/A' :   textMap[item['topic']] ?? 'N/A',
     'username': userData2[0]['username'],
