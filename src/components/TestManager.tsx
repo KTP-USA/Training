@@ -73,7 +73,9 @@ let list: any = userData.map((e) => { return e==entry ? {...entry, 'path': fileP
 }
   async function generateTest(step: String, module: String, username: String , type: String, entry: any ){
     setProcessing(true);
-    let qBankData = await supabase.from('questions').select().eq('step', step).eq('module', module).eq('optiontext', '') ;
+    let qBankData = 
+    (step == '3Y' && (entry['machine'] == 'LM84' || entry['machine'] == 'LM801')) ?  await supabase.from('questions').select().eq('step', `${step}-${entry['machine']}`).eq('module', module).eq('optiontext', '') :
+    await supabase.from('questions').select().eq('step', step).eq('module', module).eq('optiontext', '') ;
  
    
   let qBankData2 = shuffleList(qBankData.data);
