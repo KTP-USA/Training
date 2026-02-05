@@ -73,11 +73,12 @@ let list: any = userData.map((e) => { return e==entry ? {...entry, 'path': fileP
 }
   async function generateTest(step: String, module: String, username: String , type: String, entry: any ){
     setProcessing(true);
+
     let qBankData = 
     (step == '3Y' && (entry['machine'] == 'LM84' || entry['machine'] == 'LM801')) ?  await supabase.from('questions').select().eq('step', `${step}-${entry['machine']}`).eq('module', module).eq('optiontext', '') :
     await supabase.from('questions').select().eq('step', step).eq('module', module).eq('optiontext', '') ;
  
-   
+   console.log('helloL', qBankData)
   let qBankData2 = shuffleList(qBankData.data);
    let qBank: Array<any> = [];
 
@@ -365,6 +366,7 @@ data.push({'User':entry['username'], 'Hire Date':entry['hiredate'], 'Module':ent
     entry2['result'] == 'READY' ? 'READY' :
     entry2['controlnbr'] != null ? entry2['controlnbr'] : 'no number',
     'path':entry2['path'], 'id':entry2['id'], 
+    "machine":entry2['machine']
 })
          
     }
@@ -747,7 +749,7 @@ userData.filter((entry) =>{
    <div className={`flex flex-row items-center`}>
  {   Object.values(entry).map((entrye: any, i) => {
 
-if (i==10 || i==9){
+if (i==10 || i==9 || i==11){
   return;
 }
    return (
