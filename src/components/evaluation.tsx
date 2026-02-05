@@ -323,7 +323,7 @@ onClick={() => {
    
     completeEvaluation();
    
-} else  if (Object.keys(textMap).length >= 5) {
+} else  if (Object.keys(textMap).length >= 5 && !isComplete && !prevComplete) {
     setConfirmOpen(true);
 }
 
@@ -350,7 +350,7 @@ onClick={() => {
        
     completeEvaluation();
    
-} else  if (Object.keys(textMap).length >= 5) {
+} else  if (Object.keys(textMap).length >= 5 && !isComplete && !prevComplete) {
     setConfirmOpen(true);
 } }
 }

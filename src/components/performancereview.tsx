@@ -354,7 +354,7 @@ justify-center" >
     (chosen == '' || chosen == 'true') &&
     <button
 onClick={() => {
-     if (Object.keys(textMap).length == qs.length){
+     if (Object.keys(textMap).length == qs.length && chosen == ''){
      
  handlePassFail(userData2, 'pass')
 setChosen('true');
@@ -377,7 +377,7 @@ text-white gap-2 bg-green-500 font-poppins">
      (chosen == '' || chosen == 'false') &&
   <button
 onClick={() => {
-     if (Object.keys(textMap).length == qs.length){
+     if (Object.keys(textMap).length == qs.length && chosen == ''){
  handlePassFail(userData2, 'fail')
 setChosen('false')
 }
