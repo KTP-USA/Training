@@ -268,7 +268,9 @@ setResultData(data.data.filter((e: any) => e['type'] == 'Competency Test' && e['
    
 }
 async function checkIfExist(userdata: any){
-   let idk2= await supabase.from('testrecords').select().eq('module', userdata[0]['module']).eq('step',
+   let idk2= id != 'no id' ?  
+   await supabase.from('testrecords').select().eq('id', id) :
+   await supabase.from('testrecords').select().eq('module', userdata[0]['module']).eq('step',
     step == 'no step' ?
     userdata[0]['actualstep'] : step).eq('username', userdata[0]['username'])
  
@@ -278,7 +280,6 @@ async function checkIfExist(userdata: any){
 if (idk2.data?.length != 0 && idk2.data != null){
     let dat2 = idk2.data![0];
 let getdata = await supabase.from('savedtest').select().eq('controlnbr', dat2['id'] );
-
 
 let cmt = getdata.data!;
  let cmnt = cmt.find((e) => e['comment'] != null);
@@ -291,6 +292,7 @@ let cmt = getdata.data!;
  setTextMap(Object.assign({}, ...textymap));
 
 setIsComplete(true);
+
 } else {
     setIsComplete(false)
 }
