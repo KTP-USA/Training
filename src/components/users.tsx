@@ -707,7 +707,7 @@ userData.filter((entry) => (testType == 'Test Type' ? true : entry['Test Type'] 
    <div>
    <div className={`flex flex-row items-center`}>
  {   Object.values(entry).map((entrye: any, i) => {
-console.log('famioy', entry);
+
 if (i == 1  || i == 0 || i== 9||i==11 ||i==13 || i==14  || i==12 || i==15 || i==16 || i==17){
 
   return;

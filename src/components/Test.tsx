@@ -75,6 +75,7 @@ async function submitAnswer(){
 let trainname = userData1.data[0]['username'];
  
   let   testList:any = await supabase.from('savedtest').select().eq('controlnbr', code ?? 29108);
+
     let   stupidList:any = await supabase.from('users').select().eq('username', testList.data[0]['username']);
  testList = testList.data;
   let rawList = stupidList.data;
@@ -301,13 +302,16 @@ const timerRef = useRef<NodeJS.Timeout | null>(null);
 
 
   let   stupidList:any = await supabase.from('savedtest').select().eq('controlnbr', code ?? 29108);
- 
+let machFetch : any = await supabase.from('users').select().eq('username', stupidList.data[0]['username'])
  setRawList(stupidList.data);
   setTime(stupidList.data[0]['step'] == '30D' ? 1200 : stupidList.data[0]['step'] =='90D' ? 1800 : stupidList.data[0]['step'] =='180D' ? 2400 :
     stupidList.data[0]['step']=='1Y' ? 3600 : stupidList.data[0]['step'] == '2Y' ? 5400 : 7200
    )
-   let   myList:any = await supabase.from('questions').select().eq('module', stupidList.data[0]['module']).eq('step',stupidList.data[0]['step'])
-   
+   let   myList:any = await supabase.from('questions').select().eq('module', stupidList.data[0]['module']).eq('step',
+   ( stupidList.data[0]['step'] == '3Y' && (machFetch.data[0]['machine'] == 'LM84' || machFetch.data[0]['machine'] == 'LM801'))  ? `${stupidList.data[0]['step']}-${machFetch.data[0]['machine']}`
+   : stupidList.data[0]['step'] 
+  )
+
      let stupidList3: Array<any> = [];
     for (const entry of stupidList.data){
 stupidList3.push(entry['questionid'])
